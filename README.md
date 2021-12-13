@@ -24,7 +24,7 @@ REACT_APP_MORALIS_APPLICATION_ID = xxxxxxxxxxxx
 REACT_APP_MORALIS_SERVER_URL = https://xxxxxx.grandmoralis.com:2053/server
 ```
 
-🔎 Locate the MoralisDappProvider in `src/components/Admin/index.js` and paste the deployed marketplace smart contract address and ABI
+🔎 Locate the Project Settings in `src/components/Admin/index.js` and paste the deployed project smart contract address and chainId
 ```js
 export const ProjectAddress = "" // Project Contract
 export const ProjectChainId = "" // Project Chain Id
