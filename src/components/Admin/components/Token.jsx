@@ -10,7 +10,7 @@ export default function Token(props) {
     const [ wantsToMint, toggleMinter ] = useState(false)
     const [ amountToMint, setAmountToMint ] = useState(false)
     const [ addressToSend, setAddressToSend ] = useState(null)
-    const { web3 } = useMoralis()
+    const { web3, Moralis } = useMoralis()
     const { walletAddress } = useMoralisDapp() 
     const { decimals, loading, name, symbol, totalSupply, mint, addToMetamask} = useToken(web3, props.address, walletAddress)
 
@@ -26,7 +26,10 @@ export default function Token(props) {
                     } else {
                         mint(amountToMint, addressToSend)
                     }
-                }}>Mint Tokens</Button>
+                }}
+                >
+                Mint Tokens
+                </Button>
                 {
                     wantsToMint && 
                     <div>
@@ -50,7 +53,7 @@ export default function Token(props) {
             <div>
                 <p>Total Supply</p>
                 <Skeleton loading={loading} active style={{width: '50px', height: '20px'}}>
-                    <p>{totalSupply}</p>
+                    <p>{Moralis.Units.FromWei(totalSupply, decimals)}</p>
                 </Skeleton>
             </div>
             <div>
