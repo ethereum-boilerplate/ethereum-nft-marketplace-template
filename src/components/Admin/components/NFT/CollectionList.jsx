@@ -21,7 +21,6 @@ export default function CollectionList(props) {
                 chain: chainId,
                 address: props.address,
             }).then((res) => {
-                console.log(res.result)
                 setNFTs(res.result)
                 setLoading(false)
             }).catch(() => setLoading(false))
@@ -75,8 +74,8 @@ export default function CollectionList(props) {
             title: 'Actions',
             dataIndex: 'token_id',
             key: 'action',
-            render: (a,b) => {
-                console.log(b)
+            render: (record,item) => {
+                // TODO: Transfer function
                 return <Button>Transfer</Button>
             }
         }

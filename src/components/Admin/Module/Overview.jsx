@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react'
 import { useMoralisQuery, useMoralis } from 'react-moralis'
 import { getEllipsisTxt } from 'helpers/formatters'
 import { getModuleColor, getModuleType } from 'helpers/modules';
-import { NFTCollection } from './types/NFTCollection';
 import Minter from '../components/NFT/Minter';
 import Roles from './Permissions/Roles';
 import Marketplace from '../components/NFT/Marketplace';
@@ -12,6 +11,7 @@ import Bundle from '../components/NFT/Bundle';
 import CollectionList from '../components/NFT/CollectionList';
 import { getExplorer } from 'helpers/networks';
 import { useMoralisDapp } from 'providers/MoralisDappProvider/MoralisDappProvider';
+import { useCollection } from './contracts/NFT/useCollection';
 const { TabPane } = Tabs;
 
 export default function Overview() {
@@ -21,8 +21,7 @@ export default function Overview() {
     const { data } = useMoralisQuery("ModuleSync")
     const { web3 } = useMoralis()
     const { chainId } = useMoralisDapp()
-
-
+    const { getNextTokenIdByAddress } = useCollection(web3, null)
     const [selectedModule, setSelectedModule] = useState(null)
     const [showModal, setShowModal] = useState(false)
     const [isLoading, setLoading] = useState(false)
@@ -99,9 +98,9 @@ export default function Overview() {
     const onRowClick = (record) => {
         const isEmptyCollection = async () => {
             if(record.type === "NFT Collection") {
-                let contract = NFTCollection(web3, record.module)
-                const nextTokenId = await contract.methods.nextTokenId().call()
-                return { isEmpty: nextTokenId === "0", contract}
+                const next = await getNextTokenIdByAddress(record.module)
+
+                return { isEmpty: next.result === "0", contract: next.contract}
             }
         }
         isEmptyCollection().then((result) => {
@@ -154,7 +153,7 @@ export default function Overview() {
             okButtonProps={{ disabled: true }}
             cancelButtonProps={{ disabled: false }}
             >
-                <Tabs defaultActiveKey="1" onChange={(e) => console.log(e)}>
+                <Tabs defaultActiveKey="1">
                     <TabPane tab="Overview" key="overview">
                         { 
                             selectedModule && printModuleInModal(selectedModule?.type, selectedModule)

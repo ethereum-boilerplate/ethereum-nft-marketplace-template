@@ -48,7 +48,6 @@ export default function Adder() {
     const handleDeploy = async (e) => {
         setIsDeploying(true)
         delete e.submit
-        console.log(e)
         const json = new Moralis.File("metadata.json", {base64: btoa(JSON.stringify(e))})
         await json.saveIPFS()
         const forwarder = await getForwarder()

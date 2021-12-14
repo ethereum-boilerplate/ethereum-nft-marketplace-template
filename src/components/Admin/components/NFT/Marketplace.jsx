@@ -5,23 +5,13 @@ import { useMoralisDapp } from 'providers/MoralisDappProvider/MoralisDappProvide
 import React from 'react'
 import { getEllipsisTxt } from 'helpers/formatters'
 import { getExplorer } from 'helpers/networks'
-import { useEffect } from 'react/cjs/react.development'
 
 export default function Marketplace(props) {
     const { Moralis, web3, isAuthenticated, authenticate } = useMoralis()
     const { chainId, walletAddress } = useMoralisDapp()
     const { allListings, unlist, buy, loadingListings } = useMarketplace(web3, props.address)
 
-    useEffect(() => {
-        console.log(allListings)
-    }, [allListings])
-
     const columns = [
-        // {
-        //     title: 'ID',
-        //     dataIndex: 'listingId',
-        //     key: 'listingId'
-        // },
         {
             title: 'Image',
             dataIndex: 'metadata',
@@ -79,7 +69,6 @@ export default function Marketplace(props) {
             key: 'Action',
             render: (record, item) => {
                 if(!isAuthenticated) {
-                    console.log(item)
                     return (
                         <Button onClick={() => authenticate()}>
                             Connect Wallet

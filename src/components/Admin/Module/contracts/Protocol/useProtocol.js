@@ -33,7 +33,9 @@ export const useProtocol = (web3, isEnabled) => {
     }
 
     const checkForMarketplace = async () =>{
-        return (await protocolControl.methods.numOfModuleType(0).call()) > 0 ? true : false
+        const has = (await protocolControl.methods.numOfModuleType(0).call()) > 0 
+        setMarketplace(has)
+        return has
     }
 
     return {
