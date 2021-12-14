@@ -3,10 +3,9 @@ import { PercentageOutlined } from '@ant-design/icons';
 import { useState, useEffect } from "react"
 import { collectionBytecode, collectionAbi } from "./contracts/NFT/collection";
 import { marketplaceBytecode, marketplaceAbi } from "./contracts/NFT/marketplace";
-import { tokenBytecode, tokenAbi } from "./contracts/token";
-import { getEllipsisTxt } from "helpers/formatters";
+import { tokenBytecode, tokenAbi } from "./contracts/Token/token";
 import { ProjectAddress } from "..";
-import { useMoralis, useMoralisWeb3Api } from "react-moralis";
+import { useMoralis } from "react-moralis";
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
 import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/list"
 import { useProtocol } from "./contracts/Protocol/useProtocol";
@@ -15,12 +14,9 @@ export default function Adder() {
     const [selectedModule, setSelectedModule] = useState(null)
     const [isDeploying, setIsDeploying] = useState(false)
     const [deployConfirmed, setDeployConfirmed] = useState(false)
-    const { web3, Moralis } = useMoralis()
+    const { web3, isWeb3Enabled, Moralis } = useMoralis()
     const { walletAddress, chainId } = useMoralisDapp() 
-    
-    const { addModule, getForwarder } = useProtocol(web3)
-
-    const Web3Api = useMoralisWeb3Api()
+    const { addModule, getForwarder, hasMarketplace } = useProtocol(web3, isWeb3Enabled)
 
     const nftModules = [
         collectionModule,
@@ -105,10 +101,15 @@ export default function Adder() {
     // Input Validation - create and bind function on add module
     const printSelectedModule = () => {
         if(
-            selectedModule.key === "bundleModule" ||
-            selectedModule.key === "lazyMintModule" ||
-            selectedModule.key === "packModule"
-        ) return ( <p>Coming Soon</p> )
+            selectedModule.key === "bundleModule" || selectedModule.key === "lazyMintModule" || selectedModule.key === "packModule"
+        ) {
+            return ( <p>Coming Soon</p> )
+        }
+        if(hasMarketplace && selectedModule.key === "marketPlaceModule") {
+            return (
+                <p>Cannot deploy another marketplace</p>
+            )
+        }
         return (
             <div>
                 <p style={{fontWeight: '600'}}>{selectedModule.title}</p>

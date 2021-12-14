@@ -5,13 +5,16 @@ import { useEffect,useState } from "react"
 
 export const useProtocol = (web3, isEnabled) => {
     const [ hasMarketplace, setMarketplace ] = useState(false)
+    const [ isCheckingForMarketplace, setCheckingForMarketplace ] = useState(false)
     const protocolControl = new web3.eth.Contract(protocolAbi, ProjectAddress)
 
 
     useEffect(() => {
         if(web3 && isEnabled) {
+            setCheckingForMarketplace(true)
             checkForMarketplace().then((bool) => {
                 setMarketplace(bool)
+                setCheckingForMarketplace(false)
             })
         }
     }, [web3, isEnabled])
@@ -35,6 +38,7 @@ export const useProtocol = (web3, isEnabled) => {
     return {
         protocolControl,
         addModule,
+        isCheckingForMarketplace,
         hasMarketplace,
         setMarketplace,
         getForwarder,
