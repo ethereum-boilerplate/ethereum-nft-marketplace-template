@@ -5,6 +5,7 @@ import { useEffect,useState } from "react"
 
 export const useProtocol = (web3, isEnabled) => {
     const [ hasMarketplace, setMarketplace ] = useState(false)
+    const [ isAdmin, setAdmin ] = useState(false)
     const [ isCheckingForMarketplace, setCheckingForMarketplace ] = useState(false)
     const protocolControl = new web3.eth.Contract(protocolAbi, ProjectAddress)
 
@@ -20,11 +21,11 @@ export const useProtocol = (web3, isEnabled) => {
     }, [web3, isEnabled])
 
     const getForwarder = async () => {
-        return protocolControl.methods.getForwarder().call()
+        return await protocolControl.methods.getForwarder().call()
     }
 
-    const checkRole = async (address) => {
-        return await protocolControl.methods.hasRole(DEFAULT_ADMIN_ROLE, address).call()
+    const checkRole = (address) => {
+        protocolControl.methods.hasRole(DEFAULT_ADMIN_ROLE, address).call().then(setAdmin)
     }
 
     const addModule = async (moduleType, address, signer) => {    
@@ -37,6 +38,7 @@ export const useProtocol = (web3, isEnabled) => {
 
     return {
         protocolControl,
+        isAdmin,
         addModule,
         isCheckingForMarketplace,
         hasMarketplace,

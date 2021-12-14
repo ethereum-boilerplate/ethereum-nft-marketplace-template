@@ -11,14 +11,12 @@ import {
 import Account from "components/Account";
 import Chains from "components/Chains";
 import NFTBalance from "components/NFTBalance";
-import { hasRole } from "components/Admin/accesscontrol";
 import Dashboard from "components/Admin/Dashboard";
 import { Menu, Layout} from "antd";
 import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import Text from "antd/lib/typography/Text";
-import { DEFAULT_ADMIN_ROLE, ProjectAddress } from "components/Admin";
 import { useProtocol } from "components/Admin/Module/contracts/Protocol/useProtocol";
 import Marketplace from "components/Admin/components/NFT/Marketplace";
 const { Header, Footer } = Layout;
@@ -55,16 +53,10 @@ const styles = {
 };
 const App = ({ isServerInfo }) => {
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, web3, Moralis } = useMoralis();
-  const [isAdmin, setAdmin] = useState(false)
   const { walletAddress } = useMoralisDapp();
   const [ marketplaceAddress, setMarketplace ] = useState(null)
-  const { hasMarketplace } = useProtocol(web3, isWeb3Enabled)
+  const { hasMarketplace, checkRole, isAdmin } = useProtocol(web3, isWeb3Enabled)
   
-  const checkRole = async () => { 
-    const contract = new web3.eth.Contract(hasRole, ProjectAddress)
-    const admin = await contract.methods.hasRole(DEFAULT_ADMIN_ROLE, walletAddress).call()
-    setAdmin(admin)
-  }
   useEffect(() => {
     if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
       enableWeb3()
@@ -80,7 +72,7 @@ const App = ({ isServerInfo }) => {
 
   useEffect(() => {
     if(isWeb3Enabled && walletAddress) {
-      checkRole()
+      checkRole(walletAddress)
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isWeb3Enabled, walletAddress])
