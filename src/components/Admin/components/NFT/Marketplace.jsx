@@ -9,7 +9,7 @@ import { getExplorer } from 'helpers/networks'
 export default function Marketplace(props) {
     const { Moralis, web3, isAuthenticated, authenticate } = useMoralis()
     const { chainId, walletAddress } = useMoralisDapp()
-    const { allListings, unlist, buy, loadingListings } = useMarketplace(web3, props.address)
+    const { allListings, unlist, isUnlisting, buy, loadingListings, hasEnoughTokensToBuy, isBuying } = useMarketplace(web3, props.address)
 
     const columns = [
         {
@@ -33,14 +33,6 @@ export default function Marketplace(props) {
             key: 'desc',
             render: (record) => {
                 return `${record.description}`
-            }
-        },
-        {
-            title: 'Properties',
-            dataIndex: 'metadata',
-            key: 'prop',
-            render: (record) => {
-                return `${JSON.stringify(record.properties)}`
             }
         },
         {
@@ -78,13 +70,21 @@ export default function Marketplace(props) {
                 if(props.isAdmin) {
                     return (
                         <div style={{display: 'flex', gap: '0.25em'}}>
-                        <Button onClick={async () =>{ 
-                                await buy(item.listingId, "1", item.currency, item.pricePerToken,walletAddress)
+                        <Button 
+                        loading={isBuying}
+                        onClick={async () =>{ 
+                                if(!(await hasEnoughTokensToBuy(item.currency, item.pricePerToken, walletAddress))) {
+                                    alert(`Insufficient Funds. Buy ${Moralis.Units.FromWei(item.pricePerToken, item.decimals)} ${item.tokenInfo[0].symbol}`)
+                                    return
+                                }
+                                await buy(item.listingId, "1", item.currency, item.pricePerToken, walletAddress)
                             }}
                             >
                             Buy
                         </Button>
-                        <Button onClick={ async () => {
+                        <Button 
+                        loading={isUnlisting}
+                        onClick={ async () => {
                             await unlist(record, "1", walletAddress)
                         }}>
                             Unlist
@@ -92,22 +92,30 @@ export default function Marketplace(props) {
                         </div>
                     )
                 } else                 
-                if(item.seller === walletAddress) {
-                    return (
-                        <Button onClick={ async () => {
-                            await unlist(record, "1", walletAddress)
-                        }}>
-                            Unlist
-                        </Button>
-                    )
-                } else 
                 return (
-                    <Button onClick={async () =>{ 
+                <>
+                    <Button 
+                    loading={isBuying}
+                    onClick={ async () =>{ 
+                        if(!(await hasEnoughTokensToBuy(item.currency, item.pricePerToken, walletAddress))) {
+                            alert(`Insufficient Funds. Buy ${Moralis.Units.FromWei(item.pricePerToken, item.decimals)} ${item.tokenInfo[0].symbol}`)
+                            return
+                        }
                         await buy(item.listingId, "1", item.currency, item.pricePerToken,walletAddress)
                     }}
                     >
                     Buy
-                </Button>
+                    </Button>
+                    {item.seller === walletAddress &&
+                    <Button 
+                    loading={isUnlisting}
+                    onClick={ async () => {
+                            await unlist(record, "1", walletAddress)
+                    }}>
+                    Unlist
+                    </Button>
+                    }
+                </>
                 )
             
             }

@@ -5,6 +5,7 @@ export const useMarketplace = (web3, marketplaceAddress) => {
     const contract = new web3.eth.Contract(abi, marketplaceAddress)
     const [confirmed, setConfirmed] = useState(false)
     const [isListing, toggleIsListing] = useState(false)
+    const [isUnlisting, setIsUnlisting] = useState(false)
     const [isBuying, setIsBuying] = useState(false)
     const [error, setError] = useState(null)
     const [ isApproved, setApproved ] = useState(false)
@@ -63,6 +64,12 @@ export const useMarketplace = (web3, marketplaceAddress) => {
         return result
     }
 
+    const hasEnoughTokensToBuy = async (currency, amount, wallet) => {
+        const contract = await new web3.eth.Contract(erc20abi, currency)
+        console.log(wallet)
+        return (await contract.methods.balanceOf(wallet).call() >= amount)
+    }
+
     const listNFT = async (assetContract, tokenId, currency = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", pricePerToken = 0, quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
         if(quantity <= 0) {
             setError("Quantity cannot be 0 or lower")
@@ -104,8 +111,10 @@ export const useMarketplace = (web3, marketplaceAddress) => {
     }
 
     const unlist = async (listingId, amount, currentUser) => {
+        setIsUnlisting(true)
         await contract.methods.unlist(listingId, amount).send({from : currentUser})
         .on('receipt', (receipt) => {
+            setIsUnlisting(false)
             return receipt
         })
     }
@@ -117,6 +126,7 @@ export const useMarketplace = (web3, marketplaceAddress) => {
             const hasApprovedErc20Token = await erc20Token.methods.allowance(signer, marketplaceAddress).call()
         if(!hasApprovedErc20Token) {
             alert('Token To buy does not exist')
+            setIsBuying(false)
             return
         }
         if(hasApprovedErc20Token < pricePerToken) {
@@ -137,8 +147,10 @@ export const useMarketplace = (web3, marketplaceAddress) => {
         isListing,
         loadingListings,
         unlist,
+        isUnlisting,
         allListings,
         hasApproved,
+        hasEnoughTokensToBuy,
         isApproved,
         buy,
         isBuying,
@@ -230,6 +242,25 @@ export const erc20abi = [
             }
         ],
         "name": "allowance",
+        "outputs": [
+            {
+                "internalType": "uint256",
+                "name": "",
+                "type": "uint256"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "balanceOf",
         "outputs": [
             {
                 "internalType": "uint256",
