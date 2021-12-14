@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { ProjectAddress } from "components/Admin"
+import { DEFAULT_ADMIN_ROLE, ProjectAddress } from "components/Admin"
 import { useEffect,useState } from "react"
 
 
@@ -10,10 +10,8 @@ export const useProtocol = (web3, isEnabled) => {
 
     useEffect(() => {
         if(web3 && isEnabled) {
-            console.log('Checking for marketplace')
             checkForMarketplace().then((bool) => {
                 setMarketplace(bool)
-                console.log(bool)
             })
         }
     }, [web3, isEnabled])
@@ -23,7 +21,7 @@ export const useProtocol = (web3, isEnabled) => {
     }
 
     const checkRole = async (address) => {
-        return await protocolControl.methods.hasRole("0x0", address).call()
+        return await protocolControl.methods.hasRole(DEFAULT_ADMIN_ROLE, address).call()
     }
 
     const addModule = async (moduleType, address, signer) => {    

@@ -11,7 +11,7 @@ import {
 import Account from "components/Account";
 import Chains from "components/Chains";
 import NFTBalance from "components/NFTBalance";
-import { hasRole } from "contracts/accesscontrol";
+import { hasRole } from "components/Admin/accesscontrol";
 import Dashboard from "components/Admin/Dashboard";
 import { Menu, Layout} from "antd";
 import "antd/dist/antd.css";
