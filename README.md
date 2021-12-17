@@ -8,14 +8,15 @@ If this boilerplate helps you build Ethereum dapps faster - please star this pro
 
 📄 Clone or fork `ethereum-nft-marketplace-template`:
 ```sh
-git clone 
+git clone https://github.com/ethereum-boilerplate/ethereum-nft-marketplace-template.git
 ```
 💿 Install all dependencies:
 ```sh
-cd ethereum-nft-marketplace
+cd ethereum-nft-marketplace-template
 yarn install 
 ```
-✏ Rename `.env.example` to `.env` in the main folder and provide your `appId` and `serverUrl` from Moralis ([How to start Moralis Server](https://docs.moralis.io/moralis-server/getting-started/create-a-moralis-server)) 
+✏ Rename `.env.example` to `.env` in the main folder and provide your `appId` and `serverUrl` from Moralis Beta! 
+Create a server and select `beta-watch-contract-events-2f5de1e9` as a branch ([Beta Moralis](https://beta.moralis.io/)) 
 Example:
 ```jsx
 REACT_APP_MORALIS_APPLICATION_ID = xxxxxxxxxxxx
@@ -26,12 +27,12 @@ REACT_APP_MORALIS_SERVER_URL = https://xxxxxx.grandmoralis.com:2053/server
 ```js
 export const ProjectChainId = "" // Project Chain Id
 export const AdminAddress = "" // CHANGE TO YOUR ADDRESS
-export const MasterKey = "" // MORALIS MASTERKEY (WILL BE REMOVED)
+export const MasterKey = "" // MORALIS MASTERKEY located in server details (WILL BE REMOVED)
 export const StandardCurrency = "" // STANDARD CURRENCY FOR BUYING NFTS
 export const RegistryAddress = "" // Registry address
 ```
 
-🔃 The App automatically syncs All modules 
+🔃 The App automatically syncs all new added modules 
 
 
 🚴‍♂️ Run your App:
