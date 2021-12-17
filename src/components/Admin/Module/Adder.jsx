@@ -4,7 +4,6 @@ import { useState, useEffect } from "react"
 import { collectionBytecode, collectionAbi } from "./contracts/NFT/collection";
 import { marketplaceBytecode, marketplaceAbi } from "./contracts/NFT/marketplace";
 import { tokenBytecode, tokenAbi } from "./contracts/Token/token";
-import { ProjectAddress } from "..";
 import { useMoralis } from "react-moralis";
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
 import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/list"
@@ -16,7 +15,7 @@ export default function Adder() {
     const [deployConfirmed, setDeployConfirmed] = useState(false)
     const { web3, isWeb3Enabled, Moralis } = useMoralis()
     const { walletAddress, chainId } = useMoralisDapp() 
-    const { addModule, getForwarder, hasMarketplace } = useProtocol(web3, isWeb3Enabled)
+    const { addModule,  hasMarketplace, protocolAddress, forwarder } = useProtocol(web3, isWeb3Enabled)
 
     const nftModules = [
         collectionModule,
@@ -50,18 +49,18 @@ export default function Adder() {
         delete e.submit
         const json = new Moralis.File("metadata.json", {base64: btoa(JSON.stringify(e))})
         await json.saveIPFS()
-        const forwarder = await getForwarder()
         try {
         // Deploy NFT Collection Module
         if(selectedModule.key === "erc721module") {
             let code = '0x' + collectionBytecode;
             const contract = new web3.eth.Contract(collectionAbi)
-            const toDeploy = contract.deploy({data: code, arguments: [ProjectAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`, (e.royalty*100)]})
+            const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`, (e.royalty*100)]})
             await toDeploy.send({from: walletAddress})
             .on('receipt', async (receipt) => {
                 triggerWeb3Api(receipt)
                 await addModule(2, receipt.contractAddress, walletAddress)
                 setDeployConfirmed(true)
+                setIsDeploying(false)
             })
             
         }
@@ -70,11 +69,13 @@ export default function Adder() {
         if(selectedModule.key === "marketPlaceModule") {
             let code = '0x' + marketplaceBytecode;
             const contract = new web3.eth.Contract(marketplaceAbi)
-            const toDeploy = contract.deploy({data: code, arguments: [ProjectAddress, forwarder, `ipfs://${json.hash()}`, (e.marketFee*100)]})
+            console.log(protocolAddress, forwarder, `ipfs://${json.hash()}`, (e.marketFee*100))
+            const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, forwarder, `ipfs://${json.hash()}`, (e.marketFee*100)]})
             await toDeploy.send({from: walletAddress})
             .on('receipt', async (receipt) => {
                 await addModule(6, receipt.contractAddress, walletAddress)
                 setDeployConfirmed(true)
+                setIsDeploying(false)
             })
         }
 
@@ -82,18 +83,18 @@ export default function Adder() {
         if(selectedModule.key === "tokenModule") {
             let code = '0x' + tokenBytecode;
             const contract = new web3.eth.Contract(tokenAbi)
-            const toDeploy = contract.deploy({data: code, arguments: [ProjectAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`]})
+            const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`]})
             await toDeploy.send({from: walletAddress})
             .on('receipt', async (receipt) => {
                 await addModule(0, receipt.contractAddress, walletAddress)
                 setDeployConfirmed(true)
+                setIsDeploying(false)
             })
         }
         } catch (error) {
             console.log(error)
         }
 
-        setIsDeploying(false)
     }
 
     // TODO: 

@@ -1,8 +1,9 @@
 import Moralis from "moralis"
 const web3 = new Moralis.Web3()
 const types = [ "Token",  "NFT Bundle",  "NFT Collection",  "Dynamic NFT",  "Access NFT",  "Pack",  "NFT Marketplace", "Other" ]
+
 export const getModuleType = (id, length) => {
-    for(let i = 0; i < 8; i++) {
+    for(let i = 0; i < types.length; i++) {
         for(let j = 0; j < length; j++) {
             if(web3.utils.soliditySha3(j,i) === id) {
                 return types[i]

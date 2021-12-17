@@ -10,7 +10,6 @@ export const useCollection = (web3, address) => {
     const { Moralis } = useMoralis()
     const { chainId } = useMoralisDapp()
     const [ royaltyPercentage, setRoyaltyPercentage ] = useState(0)
-    const contract = new web3.eth.Contract(collectionAbi, (address ? address : ""))
 
     useEffect(() => {
         if(address && web3) {
@@ -29,6 +28,8 @@ export const useCollection = (web3, address) => {
     }
 
     const mint = async (to, uri, signer) => {
+        const contract = await new web3.eth.Contract(collectionAbi, (address ? address : ""))
+
         await contract.methods.mintNFT(to,uri).send({from: signer})
         .on('receipt', () => {
             triggerWeb3Api()
@@ -36,13 +37,14 @@ export const useCollection = (web3, address) => {
     }
 
     const getNextTokenId = async () => {
+        const contract = await new web3.eth.Contract(collectionAbi, (address ? address : ""))
         const result = await contract.methods.nextTokenId().call()
         setNextTokenId(result)
         return result
     }
 
     const getNextTokenIdByAddress = async (custom) => {
-        const contract = new web3.eth.Contract(collectionAbi, custom)
+        const contract = await new web3.eth.Contract(collectionAbi, custom)
         const result = await contract.methods.nextTokenId().call()
         setNextTokenIdByAddress(result)
         return {
@@ -52,10 +54,14 @@ export const useCollection = (web3, address) => {
     }
 
     const getRoyaltyPercentage = async () => {
+        const contract = await new web3.eth.Contract(collectionAbi, (address ? address : ""))
+
         await contract.methods.royaltyBps().call().then(setRoyaltyPercentage)
     }
 
     const getUri = async () => {
+        const contract = await new web3.eth.Contract(collectionAbi, (address ? address : ""))
+
         return await contract.methods._contractURI().call()
     }
 

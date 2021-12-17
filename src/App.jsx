@@ -12,6 +12,7 @@ import Account from "components/Account";
 import Chains from "components/Chains";
 import NFTBalance from "components/NFTBalance";
 import Dashboard from "components/Admin/Dashboard";
+import UserDashboard from "components/User/UserDashboard";
 import { Menu, Layout} from "antd";
 import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
@@ -19,6 +20,8 @@ import "./style.css";
 import Text from "antd/lib/typography/Text";
 import { useProtocol } from "components/Admin/Module/contracts/Protocol/useProtocol";
 import Marketplace from "components/Admin/components/NFT/Marketplace";
+import { AdminAddress } from "components/Admin";
+import { useRegistry } from "components/Admin/Module/contracts/Registry/useRegistry";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -52,10 +55,11 @@ const styles = {
   },
 };
 const App = ({ isServerInfo }) => {
-  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, web3, Moralis } = useMoralis();
+  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, web3 } = useMoralis();
   const { walletAddress } = useMoralisDapp();
-  const [ marketplaceAddress, setMarketplace ] = useState(null)
-  const { hasMarketplace, checkRole, isAdmin } = useProtocol(web3, isWeb3Enabled)
+  const [ canSetProject, setPermission ] = useState(false)
+  const { hasProject } = useRegistry(web3,isWeb3Enabled)
+  const { hasMarketplace, marketplaceAddress,checkRole, isAdmin, protocolAddress } = useProtocol(web3, isWeb3Enabled)
   
   useEffect(() => {
     if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
@@ -65,32 +69,21 @@ const App = ({ isServerInfo }) => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
+
   useEffect( () => {
-    enableWeb3()
+      enableWeb3()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   },[])
 
   useEffect(() => {
-    if(isWeb3Enabled && walletAddress) {
+    if(isWeb3Enabled && walletAddress && protocolAddress && protocolAddress !== "0x0000000000000000000000000000000000000000") {
       checkRole(walletAddress)
-    }
+      if(walletAddress.toUpperCase() === AdminAddress.toUpperCase()) {
+        setPermission(true)
+      }
+    } 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWeb3Enabled, walletAddress])
-
-  useEffect(() => {
-    if(hasMarketplace) {
-      const InstalledModules = Moralis.Object.extend("ModuleSync");
-      const query = new Moralis.Query(InstalledModules);
-      query.equalTo('moduleId', "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8")
-      query.first().then((res) => {
-        setMarketplace(res.get('module'))
-      })
-    }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hasMarketplace])
-
-
-
+  }, [isWeb3Enabled, walletAddress, protocolAddress])
 
   return (
     <Layout style={{ height: "100vh", overflow: "auto" }}>
@@ -108,15 +101,18 @@ const App = ({ isServerInfo }) => {
               marginLeft: "50px",
               width: "100%",
             }}
-            defaultSelectedKeys={!isAdmin ? ["nftMarket"] : ["admin"]}
+            defaultSelectedKeys={!canSetProject ? ["nftMarket"] : ["admin"]}
           >
-            {(isAdmin && isAuthenticated) && <Menu.Item key="admin">
+            {(canSetProject && isAuthenticated) && <Menu.Item key="admin">
               <NavLink to="/admin">📑 Admin</NavLink>
             </Menu.Item>
             }
             <Menu.Item key="nftMarket">
               <NavLink to="/NFTMarketPlace">🛒 Explore Market</NavLink>
             </Menu.Item>
+            {hasMarketplace && <Menu.Item key="user">
+              <NavLink to="/user">⚙ Account</NavLink>
+            </Menu.Item>}
             <Menu.Item key="nft">
               <NavLink to="/nftBalance">🖼 Your NFTs</NavLink>
             </Menu.Item>
@@ -129,7 +125,7 @@ const App = ({ isServerInfo }) => {
         </Header>
         <div style={styles.content}>
           <Switch>
-            {isAdmin && 
+            {walletAddress && walletAddress.toUpperCase() === AdminAddress.toUpperCase() &&
             <Route path="/admin">
               <Dashboard />
             </Route>
@@ -137,17 +133,22 @@ const App = ({ isServerInfo }) => {
             <Route path="/nftBalance">
               <NFTBalance marketplace={marketplaceAddress}/>
             </Route>
+            {hasMarketplace &&
+              <Route path="/user">
+                <UserDashboard address={walletAddress} web3={web3} marketplace={marketplaceAddress}/>
+              </Route>
+            }
             <Route path="/NFTMarketPlace">
             { hasMarketplace && 
               <Marketplace address={marketplaceAddress} isAdmin={isAdmin} />
             }
-            {!hasMarketplace && isAdmin &&
+            {!hasMarketplace && canSetProject &&
               <div>
                 <p style={{fontWeight: 600}}>Login and deploy your marketplace</p>
               </div>            
             }
             {
-              !isAdmin && !hasMarketplace &&
+              !canSetProject && !hasMarketplace &&
               <div>
                 <p style={{fontWeight: 600}}>Marketplace coming soon ...</p>
                 <p style={{fontWeight: 200}}> If you are the owner switch your account in metamask</p>
@@ -156,7 +157,7 @@ const App = ({ isServerInfo }) => {
             </Route>
           </Switch>
           {(hasMarketplace) && <Redirect to="/NFTMarketPlace" />}
-          {(isAdmin && isAuthenticated) && <Redirect to="/admin"/>}
+          {(canSetProject && isAuthenticated) && <Redirect to="/admin"/>}
         </div>
       </Router>}
       <Footer style={{ textAlign: "center" }}>

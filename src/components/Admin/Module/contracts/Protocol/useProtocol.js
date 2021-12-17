@@ -1,48 +1,108 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { DEFAULT_ADMIN_ROLE, ProjectAddress } from "components/Admin"
+import { DEFAULT_ADMIN_ROLE } from "components/Admin"
 import { useEffect,useState } from "react"
+import { useMoralis } from "react-moralis"
+import { useRegistry } from "../Registry/useRegistry"
 
 
 export const useProtocol = (web3, isEnabled) => {
     const [ hasMarketplace, setMarketplace ] = useState(false)
     const [ isAdmin, setAdmin ] = useState(false)
+    const [ marketplaceAddress, setMarketplaceAddress ] = useState(false)
+    const [ isWithdrawing, setWithdrawing ] = useState(false)
+    const [ approvedRegistry ] = useState(false)
+    const[ forwarder, setForwarder] = useState(false)
     const [ isCheckingForMarketplace, setCheckingForMarketplace ] = useState(false)
-    const protocolControl = new web3.eth.Contract(protocolAbi, ProjectAddress)
-
+    const { isInitialized} = useMoralis()
+    const { protocolAddress } = useRegistry(web3, isEnabled)
+    // const { data } = useMoralisQuery("NoCode")
 
     useEffect(() => {
-        if(web3 && isEnabled) {
+        if(web3 && isEnabled && isInitialized && protocolAddress) {
             setCheckingForMarketplace(true)
-            checkForMarketplace().then((bool) => {
-                setMarketplace(bool)
-                setCheckingForMarketplace(false)
-            })
+            getModuleById("0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8")
+            .then(() => setCheckingForMarketplace(false))
+            
         }
-    }, [web3, isEnabled])
+    }, [web3, isEnabled, isInitialized, protocolAddress])
+
+    useEffect(() => {
+        if(approvedRegistry) {
+            withdrawFunds()
+        }
+    }, [approvedRegistry])
+
+    useEffect(() => {
+        console.log('tesing',protocolAbi,protocolAddress)
+        if(protocolAddress && protocolAbi) {
+            getForwarder()
+        }
+    }, [protocolAbi,protocolAddress])
 
     const getForwarder = async () => {
-        return await protocolControl.methods.getForwarder().call()
+        const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
+        await protocolControl.methods.getForwarder().call().then(setForwarder)
     }
 
-    const checkRole = (address) => {
-        protocolControl.methods.hasRole(DEFAULT_ADMIN_ROLE, address).call().then(setAdmin)
+    // const getModules = async () => {
+        
+    // }
+
+    const getModuleById = async (moduleId) => {
+        const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
+        await protocolControl.methods.modules(moduleId).call().then((address) => {
+            if(address === "0x0000000000000000000000000000000000000000") return
+            setMarketplaceAddress(address)
+            setMarketplace(true)
+            console.log('has marketplace at', address)
+        })
+        return await protocolControl.methods.modules(moduleId).call()
+    }
+
+    const checkRole = async (address) => {
+        const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
+        await protocolControl.methods.hasRole(DEFAULT_ADMIN_ROLE, address).call().then(setAdmin)
     }
 
     const addModule = async (moduleType, address, signer) => {    
+        const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
         await protocolControl.methods.addModule(address, moduleType).send({from: signer})
     }
 
-    const checkForMarketplace = async () =>{
-        const has = (await protocolControl.methods.numOfModuleType(0).call()) > 0 
-        setMarketplace(has)
-        return has
+    const withdrawFunds = async (to, currency, amount, signer) => {
+        const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
+        setWithdrawing(true)
+        console.log(amount)
+        const registry = await protocolControl.methods.registry().call()
+        const registryContract = await new web3.eth.Contract([{
+            "inputs": [],
+            "name": "treasury",
+            "outputs": [
+                {
+                    "internalType": "address",
+                    "name": "",
+                    "type": "address"
+                }
+            ],
+            "stateMutability": "view",
+            "type": "function"
+        }], registry)
+        const treasury = await registryContract.methods.treasury().call()
+        console.log(treasury)
+        await protocolControl.methods.withdrawFunds(to, currency).send({from: signer})
+
     }
 
     return {
-        protocolControl,
+        protocolAddress,
         isAdmin,
+        forwarder,
         addModule,
+        getModuleById,
+        isWithdrawing,
+        withdrawFunds,
         isCheckingForMarketplace,
+        marketplaceAddress,
         hasMarketplace,
         setMarketplace,
         getForwarder,

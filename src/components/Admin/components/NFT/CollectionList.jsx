@@ -1,13 +1,10 @@
-import { useMoralis, useMoralisWeb3Api } from 'react-moralis'
-import { useCollection } from 'components/Admin/Module/contracts/NFT/useCollection'
+import { useMoralisWeb3Api } from 'react-moralis'
 import { Button, Image, Table } from 'antd'
 import { useMoralisDapp } from 'providers/MoralisDappProvider/MoralisDappProvider'
 import { useEffect, useState } from 'react'
 // import { getEllipsisTxt } from 'helpers/formatters'
-// import { ProjectAddress } from 'components/Admin'
 export default function CollectionList(props) {
 
-    const { web3 } = useMoralis()
     const { chainId } = useMoralisDapp()
     const Web3Api = useMoralisWeb3Api()
     const [ allNFTs, setNFTs] = useState([])

@@ -1,16 +1,19 @@
+import { StandardCurrency } from "components/Admin"
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider"
 import { useState, useEffect } from "react"
 import { useMoralisWeb3Api } from "react-moralis"
-export const useMarketplace = (web3, marketplaceAddress) => {
-    const contract = new web3.eth.Contract(abi, marketplaceAddress)
+export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
     const [confirmed, setConfirmed] = useState(false)
     const [isListing, toggleIsListing] = useState(false)
     const [isUnlisting, setIsUnlisting] = useState(false)
     const [isBuying, setIsBuying] = useState(false)
+    const [ currentUsersListings, setUsersListings ] = useState([])
     const [error, setError] = useState(null)
     const [ isApproved, setApproved ] = useState(false)
     const [ itemsCount, incrementItemsCount ] = useState(0)
     const [ allListings, setAllListings] = useState([])
+    const [ isUpdating, setUpdating ] = useState(false)
+    const [ isUpdated, setUpdated ] = useState(false)
     const [ loadingListings, setLoadingListings] = useState(true)
     const { token } = useMoralisWeb3Api()
     const { chainId } = useMoralisDapp()
@@ -18,11 +21,15 @@ export const useMarketplace = (web3, marketplaceAddress) => {
     useEffect(() => {
         if(web3 && marketplaceAddress) {
             getAllListings()
+            if(currentUser) {
+                getListingsByUser(currentUser)
+            }
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [web3, marketplaceAddress])
+    }, [web3, marketplaceAddress, currentUser])
 
     const getAllListings = async () => {
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
         const listings = await contract.methods.getAllListings().call()
         await listings.forEach(async (item) => {
             // If Quantity is 0 then item is not on sale 
@@ -40,10 +47,46 @@ export const useMarketplace = (web3, marketplaceAddress) => {
             })
             setAllListings( prev => [...prev, {...item, key: item.listingId, metadata, tokenInfo: currency}])
         })
+
+        setLoadingListings(false)
+    }
+    
+    const getListingsByUser = async (user) => {
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
+        const listings = await contract.methods.getListingsBySeller(user).call()
+        await listings.forEach(async (item) => {
+            let buyer = "N/A"
+            if(item.quantity === "0") {
+                buyer = "Need to Sync Event"
+            }
+            const call = await token.getTokenIdMetadata({
+                address: item.assetContract,
+                chain: chainId,
+                token_id: item.tokenId
+            }).catch(() => console.log(item))
+            let metadata
+            if(!call?.metadata) {
+                metadata = {}
+                return
+            } else {
+                metadata = JSON.parse(call.metadata)
+            }
+            const currency = await token.getTokenMetadata({
+                addresses: [item.currency],
+                chain: chainId,
+            })
+            setUsersListings( prev => [...prev, {...item, key: item.listingId, metadata, tokenInfo: currency, buyer}])
+        })
         setLoadingListings(false)
     }
 
+    const getListingsByContract = async (address) => {
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
+        return await contract.methods.getListingsByContract(address).call()
+    }
+
     const getContractURI = async () => {
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
         const uri = await contract.methods._contractURI().call()
         return uri
     }
@@ -65,12 +108,13 @@ export const useMarketplace = (web3, marketplaceAddress) => {
     }
 
     const hasEnoughTokensToBuy = async (currency, amount, wallet) => {
+        if(currency === "0x0000000000000000000000000000000000000000") return true
         const contract = await new web3.eth.Contract(erc20abi, currency)
         console.log(wallet)
         return (await contract.methods.balanceOf(wallet).call() >= amount)
     }
 
-    const listNFT = async (assetContract, tokenId, currency = "0x0d500b1d8e8ef31e21c99d1db9a6444d3adf1270", pricePerToken = 0, quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
+    const listNFT = async (assetContract, tokenId, currency = StandardCurrency, pricePerToken = 0, quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
         if(quantity <= 0) {
             setError("Quantity cannot be 0 or lower")
             throw Error("Quantity cannot be 0 or lower")
@@ -81,7 +125,7 @@ export const useMarketplace = (web3, marketplaceAddress) => {
         }
         
         if(tokensPerBuyer === 0) tokensPerBuyer = quantity
-
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
         const run = async () => {
             if(!(await hasApproved(assetContract, signer))) {
                 await approve(assetContract,signer)
@@ -112,6 +156,7 @@ export const useMarketplace = (web3, marketplaceAddress) => {
 
     const unlist = async (listingId, amount, currentUser) => {
         setIsUnlisting(true)
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
         await contract.methods.unlist(listingId, amount).send({from : currentUser})
         .on('receipt', (receipt) => {
             setIsUnlisting(false)
@@ -121,29 +166,49 @@ export const useMarketplace = (web3, marketplaceAddress) => {
 
     const buy = async (listingId, quantity, currency, pricePerToken, signer) => {
         setIsBuying(true)
-        const erc20Token = new web3.eth.Contract(erc20abi, currency)
+        console.log(pricePerToken)
         try {
+            if(currency !== "0x0000000000000000000000000000000000000000") {
+            const erc20Token = await new web3.eth.Contract(erc20abi, currency)
             const hasApprovedErc20Token = await erc20Token.methods.allowance(signer, marketplaceAddress).call()
-        if(!hasApprovedErc20Token) {
-            alert('Token To buy does not exist')
-            setIsBuying(false)
-            return
-        }
-        if(hasApprovedErc20Token < pricePerToken) {
-            await erc20Token.methods.approve(marketplaceAddress, pricePerToken).send({from: signer})
-        }
-        await contract.methods.buy(listingId, quantity).send({from: signer})
+            if(!hasApprovedErc20Token) {
+                alert('Token To buy does not exist')
+                setIsBuying(false)
+                return
+            }
+            if(hasApprovedErc20Token < pricePerToken) {
+                await erc20Token.methods.approve(marketplaceAddress, pricePerToken).send({from: signer})
+            }
+            }
+            const contract = await new web3.eth.Contract(abi, marketplaceAddress)
+            await contract.methods.buy(listingId, quantity).send({from: signer})
+            .on('receipt', () => {
+                setIsBuying(false)
+            })
+            } catch (error) {
+                setIsBuying(false)
+            }
+    }
+
+    const updateListingParams = async (listingId,ppt,currency,tpb = 0,sus = 0,sue = 0,signer) => {
+        setUpdating(true)
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
+        await contract.methods.updateListingParams(listingId,ppt,currency,tpb,sus,sue).send({from: signer})
         .on('receipt', () => {
-            setIsBuying(false)
+            setUpdating(false)
+            setUpdated(true)
         })
-        } catch (error) {
-            setIsBuying(false)
-        }
     }
 
     return {
         listNFT,
+        updateListingParams,
+        isUpdating,
+        isUpdated,
         getAllListings,
+        getListingsByUser,
+        currentUsersListings,
+        getListingsByContract,
         isListing,
         loadingListings,
         unlist,

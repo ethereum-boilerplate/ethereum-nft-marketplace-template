@@ -30,7 +30,7 @@ export default function Overview() {
         if(data && data.length > 0) {
             setLoading(true)
             data.forEach(async (mod) => {
-                let contract = new web3.eth.Contract([
+                let contract = await new web3.eth.Contract([
                     {
                         "inputs": [],
                         "name": "_contractURI",

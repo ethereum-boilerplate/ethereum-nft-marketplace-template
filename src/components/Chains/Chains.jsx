@@ -5,7 +5,7 @@ import { Button } from "antd";
 import {  } from "@ant-design/icons";
 import { AvaxLogo, PolygonLogo, BSCLogo, ETHLogo } from "./Logos";
 import { ProjectChainId } from "components/Admin";
-import { getChainNameById, getNativeByChain } from "helpers/networks";
+import { getChainNameById } from "helpers/networks";
 
 
 const styles = {
