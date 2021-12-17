@@ -31,7 +31,7 @@ export const StandardCurrency = "" // STANDARD CURRENCY FOR BUYING NFTS
 export const RegistryAddress = "" // Registry address
 ```
 
-🔃 Sync the `ModuleUpdated` event from project contract with your Moralis Server, calling tableName `ModuleSync`
+🔃 The App automatically syncs All modules 
 
 
 🚴‍♂️ Run your App:
