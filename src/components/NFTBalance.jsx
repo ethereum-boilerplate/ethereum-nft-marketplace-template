@@ -12,9 +12,8 @@ const styles = {
     display: "flex",
     flexWrap: "wrap",
     WebkitBoxPack: "start",
-    justifyContent: "flex-start",
-    margin: "0 auto",
-    maxWidth: "1000px",
+    justifyContent: "center",
+    width: "900px",
     gap: "10px",
   },
 };
@@ -22,7 +21,7 @@ const styles = {
 function NFTBalance({ marketplace }) {
   const { NFTBalance } = useNFTBalance();
   const { chainId, walletAddress } = useMoralisDapp();
-  const { Moralis, web3 } = useMoralis();
+  const { Moralis, web3, isAuthenticated } = useMoralis();
   const [visible, setVisibility] = useState(false);
   const [nftToSend] = useState(null);
   const [tokenToBuy, setTokenToBuy] = useState("0x00000000000000000000000000");
@@ -57,7 +56,7 @@ function NFTBalance({ marketplace }) {
             />
             )
           })}
-          {NFTBalance && NFTBalance.length === 0 &&
+          {((NFTBalance && NFTBalance.length === 0) || (!isAuthenticated)) &&
             <p style={{fontWeight: 600}}>You don't own any NFTs. Buy some from the Market</p>
           }
       </div>

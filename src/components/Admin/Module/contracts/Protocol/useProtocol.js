@@ -15,7 +15,6 @@ export const useProtocol = (web3, isEnabled) => {
     const [ isCheckingForMarketplace, setCheckingForMarketplace ] = useState(false)
     const { isInitialized} = useMoralis()
     const { protocolAddress } = useRegistry(web3, isEnabled)
-    // const { data } = useMoralisQuery("NoCode")
 
     useEffect(() => {
         if(web3 && isEnabled && isInitialized && protocolAddress) {
@@ -48,7 +47,7 @@ export const useProtocol = (web3, isEnabled) => {
         await protocolControl.methods.modules(moduleId).call().then((address) => {
             if(address === "0x0000000000000000000000000000000000000000") {
                 console.log('has No Marketplace yet')
-                
+
             }
             setMarketplaceAddress(address)
             setMarketplace(true)

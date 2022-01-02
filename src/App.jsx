@@ -101,20 +101,19 @@ const App = ({ isServerInfo }) => {
               marginLeft: "50px",
               width: "100%",
             }}
-            defaultSelectedKeys={!canSetProject ? ["nftMarket"] : ["admin"]}
           >
             {(canSetProject && isAuthenticated) && <Menu.Item key="admin">
               <NavLink to="/admin">📑 Admin</NavLink>
             </Menu.Item>
             }
-            <Menu.Item key="nftMarket">
+            { hasMarketplace && <Menu.Item key="nftMarket">
               <NavLink to="/NFTMarketPlace">🛒 Explore Market</NavLink>
-            </Menu.Item>
+            </Menu.Item>}
             {hasMarketplace && <Menu.Item key="user">
               <NavLink to="/user">⚙ Account</NavLink>
             </Menu.Item>}
             <Menu.Item key="nft">
-              <NavLink to="/nftBalance">🖼 Your NFTs</NavLink>
+              <NavLink to="/NFTBalance">🖼 Your NFTs</NavLink>
             </Menu.Item>
           </Menu>
           <div style={styles.headerRight}>
@@ -130,7 +129,7 @@ const App = ({ isServerInfo }) => {
               <Dashboard />
             </Route>
             }
-            <Route path="/nftBalance">
+            <Route path="/NFTBalance">
               <NFTBalance marketplace={marketplaceAddress}/>
             </Route>
             {hasMarketplace &&
@@ -156,10 +155,11 @@ const App = ({ isServerInfo }) => {
             }
             </Route>
           </Switch>
-          {(hasMarketplace) && <Redirect to="/NFTMarketPlace" />}
+          {(isAuthenticated) && <Redirect to="/NFTBalance" />}
         </div>
       </Router>}
       <Footer style={{ textAlign: "center" }}>
+      {!isAuthenticated && <p style={{marginBottom: '1em', fontWeight: 600, fontSize: 18}}>Connect your wallet</p>}
         <Text style={{ display: "block" }}>
           ⭐️ Please star this{" "}
           <a
