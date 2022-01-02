@@ -58,12 +58,13 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
             let buyer = "N/A"
             if(item.quantity === "0") {
                 buyer = "Need to Sync Event"
+                return
             }
             const call = await token.getTokenIdMetadata({
                 address: item.assetContract,
                 chain: chainId,
                 token_id: item.tokenId
-            }).catch(() => console.log(item))
+            }).catch(() => {return})
             let metadata
             if(!call?.metadata) {
                 metadata = {}

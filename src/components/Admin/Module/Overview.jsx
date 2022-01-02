@@ -18,8 +18,9 @@ const { TabPane } = Tabs;
 export default function Overview() {
 
     const [modules, setModules] = useState([])
+    const [limit] = useState(100)
     // Get installed modules
-    const { data } = useMoralisQuery("ModuleSync")
+    const { data } = useMoralisQuery("ModuleSync", query => query.limit(limit),[limit], { live: true})
     const { web3 } = useMoralis()
     const { chainId } = useMoralisDapp()
     const { getNextTokenIdByAddress } = useCollection(web3, null)
@@ -27,9 +28,11 @@ export default function Overview() {
     const [showModal, setShowModal] = useState(false)
     const [isLoading, setLoading] = useState(false)
 
+
     useEffect(() => {
         if(data && data.length > 0) {
             setLoading(true)
+            setModules([])
             data.forEach(async (mod) => {
                 let contract = new web3.eth.Contract([
                     {

@@ -161,7 +161,8 @@ export default function Adder() {
                         return (
                             <div
                             key={module.title}
-                                onClick={()=> setSelectedModule(module)}
+                            onClick={()=> setSelectedModule(module)}
+                            style={{padding: '0.5em'}}
                             >
                                 <CardModule module={module.title} />
                             </div>
@@ -176,6 +177,7 @@ export default function Adder() {
                                 <div
                                 key={module.title}
                                 onClick={()=> setSelectedModule(module)}
+                                style={{padding: '0.5em'}}
                                 >
                                     <CardModule key={module.title} module={module.title}/>
                                 </div>

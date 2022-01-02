@@ -9,7 +9,7 @@ export default function UserDashboard({ web3, address, marketplace }) {
         
     return (
         <div>
-            <p>Your Listings {getEllipsisTxt(address)}</p>
+            <p style={{fontWeight: 600}}>Your Listings {getEllipsisTxt(address)}</p>
             <Marketplace address={marketplace} listings={currentUsersListings} ownListings={true} />
 
         </div>
