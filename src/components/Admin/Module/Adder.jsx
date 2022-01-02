@@ -1,9 +1,10 @@
-import { Tooltip, Input, Form, Button, Alert } from "antd"
+import { Input, Form, Button, Alert } from "antd"
 import { PercentageOutlined } from '@ant-design/icons';
 import { useState, useEffect } from "react"
 import { collectionBytecode, collectionAbi } from "./contracts/NFT/collection";
 import { marketplaceBytecode, marketplaceAbi } from "./contracts/NFT/marketplace";
 import { tokenBytecode, tokenAbi } from "./contracts/Token/token";
+import { CardModule } from "web3uikit"
 import { useMoralis } from "react-moralis";
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
 import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/list"
@@ -154,36 +155,30 @@ export default function Adder() {
     return (
         <div style={wrapper}>
             <div>
-                <p>NFT Modules</p>
-                <div style={{display: 'flex', width: '400px'}}>
+                <p style={{fontWeight: 600}}>NFT Modules</p>
+                <div style={{display: 'flex'}}>
                     {nftModules.map((module) => {
                         return (
-                            <Tooltip key={module.key} title={module.tooltipText}>
-                                <div style={selectedModule && selectedModule.key === module.key ? modSelected : mod} onClick={() => setSelectedModule(module)}>
-                                <img style={{alignSelf: 'center'}} src={module.imageUrl} alt="" width="30" height="30" />
-                                <div>
-                                    <p>{module.title}</p>
-                                    <span style={span}> {module.description}</span>
-                                </div>
+                            <div
+                            key={module.title}
+                                onClick={()=> setSelectedModule(module)}
+                            >
+                                <CardModule module={module.title} />
                             </div>
-                            </Tooltip>
                         )
                     })}
                 </div>
-                <p>Other Modules</p>
-                <div style={{display: 'flex', width: '400px'}}>
+                <p style={{fontWeight: 600}}>Other Modules</p>
+                <div style={{display: 'flex'}}>
                     
                     {otherModules.map((module) => {
                         return (
-                            <Tooltip key={module.key} title={module.tooltipText}>
-                                <div style={selectedModule && selectedModule.key === module.key ? modSelected : mod} onClick={() => setSelectedModule(module)}>
-                                <img style={{alignSelf: 'center'}} src={module.imageUrl} alt="" width="30" height="30" />
-                                <div>
-                                    <p>{module.title}</p>
-                                    <span style={span}> {module.desc}</span>
+                                <div
+                                key={module.title}
+                                onClick={()=> setSelectedModule(module)}
+                                >
+                                    <CardModule key={module.title} module={module.title}/>
                                 </div>
-                                </div>
-                            </Tooltip>
                         )
                     })}
                 </div>
@@ -201,20 +196,6 @@ export default function Adder() {
     )
 }
 
-const mod = {
-    display: 'flex',
-    alignItems: 'center',
-    width: '133px',
-    border: '1px solid #EFEFEF',
-    borderRadius: '10px',
-    padding: '0.5em',
-    backgroundColor: 'white'
-}
-
-const modSelected = {
-    ...mod,
-    border: '1px solid blue',
-}
 
 const wrapper = {
     display: 'grid',

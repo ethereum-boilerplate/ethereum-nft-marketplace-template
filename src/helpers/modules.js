@@ -22,16 +22,16 @@ export const getFirstMarketplace = (id,length) => {
 
 export const getModuleColor = (type)  =>{
     if(type === "Token") {
-        return "geekblue"
+        return "green"
     }
     if(type === "NFT Bundle") {
-        return "cyan"
+        return "yellow"
     }
     if(type === "NFT Marketplace") {
-        return "gold"
+        return "red"
     }
     if(type === "NFT Collection") {
-        return "lime"
+        return "purple"
     }
 }
 

@@ -94,10 +94,6 @@ export default function Dashboard() {
             deployProtocol(`ipfs://${json.hash()}`, walletAddress)
         }
 
-        const hasDeployedAlready = () => {
-            return "0x0000000000000000000000000000000000000000" !== protocolAddress && protocolAddress
-        }
-
     return (
         <Tabs defaultActiveKey={!hasProject ? "0" : "1"}>
             {!hasProject && <TabPane tab="Project" key="0">

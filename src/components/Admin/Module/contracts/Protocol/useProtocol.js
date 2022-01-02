@@ -33,7 +33,6 @@ export const useProtocol = (web3, isEnabled) => {
     }, [approvedRegistry])
 
     useEffect(() => {
-        console.log('tesing',protocolAbi,protocolAddress)
         if(protocolAddress && protocolAbi) {
             getForwarder()
         }
@@ -44,14 +43,13 @@ export const useProtocol = (web3, isEnabled) => {
         await protocolControl.methods.getForwarder().call().then(setForwarder)
     }
 
-    // const getModules = async () => {
-        
-    // }
-
     const getModuleById = async (moduleId) => {
         const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
         await protocolControl.methods.modules(moduleId).call().then((address) => {
-            if(address === "0x0000000000000000000000000000000000000000") return
+            if(address === "0x0000000000000000000000000000000000000000") {
+                console.log('has No Marketplace yet')
+                
+            }
             setMarketplaceAddress(address)
             setMarketplace(true)
             console.log('has marketplace at', address)

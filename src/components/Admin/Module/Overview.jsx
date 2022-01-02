@@ -1,8 +1,9 @@
-import { Modal, Table, Tabs, Tag, Tooltip } from 'antd'
+import { Modal, Table, Tabs, Tooltip } from 'antd'
 import { useState, useEffect } from 'react'
 import { useMoralisQuery, useMoralis } from 'react-moralis'
 import { getEllipsisTxt } from 'helpers/formatters'
 import { getModuleColor, getModuleType } from 'helpers/modules';
+import { Tag } from "web3uikit"
 import Minter from '../components/NFT/Minter';
 import Roles from './Permissions/Roles';
 import Marketplace from '../components/NFT/Marketplace';
@@ -30,7 +31,7 @@ export default function Overview() {
         if(data && data.length > 0) {
             setLoading(true)
             data.forEach(async (mod) => {
-                let contract = await new web3.eth.Contract([
+                let contract = new web3.eth.Contract([
                     {
                         "inputs": [],
                         "name": "_contractURI",
@@ -79,7 +80,7 @@ export default function Overview() {
             title: 'Type',
             dataIndex: 'type',
             key: 'type',
-            render: (record) => <Tag color={getModuleColor(record)} style={{borderRadius: '1rem', width: '100%', textAlign: 'center'}}>{record}</Tag>
+            render: (record) => <Tag color={getModuleColor(record)} text={record}/>
         },
         {
             title: 'Module',

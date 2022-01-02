@@ -58,7 +58,7 @@ const App = ({ isServerInfo }) => {
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, web3 } = useMoralis();
   const { walletAddress } = useMoralisDapp();
   const [ canSetProject, setPermission ] = useState(false)
-  const { hasProject } = useRegistry(web3,isWeb3Enabled)
+  useRegistry(web3,isWeb3Enabled)
   const { hasMarketplace, marketplaceAddress,checkRole, isAdmin, protocolAddress } = useProtocol(web3, isWeb3Enabled)
   
   useEffect(() => {
@@ -157,7 +157,6 @@ const App = ({ isServerInfo }) => {
             </Route>
           </Switch>
           {(hasMarketplace) && <Redirect to="/NFTMarketPlace" />}
-          {(canSetProject && isAuthenticated) && <Redirect to="/admin"/>}
         </div>
       </Router>}
       <Footer style={{ textAlign: "center" }}>

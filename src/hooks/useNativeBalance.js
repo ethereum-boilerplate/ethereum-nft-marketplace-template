@@ -1,7 +1,7 @@
 import { getNativeByChain } from "helpers/networks";
 import { useMoralisDapp } from "providers/MoralisDappProvider/MoralisDappProvider";
 import { useEffect, useMemo, useState } from "react";
-import { useMoralis, useMoralisWeb3Api, useMoralisWeb3ApiCall } from "react-moralis";
+import { useMoralis, useMoralisWeb3Api } from "react-moralis";
 
 export const useNativeBalance = (options) => {
   const { account } = useMoralisWeb3Api();

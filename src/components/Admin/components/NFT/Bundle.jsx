@@ -1,9 +1,7 @@
 import { Table } from 'antd'
 import React from 'react'
-import { useMoralisWeb3Api } from 'react-moralis'
 
 export default function Bundle() {
-    const Web3Api = useMoralisWeb3Api()
     const columns = []
     const data = []
 
