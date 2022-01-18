@@ -1,19 +1,20 @@
-import {useChain, useMoralis, useMoralisWeb3Api, useWeb3ExecuteFunction} from "react-moralis";
+import {useMoralis, useWeb3ExecuteFunction} from "react-moralis";
 import {useEffect, useState} from "react";
 import marketplaceInterface from "./interface";
 import useERC20 from "../../../../../../../hooks/useERC20";
+import useERC721 from "../../../../../../../hooks/useERC721";
 
-const useMarketplace = (address: string) => {
+const useMarketplace = (marketplaceAddress: string) => {
 
     const { data: dataAllListings, fetch: fetchAllListings } = useWeb3ExecuteFunction();
-    const { data: dataUserListings, fetch: fetchUserListings } = useWeb3ExecuteFunction();
+    const {fetch: fetchUserListings } = useWeb3ExecuteFunction();
     const { data: dataListNft, fetch: fetchListNft } = useWeb3ExecuteFunction();
-    const { chainId } = useChain();
-    const { approve, approvalResult, balance } = useERC20();
+    const { approve, balance } = useERC20();
+    const { approve: approveErc721, isApproved: checkForApproval, isApprovedResult } = useERC721()
     const { getListingsByUserAbi, getAllListingsAbi } = marketplaceInterface()
-    const { token } = useMoralisWeb3Api()
     const { account } = useMoralis()
     const [ allListings, setAllListings ] = useState<Array<object> | null>(null)
+    const [ isUnlisting, setUnlisting ] = useState<boolean>(false)
 
     useEffect(() => {
         if(dataAllListings) {
@@ -21,18 +22,21 @@ const useMarketplace = (address: string) => {
         }
     }, [ dataAllListings ])
 
+
+
     /**
      * approve NFTs
      */
-    const approveNFTs = () => {
-
+    const approveNFT = async (contractAddress: string) => {
+        await approveErc721(contractAddress,marketplaceAddress);
     }
 
     /**
-     * check if marketplace has allowance
+     * check if marketplace has NFT allowance
      */
-    const hasApproved = () => {
-
+    const hasApproved = async (contractAddress: string, owner: string) => {
+        await checkForApproval(contractAddress,owner,marketplaceAddress)
+        return isApprovedResult;
     }
 
     /**
@@ -53,7 +57,7 @@ const useMarketplace = (address: string) => {
     /**
      * list NFT on marketplace
      */
-    const list = (
+    const list = async (
         asset_contract: string,
         token_id: string,
         currency: string,
@@ -63,10 +67,13 @@ const useMarketplace = (address: string) => {
         secondsUntilStart: number = 0,
         secondsUntilEnd: number = 0,
     ) => {
+        if(!(await hasApproved(asset_contract,account))) {
+           await approveNFT(asset_contract)
+        }
         fetchListNft({
             params: {
                 abi: [ ],
-                contractAddress: address,
+                contractAddress: marketplaceAddress,
                 functionName: "list",
                 params: {
                      _assetContract: asset_contract,
@@ -86,7 +93,8 @@ const useMarketplace = (address: string) => {
      * un-list NFT from marketplace
      */
     const unlist = () => {
-
+        setUnlisting(true)
+        setUnlisting(false)
     }
 
     /**
@@ -95,7 +103,7 @@ const useMarketplace = (address: string) => {
     const buy = async (currency: string, amount: string,  listingId: string | number) => {
         if(!(await hasEnoughTokensToBuy(currency, amount))) return;
         if(!(await  hasApprovedToken())) {
-            await approve(currency, address, amount)
+            await approve(currency, marketplaceAddress, amount)
         }
     }
 
@@ -103,7 +111,7 @@ const useMarketplace = (address: string) => {
         fetchAllListings({
             params: {
                 abi: [ getAllListingsAbi ],
-                contractAddress: address,
+                contractAddress: marketplaceAddress,
                 functionName: "getAllListings",
             }
         }).then(() => {}).catch(() => {})
@@ -113,7 +121,7 @@ const useMarketplace = (address: string) => {
         fetchUserListings({
             params: {
                 abi: [ getListingsByUserAbi ],
-                contractAddress: address,
+                contractAddress: marketplaceAddress,
                 functionName: "getListingsBySeller",
                 params: {
                     account: account
@@ -126,9 +134,13 @@ const useMarketplace = (address: string) => {
 
     return {
         allListings,
+        approveNFT,
+        buy,
         getListingsByUser,
-        dataListNft,
-        list
+        dataAllListings,
+        list,
+        unlist,
+        isUnlisting
     }
 }
 
