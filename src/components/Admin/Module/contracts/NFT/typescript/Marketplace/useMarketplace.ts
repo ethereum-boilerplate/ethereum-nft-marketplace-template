@@ -9,9 +9,10 @@ const useMarketplace = (marketplaceAddress: string) => {
     const { data: dataAllListings, fetch: fetchAllListings } = useWeb3ExecuteFunction();
     const {fetch: fetchUserListings } = useWeb3ExecuteFunction();
     const { data: dataListNft, fetch: fetchListNft } = useWeb3ExecuteFunction();
+    const { data: dataBuyNft, fetch: fetchBuyNft } = useWeb3ExecuteFunction();
     const { approve, balance } = useERC20();
     const { approve: approveErc721, isApproved: checkForApproval, isApprovedResult } = useERC721()
-    const { getListingsByUserAbi, getAllListingsAbi } = marketplaceInterface()
+    const { getListingsByUserAbi, getAllListingsAbi, buyAbi, listNftAbi } = marketplaceInterface()
     const { account } = useMoralis()
     const [ allListings, setAllListings ] = useState<Array<object> | null>(null)
     const [ isUnlisting, setUnlisting ] = useState<boolean>(false)
@@ -21,8 +22,6 @@ const useMarketplace = (marketplaceAddress: string) => {
             setAllListings(allListings)
         }
     }, [ dataAllListings ])
-
-
 
     /**
      * approve NFTs
@@ -51,7 +50,7 @@ const useMarketplace = (marketplaceAddress: string) => {
      * check if marketplace has enough allowance
      */
     const hasApprovedToken = async (): Promise<boolean> => {
-        return true;
+        return false;
     }
 
     /**
@@ -70,9 +69,19 @@ const useMarketplace = (marketplaceAddress: string) => {
         if(!(await hasApproved(asset_contract,account))) {
            await approveNFT(asset_contract)
         }
+        if(quantity <= 0) {
+            alert("Quantity cannot be 0 or lower")
+            throw Error("Quantity cannot be 0 or lower")
+        }
+        if(tokensPerBuyer >= quantity) {
+            alert("Cannot let buyer buy more than or all listed nft")
+            throw Error("Cannot let buyer buy more than or all listed nft")
+        }
+
+        if(tokensPerBuyer === 0) tokensPerBuyer = quantity
         fetchListNft({
             params: {
-                abi: [ ],
+                abi: [ listNftAbi ],
                 contractAddress: marketplaceAddress,
                 functionName: "list",
                 params: {
@@ -102,9 +111,20 @@ const useMarketplace = (marketplaceAddress: string) => {
      */
     const buy = async (currency: string, amount: string,  listingId: string | number) => {
         if(!(await hasEnoughTokensToBuy(currency, amount))) return;
-        if(!(await  hasApprovedToken())) {
+        if(!(await hasApprovedToken())) {
             await approve(currency, marketplaceAddress, amount)
         }
+        await fetchBuyNft({
+            params: {
+                abi: [ buyAbi ],
+                contractAddress: marketplaceAddress,
+                functionName: "buy",
+                params: {
+                    _listingId: listingId,
+                    _quantity: amount
+                }
+            }
+        })
     }
 
     const getAllListings = () => {

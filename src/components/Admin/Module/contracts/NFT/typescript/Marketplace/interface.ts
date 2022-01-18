@@ -1,62 +1,81 @@
+const output_component = [
+    {
+        "internalType": "uint256",
+        "name": "listingId",
+        "type": "uint256"
+    },
+    {
+        "internalType": "address",
+        "name": "seller",
+        "type": "address"
+    },
+    {
+        "internalType": "address",
+        "name": "assetContract",
+        "type": "address"
+    },
+    {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+    },
+    {
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+    },
+    {
+        "internalType": "address",
+        "name": "currency",
+        "type": "address"
+    },
+    {
+        "internalType": "uint256",
+        "name": "pricePerToken",
+        "type": "uint256"
+    },
+    {
+        "internalType": "uint256",
+        "name": "saleStart",
+        "type": "uint256"
+    },
+    {
+        "internalType": "uint256",
+        "name": "saleEnd",
+        "type": "uint256"
+    },
+    {
+        "internalType": "uint256",
+        "name": "tokensPerBuyer",
+        "type": "uint256"
+    },
+    {
+        "internalType": "enum Market.TokenType",
+        "name": "tokenType",
+        "type": "uint8"
+    }
+];
+
 const marketplaceInterface = () => {
 
-    const output_component = [
+    const buyAbi =  {
+        "inputs": [
             {
                 "internalType": "uint256",
-                "name": "listingId",
-                "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "seller",
-                "type": "address"
-            },
-            {
-                "internalType": "address",
-                "name": "assetContract",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tokenId",
+                "name": "_listingId",
                 "type": "uint256"
             },
             {
                 "internalType": "uint256",
-                "name": "quantity",
+                "name": "_quantity",
                 "type": "uint256"
-            },
-            {
-                "internalType": "address",
-                "name": "currency",
-                "type": "address"
-            },
-            {
-                "internalType": "uint256",
-                "name": "pricePerToken",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "saleStart",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "saleEnd",
-                "type": "uint256"
-            },
-            {
-                "internalType": "uint256",
-                "name": "tokensPerBuyer",
-                "type": "uint256"
-            },
-            {
-                "internalType": "enum Market.TokenType",
-                "name": "tokenType",
-                "type": "uint8"
             }
-        ]
+        ],
+        "name": "buy",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
 
     const getAllListingsAbi = {
         "inputs": [],
@@ -143,9 +162,9 @@ const marketplaceInterface = () => {
         }
 
     return {
+        buyAbi,
         getAllListingsAbi,
         getListingsByUserAbi,
-
         listNftAbi
     }
 }

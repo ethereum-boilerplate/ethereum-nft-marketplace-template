@@ -94,8 +94,8 @@ export default function Dashboard() {
         }
 
     return (
-        <Tabs defaultActiveKey={(!hasProject && !isLoading) ? "0" : "1"}>
-            {(!hasProject && !isLoading) && <TabPane tab="Project" key="0">
+        <Tabs defaultActiveKey={(!hasProject) ? "0" : "1"}>
+            {(!hasProject) && <TabPane tab="Project" key="0">
             <Form layout="vertical" style={{width: '100%', margin: '0 auto'}} onFinish={(e) => deploy(e)}>
                     <Form.Item label="Name" name="name" rules={[{ required: true, message: 'You need to provide a name!' }]}>
                         <Input/>

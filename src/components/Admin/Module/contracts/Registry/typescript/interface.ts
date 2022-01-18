@@ -1,3 +1,6 @@
+/**
+ * collection of method interfaces of registry contract
+ */
 const registryInterface = () => {
 
     const deployProtocolAbi = {

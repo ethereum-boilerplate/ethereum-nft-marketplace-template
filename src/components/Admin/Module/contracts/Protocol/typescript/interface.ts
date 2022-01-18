@@ -1,3 +1,6 @@
+/**
+ * collection of method interfaces of protocol contract
+ */
 const protocolInterface = () => {
 
     const addModuleAbi = {
@@ -58,10 +61,56 @@ const protocolInterface = () => {
         "type": "function"
     }
 
+    const withdrawFundsAbi = {
+        "inputs": [
+            {
+                "internalType": "address",
+                "name": "to",
+                "type": "address"
+            },
+            {
+                "internalType": "address",
+                "name": "currency",
+                "type": "address"
+            }
+        ],
+        "name": "withdrawFunds",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    }
+
+    const hasRoleAbi = {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "role",
+                "type": "bytes32"
+            },
+            {
+                "internalType": "address",
+                "name": "account",
+                "type": "address"
+            }
+        ],
+        "name": "hasRole",
+        "outputs": [
+            {
+                "internalType": "bool",
+                "name": "",
+                "type": "bool"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+
     return {
         addModuleAbi,
+        hasRoleAbi,
         getModulesAbi,
         getForwarderAbi,
+        withdrawFundsAbi,
     }
 }
 
