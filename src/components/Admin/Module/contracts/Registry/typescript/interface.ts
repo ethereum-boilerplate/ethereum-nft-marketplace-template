@@ -42,9 +42,24 @@ const registryInterface = () => {
         "type": "function"
     }
 
+    const getForwarderAbi = {
+        "inputs":[],
+        "name":"forwarder",
+        "outputs":[
+            {
+                "internalType":"address",
+                "name":"",
+                "type":"address"
+            }
+        ],
+        "stateMutability":"view",
+        "type":"function"
+    }
+
     return {
         deployProtocolAbi,
-        getProtocolControlAbi
+        getProtocolControlAbi,
+        getForwarderAbi
     }
 }
 

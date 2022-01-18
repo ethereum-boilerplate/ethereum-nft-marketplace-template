@@ -8,6 +8,7 @@ import { useEffect } from 'react'
 import { getEllipsisTxt } from 'helpers/formatters';
 import { useProtocol } from './Module/contracts/Protocol/useProtocol';
 import useRegistry from "./Module/contracts/Registry/typescript/useRegistry";
+import {Notification} from "web3uikit";
 
 
 const { TabPane } = Tabs;
@@ -16,7 +17,7 @@ export default function Dashboard() {
 
     const { web3, isWeb3Enabled, account } = useMoralis()
     const {  withdrawFunds, isWithdrawing } = useProtocol(web3, isWeb3Enabled)
-    const { hasProject, protocolAddress, deployProtocol, isLoading } = useRegistry()
+    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, deployErr } = useRegistry()
     const { data, fetchERC20Balances } = useERC20Balances({
         address: protocolAddress,
         chain: ProjectChainId
@@ -28,6 +29,14 @@ export default function Dashboard() {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasProject])
+
+    useEffect(() => {
+        if(deployErr) {
+            return (
+                <Notification message={deployErr.message} isVisible={true} title={"Error"} />
+            )
+        }
+    }, [deployErr])
 
     const columns = [
         {
@@ -87,10 +96,12 @@ export default function Dashboard() {
         ];
 
         const deploy = async (e) => {
+            setLoading(true)
             delete e.submit
             const json = new Moralis.File("metadata.json", {base64: btoa(JSON.stringify(e))})
             await json.saveIPFS()
-            deployProtocol(`ipfs://${json.hash()}`, account)
+            await deployProtocol(`ipfs://${json.hash()}`)
+            console.log('trigga')
         }
 
     return (

@@ -6,13 +6,12 @@ import useRegistry from "../../Registry/typescript/useRegistry";
 const useProtocol = () => {
     const [ marketplaceAddress, setMarketplaceAddress ] = useState();
     const [ hasMarketplace, setHasMarketplace ] = useState<boolean>(false);
-    const { protocolAddress } = useRegistry();
+    const { protocolAddress, forwarder } = useRegistry();
     const { data: dataAddModule, fetch: fetchAddModule } = useWeb3ExecuteFunction();
-    const { data: dataForwarder, fetch: fetchForwarder } = useWeb3ExecuteFunction();
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
     const { data: dataHasAdminRole, fetch: fetchHasAdminRole } = useWeb3ExecuteFunction();
-    const { addModuleAbi, getForwarderAbi, getModulesAbi, withdrawFundsAbi, hasRoleAbi } = protocolInterface();
+    const { addModuleAbi, getModulesAbi, withdrawFundsAbi, hasRoleAbi } = protocolInterface();
 
     useEffect(() => {
         if(protocolAddress) {
@@ -29,6 +28,7 @@ const useProtocol = () => {
 
     useEffect(() => {
         if(dataModuleById) {
+            if(dataModuleById === "0x0000000000000000000000000000000000000000") return;
             setMarketplaceAddress(dataModuleById)
             setHasMarketplace(true)
             console.log(`found marketplace at ${dataModuleById}`)
@@ -56,7 +56,7 @@ const useProtocol = () => {
     }
 
     /**
-     * check if user has a admin role
+     * check if user has the admin role
      * @param user address to be checked
      */
     const checkIfUserIsAdmin = (user: string) => {
@@ -73,18 +73,6 @@ const useProtocol = () => {
         }).then();
     }
 
-    /**
-     * returns trusted forwarder of protocol
-     */
-    const getForwarder = () => {
-        fetchForwarder({
-            params: {
-                abi: [ getForwarderAbi ],
-                contractAddress: protocolAddress,
-                functionName: "getForwarder"
-            }
-        }).then((e) => console.log(e));
-    }
 
     /**
      * gets contract address by id
@@ -99,7 +87,9 @@ const useProtocol = () => {
                 params: {
                     "": moduleId
                 }
-            }
+            },
+            onError: (error) => console.log(`error on getting module by id ${error}`),
+            onSuccess: results => console.log(`result of getting module by id ${results}`)
         }).then(() => {}).catch(() => {})
     }
 
@@ -118,19 +108,21 @@ const useProtocol = () => {
                     to: to,
                     currency: currency
                 }
-            }
+            },
+            onSuccess: results => console.log(`success: ${results}`),
+            onError: error => console.log(error)
         }).then(() => {}).catch(() => {})
     }
 
     return {
         addModule,
         checkIfUserIsAdmin,
-        dataForwarder,
         dataHasAdminRole,
         dataModuleById,
         dataWithdrawFunds,
         dataAddModule,
-        getForwarder,
+        forwarder,
+        protocolAddress,
         getModuleById,
         hasMarketplace,
         marketplaceAddress,

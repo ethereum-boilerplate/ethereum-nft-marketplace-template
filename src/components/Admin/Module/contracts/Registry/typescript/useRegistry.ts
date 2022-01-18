@@ -11,7 +11,8 @@ const useRegistry = () => {
 
     const { data, error, fetch } = useWeb3ExecuteFunction();
     const { data: deploy, error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
-    const { deployProtocolAbi, getProtocolControlAbi } = registryInterface();
+    const { data: forwarder, fetch: fetchForwarder  } = useWeb3ExecuteFunction();
+    const { deployProtocolAbi, getProtocolControlAbi, getForwarderAbi } = registryInterface();
     const { isWeb3Enabled } = useMoralis()
 
     useEffect(() => {
@@ -53,6 +54,7 @@ const useRegistry = () => {
     useEffect(() => {
         if(isWeb3Enabled) {
             getProtocolByUser(AdminAddress)
+            getForwarder()
         }
     }, [ isWeb3Enabled ])
 
@@ -73,7 +75,9 @@ const useRegistry = () => {
                 params: {
                     uri: uri
                 }
-            }
+            },
+            onSuccess: results => console.log(`success: ${results}`),
+            onError: error => console.log(error)
         }).then((e) =>  {}).catch(() => setLoading(false))
     }
     /**
@@ -94,14 +98,34 @@ const useRegistry = () => {
                     _deployer: userAddress,
                     index: "1"
                 }
-            }
+            },
+            onSuccess: results => console.log(`success: ${results}`),
+            onError: error => console.log(error)
+        }).then(() => {}).catch(() => setLoading(false))
+    }
+
+    const getForwarder = () => {
+        setLoading(true);
+        fetchForwarder({
+            params: {
+                abi: [
+                    getForwarderAbi
+                ],
+                contractAddress: RegistryAddress,
+                functionName: "forwarder",
+            },
+            onSuccess: results => console.log(`success: ${results}`),
+            onError: error => console.log(error)
         }).then(() => {}).catch(() => setLoading(false))
     }
 
     return {
         deployProtocol,
         getProtocolByUser,
+        getForwarder,
+        forwarder,
         hasProject,
+        deployErr,
         protocolAddress,
         isLoading,
         setLoading
