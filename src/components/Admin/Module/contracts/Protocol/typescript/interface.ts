@@ -38,8 +38,29 @@ const protocolInterface = () => {
         "stateMutability": "view",
     }
 
+    const getModulesAbi = {
+        "inputs": [
+            {
+                "internalType": "bytes32",
+                "name": "",
+                "type": "bytes32"
+            }
+        ],
+        "name": "modules",
+        "outputs": [
+            {
+                "internalType": "address",
+                "name": "",
+                "type": "address"
+            }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+    }
+
     return {
         addModuleAbi,
+        getModulesAbi,
         getForwarderAbi,
     }
 }

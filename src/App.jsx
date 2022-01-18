@@ -17,10 +17,10 @@ import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import Text from "antd/lib/typography/Text";
-import { useProtocol } from "components/Admin/Module/contracts/Protocol/useProtocol";
 import Marketplace from "components/Admin/components/NFT/Marketplace";
 import { AdminAddress } from "components/Admin";
 import useRegistry from "./components/Admin/Module/contracts/Registry/typescript/useRegistry";
+import useProtocol from "./components/Admin/Module/contracts/Protocol/typescript/useProtocol";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -56,8 +56,7 @@ const styles = {
 const App = ({ isServerInfo }) => {
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, web3, account } = useMoralis();
   const [canSetProject, setPermission] = useState(false)
-  const { protocolAddress, deployProtocol } = useRegistry();
-  const { hasMarketplace, marketplaceAddress, checkRole, isAdmin } = useProtocol(web3, isWeb3Enabled)
+  const { marketplaceAddress, hasMarketplace, addModule, getModuleById, getForwarder } = useProtocol();
 
 
 /*  useEffect(() => {
@@ -129,7 +128,7 @@ const App = ({ isServerInfo }) => {
               }
               <Route path="/NFTMarketPlace">
                 {hasMarketplace &&
-                  <Marketplace address={marketplaceAddress} isAdmin={isAdmin} />
+                  <Marketplace address={marketplaceAddress} isAdmin={account.toUpperCase() === AdminAddress.toUpperCase()} />
                 }
                 {!hasMarketplace && canSetProject &&
                   <div>
