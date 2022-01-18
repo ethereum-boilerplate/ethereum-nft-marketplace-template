@@ -1,5 +1,6 @@
 const generateContractOptions = (abi: object, contractAddress: string, functionName: string, params: object) => {
     return {
+        params: {
             abi: [
                 abi
             ],
@@ -7,5 +8,7 @@ const generateContractOptions = (abi: object, contractAddress: string, functionN
             functionName: functionName,
             params: params
         }
+    }
+
 }
 export default generateContractOptions;

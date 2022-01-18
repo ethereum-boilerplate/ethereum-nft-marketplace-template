@@ -11,29 +11,34 @@ const useProtocol = () => {
     const { addModuleAbi, getForwarderAbi } = protocolInterface();
 
     useEffect(() => {
-        console.log(data)
-    }, [ data ])
+        if(protocolAddress) {
+            console.log(`getting protocol information at ${protocolAddress}`)
+        }
+    }, [ protocolAddress ])
 
     const addModule = (moduleType: number, moduleAddress: string) => {
-        const options =
-            generateContractOptions(
-                addModuleAbi,
-                protocolAddress,
-                "addModule",
-                {_newModuleAddress: moduleAddress, _moduleType: moduleType}
-            );
-        fetch(options).then((e) => console.log(e));
+        fetch({
+            params: {
+                abi: [ addModuleAbi ],
+                contractAddress: protocolAddress,
+                functionName: "addModule",
+                params: {
+                    _newModuleAddress: moduleAddress,
+                    _moduleType: moduleType
+                }
+            }
+        }).then((e) => console.log(e));
     }
 
     const getForwarder = () => {
-        const options =
+        const params =
             generateContractOptions(
                 getForwarderAbi,
                 protocolAddress,
                 "getForwarder",
                 {}
             );
-        fetch(options).then((e) => console.log(e));
+        fetch({params}).then((e) => console.log(e));
     }
 
     return {

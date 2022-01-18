@@ -20,7 +20,7 @@ import Text from "antd/lib/typography/Text";
 import { useProtocol } from "components/Admin/Module/contracts/Protocol/useProtocol";
 import Marketplace from "components/Admin/components/NFT/Marketplace";
 import { AdminAddress } from "components/Admin";
-import { useRegistry } from "components/Admin/Module/contracts/Registry/useRegistry";
+import useRegistry from "./components/Admin/Module/contracts/Registry/typescript/useRegistry";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -56,24 +56,16 @@ const styles = {
 const App = ({ isServerInfo }) => {
   const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, web3, account } = useMoralis();
   const [canSetProject, setPermission] = useState(false)
-  useRegistry(web3, isWeb3Enabled)
-  const { hasMarketplace, marketplaceAddress, checkRole, isAdmin, protocolAddress } = useProtocol(web3, isWeb3Enabled)
-
-  useEffect(() => {
-    if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
-      enableWeb3()
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+  const { protocolAddress, deployProtocol } = useRegistry();
+  const { hasMarketplace, marketplaceAddress, checkRole, isAdmin } = useProtocol(web3, isWeb3Enabled)
 
 
-  useEffect(() => {
+/*  useEffect(() => {
     enableWeb3()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [])*/
 
-  useEffect(() => {
+/*  useEffect(() => {
     if (isWeb3Enabled && account && protocolAddress && protocolAddress !== "0x0000000000000000000000000000000000000000") {
       checkRole(account)
       if (account.toUpperCase() === AdminAddress.toUpperCase()) {
@@ -81,7 +73,7 @@ const App = ({ isServerInfo }) => {
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWeb3Enabled, account, protocolAddress])
+  }, [isWeb3Enabled, account, protocolAddress])*/
 
   return (
     <Layout style={{ height: "100vh", overflow: "auto" }}>

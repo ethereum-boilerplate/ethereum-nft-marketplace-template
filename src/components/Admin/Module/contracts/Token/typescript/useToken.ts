@@ -26,8 +26,8 @@ const useToken = (address: string) => {
     }, [ data ])
 
     const getTotalSupply = () => {
-        const options = generateContractOptions(totalSupplyAbi, address, "totalSupply", {})
-        fetch(options).then((e) => console.log(e))
+        const params = generateContractOptions(totalSupplyAbi, address, "totalSupply", {})
+        fetch({params}).then((e) => console.log(e))
     }
 
     const getTokenInformation = () => {
@@ -46,9 +46,9 @@ const useToken = (address: string) => {
     }
 
     const mintTokens = (toAddress: string, amount: number | string ) => {
-        const options = generateContractOptions(mintTokensAbi,address,"mint", {to: toAddress, amount: amount})
+        const params = generateContractOptions(mintTokensAbi,address,"mint", {to: toAddress, amount: amount})
         setMinting(true)
-        fetch(options).then(()=>setMinting(false))
+        fetch({params}).then(()=>setMinting(false))
     }
 
     return {
