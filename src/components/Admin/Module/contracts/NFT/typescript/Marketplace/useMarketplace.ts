@@ -20,8 +20,57 @@ const useMarketplace = (address: string) => {
     /**
      * approve NFTs
      */
-    const approve = () => {
+    const approveNFTs = () => {
 
+    }
+
+    const approveTokens = async () => {
+
+    }
+
+    /**
+     * check if marketplace has allowance
+     */
+    const hasApproved = () => {
+
+    }
+
+    /**
+     * check if user has enough tokens to buy nft
+     */
+    const hasEnoughTokensToBuy = async (): Promise<boolean> => {
+        return true;
+    }
+
+    /**
+     * check if marketplace has enough allowance
+     */
+    const hasApprovedToken = async (): Promise<boolean> => {
+        return true
+    }
+
+    /**
+     * list NFT on marketplace
+     */
+    const list = () => {
+
+    }
+
+    /**
+     * un-list NFT from marketplace
+     */
+    const unlist = () => {
+
+    }
+
+    /**
+     * buy NFT from marketplace
+     */
+    const buy = async (listingId: string | number) => {
+        if(!(await hasEnoughTokensToBuy())) return;
+        if(!(await  hasApprovedToken())) {
+            await approveTokens()
+        }
     }
 
     const getAllListings = () => {
@@ -50,7 +99,6 @@ const useMarketplace = (address: string) => {
     getAllListings()
 
     return {
-        approve,
         allListings,
         getListingsByUser
     }
