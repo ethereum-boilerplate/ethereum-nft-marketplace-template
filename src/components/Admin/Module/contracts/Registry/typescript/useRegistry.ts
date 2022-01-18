@@ -7,7 +7,7 @@ const useRegistry = () => {
 
     const [ protocolAddress, setProtocolAddress ] = useState<string | null>(null);
     const [ hasProject, setHasProject ] = useState<boolean>(false);
-    const [ isLoading, setLoading ] = useState<boolean>(false);
+    const [ isLoading, setLoading ] = useState<boolean>(true);
 
     const { data, error, fetch } = useWeb3ExecuteFunction();
     const { data: deploy, error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();

@@ -7,7 +7,8 @@ import Overview from "./Module/Overview";
 import { useEffect } from 'react'
 import { getEllipsisTxt } from 'helpers/formatters';
 import { useProtocol } from './Module/contracts/Protocol/useProtocol';
-import { useRegistry } from './Module/contracts/Registry/useRegistry';
+import useRegistry from "./Module/contracts/Registry/typescript/useRegistry";
+
 
 const { TabPane } = Tabs;
 
@@ -15,7 +16,7 @@ export default function Dashboard() {
 
     const { web3, isWeb3Enabled, account } = useMoralis()
     const {  withdrawFunds, isWithdrawing } = useProtocol(web3, isWeb3Enabled)
-    const { protocolAddress, deployProtocol, hasProject, isDeployig } = useRegistry(web3, isWeb3Enabled)
+    const { hasProject, protocolAddress, deployProtocol, isLoading } = useRegistry()
     const { data, fetchERC20Balances } = useERC20Balances({
         address: protocolAddress,
         chain: ProjectChainId
@@ -93,8 +94,8 @@ export default function Dashboard() {
         }
 
     return (
-        <Tabs defaultActiveKey={!hasProject ? "0" : "1"}>
-            {!hasProject && <TabPane tab="Project" key="0">
+        <Tabs defaultActiveKey={(!hasProject && !isLoading) ? "0" : "1"}>
+            {(!hasProject && !isLoading) && <TabPane tab="Project" key="0">
             <Form layout="vertical" style={{width: '100%', margin: '0 auto'}} onFinish={(e) => deploy(e)}>
                     <Form.Item label="Name" name="name" rules={[{ required: true, message: 'You need to provide a name!' }]}>
                         <Input/>
@@ -103,7 +104,7 @@ export default function Dashboard() {
                         <Input/>
                     </Form.Item>
                     <Form.Item name="submit">
-                        <Button style={{width: "100%"}} htmlType="submit" loading={isDeployig}>Add Module</Button>
+                        <Button style={{width: "100%"}} htmlType="submit" loading={isLoading}>Add Module</Button>
                     </Form.Item>
             </Form>
             </TabPane>}
