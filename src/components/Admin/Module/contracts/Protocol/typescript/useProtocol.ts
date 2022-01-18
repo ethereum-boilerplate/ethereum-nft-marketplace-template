@@ -6,7 +6,7 @@ import useRegistry from "../../Registry/typescript/useRegistry";
 const useProtocol = () => {
     const [ marketplaceAddress, setMarketplaceAddress ] = useState();
     const [ hasMarketplace, setHasMarketplace ] = useState<boolean>(false);
-    const { protocolAddress, forwarder } = useRegistry();
+    const { protocolAddress, forwarder, canSetProject } = useRegistry();
     const { data: dataAddModule, fetch: fetchAddModule } = useWeb3ExecuteFunction();
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
@@ -118,6 +118,7 @@ const useProtocol = () => {
         addModule,
         checkIfUserIsAdmin,
         dataHasAdminRole,
+        canSetProject,
         dataModuleById,
         dataWithdrawFunds,
         dataAddModule,
