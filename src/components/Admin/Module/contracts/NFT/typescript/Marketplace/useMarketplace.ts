@@ -6,16 +6,23 @@ import useERC721 from "../../../../../../../hooks/useERC721";
 
 const useMarketplace = (marketplaceAddress: string) => {
 
+
     const { data: dataAllListings, fetch: fetchAllListings } = useWeb3ExecuteFunction();
-    const {fetch: fetchUserListings } = useWeb3ExecuteFunction();
-    const { data: dataListNft, fetch: fetchListNft } = useWeb3ExecuteFunction();
-    const { data: dataBuyNft, fetch: fetchBuyNft } = useWeb3ExecuteFunction();
+    const { fetch: fetchUserListings } = useWeb3ExecuteFunction();
+    const { fetch: fetchListNft } = useWeb3ExecuteFunction();
+    const { fetch: fetchUnlistNft } = useWeb3ExecuteFunction();
+    const { fetch: fetchBuyNft } = useWeb3ExecuteFunction();
     const { approve, balance } = useERC20();
     const { approve: approveErc721, isApproved: checkForApproval, isApprovedResult } = useERC721()
-    const { getListingsByUserAbi, getAllListingsAbi, buyAbi, listNftAbi } = marketplaceInterface()
+    const { getListingsByUserAbi, getAllListingsAbi, buyAbi, listNftAbi, unlistAbi } = marketplaceInterface()
     const { account } = useMoralis()
     const [ allListings, setAllListings ] = useState<Array<object> | null>(null)
     const [ isUnlisting, setUnlisting ] = useState<boolean>(false)
+    const [ isListing, setIsListing ] = useState<boolean>(false)
+    const [ listSuccess, setListSuccess ] = useState<boolean>(false)
+    const [ listError, setListError ] = useState()
+    const [ unlistSuccess, setUnlistSuccess ] = useState<boolean>(false)
+    const [ unlistError, setUnlistError ] = useState()
 
     useEffect(() => {
         if(dataAllListings) {
@@ -33,7 +40,7 @@ const useMarketplace = (marketplaceAddress: string) => {
     /**
      * check if marketplace has NFT allowance
      */
-    const hasApproved = async (contractAddress: string, owner: string) => {
+    const hasApprovedNFT = async (contractAddress: string, owner: string) => {
         await checkForApproval(contractAddress,owner,marketplaceAddress)
         return isApprovedResult;
     }
@@ -66,15 +73,18 @@ const useMarketplace = (marketplaceAddress: string) => {
         secondsUntilStart: number = 0,
         secondsUntilEnd: number = 0,
     ) => {
-        if(!(await hasApproved(asset_contract,account))) {
+        setIsListing(true)
+        if(!(await hasApprovedNFT(asset_contract,account))) {
            await approveNFT(asset_contract)
         }
         if(quantity <= 0) {
             alert("Quantity cannot be 0 or lower")
+            setIsListing(false)
             throw Error("Quantity cannot be 0 or lower")
         }
         if(tokensPerBuyer >= quantity) {
             alert("Cannot let buyer buy more than or all listed nft")
+            setIsListing(false)
             throw Error("Cannot let buyer buy more than or all listed nft")
         }
 
@@ -94,6 +104,14 @@ const useMarketplace = (marketplaceAddress: string) => {
                     _secondsUntilStart: secondsUntilStart,
                     _secondsUntilEnd: secondsUntilEnd,
                 }
+            },
+            onSuccess: () => {
+                setUnlistSuccess(true);
+                setUnlisting(false);
+            },
+            onError: (error) => {
+                setUnlistError(error);
+                setUnlisting(false);
             }
         }).then(() => {}).catch(() => {})
     }
@@ -101,9 +119,24 @@ const useMarketplace = (marketplaceAddress: string) => {
     /**
      * un-list NFT from marketplace
      */
-    const unlist = () => {
+    const unlist = (listingId: string | number, quantity: string | number) => {
         setUnlisting(true)
-        setUnlisting(false)
+        fetchUnlistNft({
+            params: {
+                abi: [ unlistAbi ],
+                contractAddress: marketplaceAddress,
+                functionName: "unlist",
+                params: {
+                    _listingId: listingId,
+                    _quantity: quantity
+                }
+            },
+            onSuccess: (results) => {
+                setUnlisting(false)
+
+            },
+            onError: () => {setUnlisting(false)}
+        }).then(() => {}).catch(() => {})
     }
 
     /**
@@ -160,7 +193,12 @@ const useMarketplace = (marketplaceAddress: string) => {
         dataAllListings,
         list,
         unlist,
-        isUnlisting
+        listSuccess,
+        listError,
+        isListing,
+        isUnlisting,
+        unlistError,
+        unlistSuccess
     }
 }
 

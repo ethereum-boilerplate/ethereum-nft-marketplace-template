@@ -103,7 +103,7 @@ const App = () => {
           </Header>
           <div style={styles.content}>
             <Switch>
-              {account &&
+              {account && (account.toUpperCase() === AdminAddress.toUpperCase()) &&
                 <Route path="/admin">
                   <Dashboard />
                 </Route>
@@ -134,7 +134,8 @@ const App = () => {
                 }
               </Route>
             </Switch>
-            {(isAuthenticated) && <Redirect to="/admin" />}
+            {(isAuthenticated) && (account && account.toUpperCase() === AdminAddress.toUpperCase()) && <Redirect to="/admin" />}
+            {(isAuthenticated) && hasMarketplace && (<Redirect to="/NFTMarketPlace" />)}
           </div>
         </Router>}
       <Footer style={{ textAlign: "center" }}>

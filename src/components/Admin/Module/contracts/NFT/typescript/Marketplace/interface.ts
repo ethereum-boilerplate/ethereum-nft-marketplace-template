@@ -161,11 +161,31 @@ const marketplaceInterface = () => {
             "type": "function"
         }
 
+        const unlistAbi = {
+            "inputs": [
+                {
+                    "internalType": "uint256",
+                    "name": "_listingId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_quantity",
+                    "type": "uint256"
+                }
+            ],
+            "name": "unlist",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+
     return {
         buyAbi,
         getAllListingsAbi,
         getListingsByUserAbi,
-        listNftAbi
+        listNftAbi,
+        unlistAbi
     }
 }
 

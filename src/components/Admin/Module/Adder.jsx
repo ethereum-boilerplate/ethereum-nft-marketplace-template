@@ -4,17 +4,26 @@ import { useState, useEffect } from "react"
 import { collectionBytecode, collectionAbi } from "./contracts/NFT/collection";
 import { marketplaceBytecode, marketplaceAbi } from "./contracts/NFT/marketplace";
 import { tokenBytecode, tokenAbi } from "./contracts/Token/token";
-import { Card } from "web3uikit"
+import { Illustration} from "web3uikit"
 import { useMoralis } from "react-moralis";
 import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/list"
-import { useProtocol } from "./contracts/Protocol/useProtocol";
+import useProtocol from "./contracts/Protocol/typescript/useProtocol";
+import Web3 from "web3"
 export default function Adder() {
 
     const [selectedModule, setSelectedModule] = useState(null)
+    const [web3, setWeb3] = useState()
     const [isDeploying, setIsDeploying] = useState(false)
     const [deployConfirmed, setDeployConfirmed] = useState(false)
-    const { web3, isWeb3Enabled, Moralis,account, chainId } = useMoralis()
-    const { addModule,  hasMarketplace, protocolAddress, forwarder } = useProtocol(web3, isWeb3Enabled)
+    const { Moralis,account, chainId, provider } = useMoralis()
+    const { addModule, forwarder, protocolAddress, hasMarketplace } = useProtocol()
+
+    useEffect(() => {
+        if(provider) {
+            let web = new Web3(provider)
+            setWeb3(web)
+        }
+    }, [provider])
 
     const nftModules = [
         collectionModule,
@@ -57,7 +66,7 @@ export default function Adder() {
             await toDeploy.send({from: account})
             .on('receipt', async (receipt) => {
                 triggerWeb3Api(receipt)
-                await addModule(2, receipt.contractAddress, account)
+                await addModule(2, receipt.contractAddress)
                 setDeployConfirmed(true)
                 setIsDeploying(false)
             })
@@ -162,7 +171,7 @@ export default function Adder() {
                             onClick={()=> setSelectedModule(module)}
                             style={{padding: '0.5em'}}
                             >
-                                <Card module={module.title} />
+                                <Illustration logo={"comingSoon"}/>
                             </div>
                         )
                     })}
@@ -177,7 +186,9 @@ export default function Adder() {
                                 onClick={()=> setSelectedModule(module)}
                                 style={{padding: '0.5em'}}
                                 >
-                                    <Card key={module.title} module={module.title}/>
+                                    <div key={module.title}>
+                                        {module.title}
+                                    </div>
                                 </div>
                         )
                     })}

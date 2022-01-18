@@ -26,7 +26,7 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [web3, marketplaceAddress, currentUser])
-
+    // DONE
     const getAllListings = async () => {
         const contract = await new web3.eth.Contract(abi, marketplaceAddress)
         const listings = await contract.methods.getAllListings().call()
@@ -49,7 +49,9 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
 
         setLoadingListings(false)
     }
-    
+    /*
+    * done
+     */
     const getListingsByUser = async (user) => {
         const contract = await new web3.eth.Contract(abi, marketplaceAddress)
         const listings = await contract.methods.getListingsBySeller(user).call()
