@@ -53,7 +53,7 @@ const styles = {
   },
 };
 const App = () => {
-  const { enableWeb3, isAuthenticated, web3, account } = useMoralis();
+  const { enableWeb3, isAuthenticated, web3, account, user } = useMoralis();
   const [canSetProject] = useState(false)
   const { marketplaceAddress, hasMarketplace} = useProtocol();
 
@@ -81,7 +81,7 @@ const App = () => {
                 width: "100%",
               }}
             >
-              {(canSetProject && isAuthenticated) && <Menu.Item key="admin">
+              {(account && account.toUpperCase() === AdminAddress.toUpperCase() && isAuthenticated) && <Menu.Item key="admin">
                 <NavLink to="/admin">📑 Admin</NavLink>
               </Menu.Item>
               }
@@ -103,7 +103,7 @@ const App = () => {
           </Header>
           <div style={styles.content}>
             <Switch>
-              {account && account.toUpperCase() === AdminAddress.toUpperCase() &&
+              {account &&
                 <Route path="/admin">
                   <Dashboard />
                 </Route>
@@ -118,7 +118,7 @@ const App = () => {
               }
               <Route path="/NFTMarketPlace">
                 {hasMarketplace &&
-                  <Marketplace address={marketplaceAddress} isAdmin={account.toUpperCase() === AdminAddress.toUpperCase()} />
+                  <Marketplace address={marketplaceAddress} isAdmin={account && account.toUpperCase() === AdminAddress.toUpperCase()} />
                 }
                 {!hasMarketplace && canSetProject &&
                   <div>
