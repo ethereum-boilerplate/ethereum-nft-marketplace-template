@@ -93,9 +93,60 @@ const marketplaceInterface = () => {
         "type": "function"
     }
 
+    const listNftAbi = 	{
+            "inputs": [
+                {
+                    "internalType": "address",
+                    "name": "_assetContract",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_tokenId",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "address",
+                    "name": "_currency",
+                    "type": "address"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_pricePerToken",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_quantity",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_tokensPerBuyer",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_secondsUntilStart",
+                    "type": "uint256"
+                },
+                {
+                    "internalType": "uint256",
+                    "name": "_secondsUntilEnd",
+                    "type": "uint256"
+                }
+            ],
+            "name": "list",
+            "outputs": [],
+            "stateMutability": "nonpayable",
+            "type": "function"
+        }
+
     return {
         getAllListingsAbi,
-        getListingsByUserAbi
+        getListingsByUserAbi,
+
+        listNftAbi
     }
 }
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useWeb3ExecuteFunction } from "react-moralis";
-import generateContractOptions from "../../../../helpers";
 import protocolInterface from "./interface";
 import useRegistry from "../../Registry/typescript/useRegistry";
 
@@ -8,7 +7,8 @@ const useProtocol = () => {
     const [ marketplaceAddress, setMarketplaceAddress ] = useState();
     const [ hasMarketplace, setHasMarketplace ] = useState<boolean>(false);
     const { protocolAddress } = useRegistry();
-    const { data, fetch } = useWeb3ExecuteFunction();
+    const { data: dataAddModule, fetch: fetchAddModule } = useWeb3ExecuteFunction();
+    const { data: dataForwarder, fetch: fetchForwarder } = useWeb3ExecuteFunction();
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { addModuleAbi, getForwarderAbi, getModulesAbi } = protocolInterface();
 
@@ -29,7 +29,7 @@ const useProtocol = () => {
     }, [dataModuleById])
 
     const addModule = (moduleType: number, moduleAddress: string) => {
-        fetch({
+        fetchAddModule({
             params: {
                 abi: [ addModuleAbi ],
                 contractAddress: protocolAddress,
@@ -43,14 +43,13 @@ const useProtocol = () => {
     }
 
     const getForwarder = () => {
-        const params =
-            generateContractOptions(
-                getForwarderAbi,
-                protocolAddress,
-                "getForwarder",
-                {}
-            );
-        fetch({params}).then((e) => console.log(e));
+        fetchForwarder({
+            params: {
+                abi: [ getForwarderAbi ],
+                contractAddress: protocolAddress,
+                functionName: "getForwarder"
+            }
+        }).then((e) => console.log(e));
     }
 
     const getModuleById = (moduleId: string) => {

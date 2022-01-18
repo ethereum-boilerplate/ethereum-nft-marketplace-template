@@ -26,6 +26,15 @@ const useRegistry = () => {
     }, [ data, error ])
 
     useEffect(() => {
+        if(deploy) {
+            console.log(deploy)
+        }
+        if(deployErr) {
+            console.log(deployErr)
+        }
+    }, [ deploy, deployErr])
+
+    useEffect(() => {
         if(isWeb3Enabled) {
             getProtocolByUser(AdminAddress)
         }
