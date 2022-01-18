@@ -37,11 +37,17 @@ export const useProtocol = (web3, isEnabled) => {
         }
     }, [protocolAbi,protocolAddress])
 
+    /**
+     * REFACTOR TO TYPESCRIPT DONE
+     */
     const getForwarder = async () => {
         const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
         await protocolControl.methods.getForwarder().call().then(setForwarder)
     }
 
+    /**
+     * REFACTOR TO TYPESCRIPT DONE
+     */
     const getModuleById = async (moduleId) => {
         const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
         await protocolControl.methods.modules(moduleId).call().then((address) => {
@@ -56,16 +62,25 @@ export const useProtocol = (web3, isEnabled) => {
         return await protocolControl.methods.modules(moduleId).call()
     }
 
+    /**
+     * REFACTOR TO TYPESCRIPT DONE
+     */
     const checkRole = async (address) => {
         const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
         await protocolControl.methods.hasRole(DEFAULT_ADMIN_ROLE, address).call().then(setAdmin)
     }
 
+    /**
+     * REFACTOR TO TYPESCRIPT DONE
+     */
     const addModule = async (moduleType, address, signer) => {    
         const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
         await protocolControl.methods.addModule(address, moduleType).send({from: signer})
     }
 
+    /**
+     * REFACTOR TO TYPESCRIPT DONE
+     */
     const withdrawFunds = async (to, currency, amount, signer) => {
         const protocolControl = await new web3.eth.Contract(protocolAbi, protocolAddress)
         setWithdrawing(true)

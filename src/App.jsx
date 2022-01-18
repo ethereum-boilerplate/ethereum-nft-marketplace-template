@@ -134,7 +134,7 @@ const App = () => {
                 }
               </Route>
             </Switch>
-            {(isAuthenticated) && <Redirect to="/NFTBalance" />}
+            {(isAuthenticated) && <Redirect to="/admin" />}
           </div>
         </Router>}
       <Footer style={{ textAlign: "center" }}>

@@ -7,7 +7,7 @@ const useRegistry = () => {
 
     const [ protocolAddress, setProtocolAddress ] = useState<string | null>(null);
     const [ hasProject, setHasProject ] = useState<boolean>(false);
-    const [ isLoading, setLoading ] = useState<boolean>(true);
+    const [ isLoading, setLoading ] = useState<boolean>(false);
 
     const { data, error, fetch } = useWeb3ExecuteFunction();
     const { data: deploy, error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
@@ -17,20 +17,36 @@ const useRegistry = () => {
     useEffect(() => {
         if(error) {
             console.log(`could not find protocolAddress: ${error}`)
+            setLoading(false)
+            return;
         }
         if(data && !(typeof data === undefined) && (data !== "0x0000000000000000000000000000000000000000")) {
+            /**
+             * user has project @ data
+             */
             setProtocolAddress(data)
             setHasProject(true)
+            setLoading(false)
             console.log(`protocol found at ${data}`)
+            return;
+        } else if(data === "0x0000000000000000000000000000000000000000"){
+            /**
+             * user has no project
+             */
+            setHasProject(false)
+            setLoading(false)
+            return;
         }
     }, [ data, error ])
 
     useEffect(() => {
         if(deploy) {
             console.log(deploy)
+            setLoading(false)
         }
         if(deployErr) {
             console.log(deployErr)
+            setLoading(false)
         }
     }, [ deploy, deployErr])
 
@@ -40,6 +56,11 @@ const useRegistry = () => {
         }
     }, [ isWeb3Enabled ])
 
+    /**
+     * Deploys the project contract from registry.
+     * note: Users should only deploy one project with one address. The App only checks for the first project
+     * @param uri link to metadata of the project
+     */
     const deployProtocol = (uri: string) => {
         setLoading(true)
         deployFetch({
@@ -53,9 +74,13 @@ const useRegistry = () => {
                     uri: uri
                 }
             }
-        }).then((e) => setLoading(false)).catch(() => setLoading(false))
+        }).then((e) =>  {}).catch(() => setLoading(false))
     }
-
+    /**
+     * gets the contract address of a user
+     * returns zero address if there is no project
+     * @param userAddress check for specific user
+     */
     const getProtocolByUser = (userAddress: string) => {
         setLoading(true);
         fetch({
@@ -70,7 +95,7 @@ const useRegistry = () => {
                     index: "1"
                 }
             }
-        }).then(() => setLoading(false)).catch(() => setLoading(false))
+        }).then(() => {}).catch(() => setLoading(false))
     }
 
     return {
@@ -79,6 +104,7 @@ const useRegistry = () => {
         hasProject,
         protocolAddress,
         isLoading,
+        setLoading
     }
 }
 
