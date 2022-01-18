@@ -4,7 +4,7 @@ import { ProjectChainId } from '.';
 import Adder from "./Module/Adder";
 import Moralis from 'moralis';
 import Overview from "./Module/Overview";
-import { useEffect } from 'react'
+import {useEffect, useState} from 'react'
 import { getEllipsisTxt } from 'helpers/formatters';
 import { useProtocol } from './Module/contracts/Protocol/useProtocol';
 import useRegistry from "./Module/contracts/Registry/typescript/useRegistry";
@@ -17,11 +17,15 @@ export default function Dashboard() {
 
     const { web3, isWeb3Enabled, account } = useMoralis()
     const {  withdrawFunds, isWithdrawing } = useProtocol(web3, isWeb3Enabled)
-    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, deployErr } = useRegistry()
+    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, deployErr, canSetProject } = useRegistry()
     const { data, fetchERC20Balances } = useERC20Balances({
         address: protocolAddress,
         chain: ProjectChainId
     })
+
+    useEffect(() => {
+        console.log(`CAN SET PROJECT SET TO: ${canSetProject}`)
+    }, [canSetProject])
 
     useEffect(() => {
         if(hasProject) {
@@ -104,37 +108,38 @@ export default function Dashboard() {
             console.log('trigga')
         }
 
+        const getActiveKey = () => {
+            return canSetProject ? "0" : "1"
+        }
+
     return (
-        <Tabs defaultActiveKey={(!hasProject) ? "0" : "1"}>
-            {(!hasProject) && <TabPane tab="Project" key="0">
-            <Form layout="vertical" style={{width: '100%', margin: '0 auto'}} onFinish={(e) => deploy(e)}>
-                    <Form.Item label="Name" name="name" rules={[{ required: true, message: 'You need to provide a name!' }]}>
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item label="Description" name="description" rules={[{ required: true, message: 'Describe your project' }]}>
-                        <Input/>
-                    </Form.Item>
-                    <Form.Item name="submit">
-                        <Button style={{width: "100%"}} htmlType="submit" loading={isLoading}>Add Module</Button>
-                    </Form.Item>
-            </Form>
-            </TabPane>}
-            <TabPane disabled={!hasProject} tab="Modules" key="1">
-                <Overview />
+
+        <Tabs defaultActiveKey={"0"}>
+                <TabPane disabled={!canSetProject} tab="Project" key="0">
+                    {(canSetProject) &&<Form layout="vertical" style={{width: '100%', margin: '0 auto'}} onFinish={(e) => deploy(e)}>
+                        <Form.Item label="Name" name="name" rules={[{ required: true, message: 'You need to provide a name!' }]}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item label="Description" name="description" rules={[{ required: true, message: 'Describe your project' }]}>
+                            <Input/>
+                        </Form.Item>
+                        <Form.Item name="submit">
+                            <Button style={{width: "100%"}} htmlType="submit" loading={isLoading}>Add Module</Button>
+                        </Form.Item>
+                    </Form>}
+                    {(!canSetProject) &&
+                        <p>You already deployed a project</p>
+                    }
             </TabPane>
-            <TabPane disabled={!hasProject} tab="Add Module" key="2">
-                <Adder />
+            <TabPane disabled={canSetProject} tab="Modules" key="1">
+                {(!canSetProject) && <Overview/>}
             </TabPane>
-            <TabPane disabled={!hasProject} tab="Panel" key="3">
-            <Skeleton loading={!data}>
-            <Table
-            dataSource={data}
-            columns={columns}
-            rowKey={(record) => {
-                return record.token_address;
-            }}
-            />
-        </Skeleton>
+            <TabPane disabled={canSetProject} tab="Add Module" key="2">
+                {(!canSetProject) && <Overview/>}
+            </TabPane>
+            <TabPane disabled={canSetProject} tab="Panel" key="3">
+            <Skeleton loading={isLoading}>
+            </Skeleton>
             </TabPane>
         </Tabs>
     )

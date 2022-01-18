@@ -53,9 +53,8 @@ const styles = {
   },
 };
 const App = () => {
-  const { enableWeb3, isAuthenticated, web3, account, user } = useMoralis();
-  const [canSetProject] = useState(false)
-  const { marketplaceAddress, hasMarketplace} = useProtocol();
+  const { enableWeb3, isAuthenticated, web3, account } = useMoralis();
+  const { marketplaceAddress, hasMarketplace, canSetProject} = useProtocol();
 
 
   useEffect(() => {
