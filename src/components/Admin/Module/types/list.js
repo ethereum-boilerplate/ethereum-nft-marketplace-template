@@ -3,7 +3,8 @@ export const collectionModule = {
     desc: 'ERC721 Standard',
     imageUrl: 'https://cdn-icons-png.flaticon.com/512/5264/5264949.png',
     tooltipText: 'Create a Collection and Mint NFTs',
-    key: 'erc721module'
+    key: 'erc721module',
+    logo: "chest"
 }
 
 export const bundleModule = {
@@ -11,7 +12,8 @@ export const bundleModule = {
     desc: 'Bundle of many grouped NFTs',
     imageUrl: 'https://cdn-icons-png.flaticon.com/512/5235/5235866.png',
     tooltipText: 'Coming soon',
-    key: 'bundleModule'
+    key: 'bundleModule',
+    logo: "bundle",
 }
 
 export const dropModule = {
@@ -19,7 +21,8 @@ export const dropModule = {
     desc: 'ERC721 Lazy Mint',
     imageUrl: 'https://cdn-icons-png.flaticon.com/512/5235/5235866.png',
     tooltipText: 'Coming Soon',
-    key: 'lazyMintModule'
+    key: 'lazyMintModule',
+    logo: "lazyNft",
 }
 
 export const marketplaceModule = {
@@ -27,20 +30,23 @@ export const marketplaceModule = {
     desc: 'Whitelabel marketplace for digital assets',
     imageUrl: 'https://cdn-icons-png.flaticon.com/512/5235/5235866.png',
     tooltipText: 'Create your own NFT Marketplace',
-    key: 'marketPlaceModule'
+    key: 'marketPlaceModule',
+    logo: 'marketplace'
 }
 export const tokenModule = {
     title: 'Token',
     desc: 'Standard crypto token or currency',
     imageUrl: 'https://cdn-icons-png.flaticon.com/512/5235/5235866.png',
     tooltipText: 'Create a standard ERC20 Token/Crypto Currency',
-    key: 'tokenModule'
+    key: 'tokenModule',
+    logo: 'token'
 }
 export const packModule = {
     title: 'Pack',
     desc: 'Lootbox of NFTs',
     imageUrl: 'https://cdn-icons-png.flaticon.com/512/5235/5235866.png',
     tooltipText: 'Coming soon',
-    key: 'packModule'
+    key: 'packModule',
+    logo: 'pack'
 }
 

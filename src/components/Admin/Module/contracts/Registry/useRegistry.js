@@ -51,7 +51,7 @@ export const useRegistry = (web3, isEnabled) => {
                     "name": "ModuleUpdated",
                     "type": "event"
             },
-            tableName: "ModuleSync",
+            tableName: "Modules",
             "sync_historical": true
         }, {useMasterKey: true})
         setSynced(true)

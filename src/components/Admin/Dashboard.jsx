@@ -9,19 +9,29 @@ import { getEllipsisTxt } from 'helpers/formatters';
 import { useProtocol } from './Module/contracts/Protocol/useProtocol';
 import useRegistry from "./Module/contracts/Registry/typescript/useRegistry";
 import {Notification} from "web3uikit";
+import Web3 from "web3";
 
 
 const { TabPane } = Tabs;
 
 export default function Dashboard() {
 
-    const { web3, isWeb3Enabled, account } = useMoralis()
+    const { isWeb3Enabled, account, provider } = useMoralis()
+    const [web3, setWeb3] = useState()
     const {  withdrawFunds, isWithdrawing } = useProtocol(web3, isWeb3Enabled)
     const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, deployErr, canSetProject } = useRegistry()
-    const { data, fetchERC20Balances } = useERC20Balances({
+    const { fetchERC20Balances } = useERC20Balances({
         address: protocolAddress,
         chain: ProjectChainId
     })
+
+
+    useEffect(() => {
+        if(provider) {
+            let web = new Web3(provider)
+            setWeb3(web)
+        }
+    }, [provider])
 
     useEffect(() => {
         console.log(`CAN SET PROJECT SET TO: ${canSetProject}`)
@@ -132,10 +142,10 @@ export default function Dashboard() {
                     }
             </TabPane>
             <TabPane disabled={canSetProject} tab="Modules" key="1">
-                {(!canSetProject) && <Overview/>}
+                {(!canSetProject) && <Overview web3/>}
             </TabPane>
             <TabPane disabled={canSetProject} tab="Add Module" key="2">
-                {(!canSetProject) && <Overview/>}
+                {(!canSetProject) && <Adder web3/>}
             </TabPane>
             <TabPane disabled={canSetProject} tab="Panel" key="3">
             <Skeleton loading={isLoading}>

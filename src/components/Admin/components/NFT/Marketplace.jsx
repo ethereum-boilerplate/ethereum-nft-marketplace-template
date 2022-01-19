@@ -10,7 +10,9 @@ export default function Marketplace(props) {
         hasEnoughTokensToBuy,
         isBuying,
     } = useMarketplace(web3, props.address);*/
+/*
     const { allListings, unlist, getListingsByUser, buy, dataAllListings, list } = useMarketplace(props.address)
+*/
 /*
     const columns = [
         {
@@ -239,6 +241,7 @@ export default function Marketplace(props) {
 
     return (
         <div>
+            Do it for the lulz
             {/*<Table
                 loading={loadingListings}
                 dataSource={!props.ownListings ? allListings : props.listings}

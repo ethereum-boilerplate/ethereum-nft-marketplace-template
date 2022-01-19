@@ -134,7 +134,7 @@ const App = () => {
               </Route>
             </Switch>
             {(isAuthenticated) && (account && account.toUpperCase() === AdminAddress.toUpperCase()) && <Redirect to="/admin" />}
-            {(isAuthenticated) && hasMarketplace && (<Redirect to="/NFTMarketPlace" />)}
+            {(isAuthenticated) && (account && account.toUpperCase() !== AdminAddress.toUpperCase()) && hasMarketplace && (<Redirect to="/NFTMarketPlace" />)}
           </div>
         </Router>}
       <Footer style={{ textAlign: "center" }}>
