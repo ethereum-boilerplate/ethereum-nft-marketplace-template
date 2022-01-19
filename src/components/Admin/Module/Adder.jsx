@@ -63,6 +63,7 @@ export default function Adder() {
         if(selectedModule.key === "erc721module") {
             let code = '0x' + collectionBytecode;
             const contract = new web3.eth.Contract(collectionAbi)
+            console.log(protocolAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`, (e.royalty*100))
             const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`, (e.royalty*100)]})
             await toDeploy.send({from: account})
             .on('receipt', async (receipt) => {
@@ -128,7 +129,7 @@ export default function Adder() {
                     <Form.Item label="Name" name="name" rules={[{ required: true, message: 'You need to provide a name!' }]}>
                         <Input/>
                     </Form.Item>
-                    <Form.Item label="Symbol" name="symbol" rules={[{ required: selectedModule.key === 'tokenModule', message: 'You need to provide a name!' }]}>
+                    <Form.Item label="Symbol" name="symbol" rules={[{ required: selectedModule.key === 'tokenModule' || 'erc721module', message: 'You need to provide a name!' }]}>
                         <Input/>
                     </Form.Item>
                     { selectedModule.key === "marketPlaceModule" && 
@@ -148,7 +149,7 @@ export default function Adder() {
                     }
                     {(selectedModule.key === "erc721module" || selectedModule.key === "lazyMintModule" || selectedModule.key === "bundleModule")  && 
                     <Form.Item label="Royalty" name="royalty" rules={[{ required: true, message: 'Please specify royalty' }]}>
-                        <Input suffix={ <PercentageOutlined/> } type="number" maxLength="100"/>
+                        <Input suffix={ <PercentageOutlined/> } type="number" maxLength="99"/>
                     </Form.Item>
                     }
                     

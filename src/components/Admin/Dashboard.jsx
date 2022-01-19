@@ -1,40 +1,25 @@
-import { Button, Form, Input, Skeleton, Table, Tabs } from 'antd';
-import { useERC20Balances, useMoralis } from 'react-moralis';
+import { Button, Form, Input, Tabs } from 'antd';
+import { useERC20Balances } from 'react-moralis';
 import { ProjectChainId } from '.';
 import Adder from "./Module/Adder";
 import Moralis from 'moralis';
 import Overview from "./Module/Overview";
-import {useEffect, useState} from 'react'
-import { getEllipsisTxt } from 'helpers/formatters';
-import { useProtocol } from './Module/contracts/Protocol/useProtocol';
+import { useEffect } from 'react'
 import useRegistry from "./Module/contracts/Registry/typescript/useRegistry";
 import {Notification} from "web3uikit";
-import Web3 from "web3";
-
 
 const { TabPane } = Tabs;
 
 export default function Dashboard() {
 
-    const { isWeb3Enabled, account, provider } = useMoralis()
-    const [web3, setWeb3] = useState()
-    const {  withdrawFunds, isWithdrawing } = useProtocol(web3, isWeb3Enabled)
     const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, deployErr, canSetProject } = useRegistry()
     const { fetchERC20Balances } = useERC20Balances({
         address: protocolAddress,
         chain: ProjectChainId
     })
 
-
     useEffect(() => {
-        if(provider) {
-            let web = new Web3(provider)
-            setWeb3(web)
-        }
-    }, [provider])
-
-    useEffect(() => {
-        console.log(`CAN SET PROJECT SET TO: ${canSetProject}`)
+        console.log(`CAN SET PROJECT? = ${canSetProject}`)
     }, [canSetProject])
 
     useEffect(() => {
@@ -44,83 +29,14 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasProject])
 
-    useEffect(() => {
-        if(deployErr) {
-            return (
-                <Notification message={deployErr.message} isVisible={true} title={"Error"} />
-            )
-        }
-    }, [deployErr])
 
-    const columns = [
-        {
-            title: "",
-            dataIndex: "logo",
-            key: "logo",
-            render: (logo) => (
-            <img
-                src={logo || "https://etherscan.io/images/main/empty-token.png"}
-                alt="nologo"
-                width="28px"
-                height="28px"
-            />
-            ),
-        },
-        {
-            title: "Name",
-            dataIndex: "name",
-            key: "name",
-            render: (name) => name,
-        },
-        {
-            title: "Symbol",
-            dataIndex: "symbol",
-            key: "symbol",
-            render: (symbol) => symbol,
-        },
-        {
-            title: "Balance",
-            dataIndex: "balance",
-            key: "balance",
-            render: (value, item) =>
-            parseFloat(Moralis.Units.FromWei(value, item.decimals).toFixed(6)),
-        },
-        {
-            title: "Address",
-            dataIndex: "token_address",
-            key: "token_address",
-            render: (address) => getEllipsisTxt(address, 5),
-        },
-        {
-            title: "Withdraw",
-            dataIndex: "token_address",
-            key: "token_address",
-            render: (address, item) => {
-            return (
-                <Button 
-                loading={isWithdrawing}
-                onClick={() => {
-                    withdrawFunds(account, address, item.balance, account)
-                }}>
-                    Claim
-                </Button>
-            )
-            }
-        }
-        ];
-
-        const deploy = async (e) => {
-            setLoading(true)
-            delete e.submit
-            const json = new Moralis.File("metadata.json", {base64: btoa(JSON.stringify(e))})
-            await json.saveIPFS()
-            await deployProtocol(`ipfs://${json.hash()}`)
-            console.log('trigga')
-        }
-
-        const getActiveKey = () => {
-            return canSetProject ? "0" : "1"
-        }
+    const deploy = async (e) => {
+        setLoading(true)
+        delete e.submit
+        const json = new Moralis.File("metadata.json", {base64: btoa(JSON.stringify(e))})
+        await json.saveIPFS()
+        await deployProtocol(`ipfs://${json.hash()}`)
+    }
 
     return (
 
@@ -142,15 +58,21 @@ export default function Dashboard() {
                     }
             </TabPane>
             <TabPane disabled={canSetProject} tab="Modules" key="1">
-                {(!canSetProject) && <Overview web3/>}
+                {(!canSetProject) && <Overview />}
             </TabPane>
             <TabPane disabled={canSetProject} tab="Add Module" key="2">
-                {(!canSetProject) && <Adder web3/>}
+                {(!canSetProject) && <Adder />}
             </TabPane>
             <TabPane disabled={canSetProject} tab="Panel" key="3">
-            <Skeleton loading={isLoading}>
-            </Skeleton>
+                Withdraw royalties
+                coming soon ...
             </TabPane>
+            <div style={{position: "relative"}}>
+                LOL
+                <div style={{position: "absolute", top: "0", left: "0"}}>
+                    <Notification message={deployErr ? deployErr.message : ""} title={"Error"} isVisible={true}  />
+                    < /div>
+            </div>
         </Tabs>
     )
 }
