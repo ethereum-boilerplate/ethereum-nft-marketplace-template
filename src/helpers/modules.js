@@ -1,18 +1,21 @@
 import Moralis from "moralis"
-const web3 = new Moralis.Web3()
+import Web3 from "web3"; // Only when using npm/yarn
 const types = [ "Token",  "NFT Bundle",  "NFT Collection",  "Dynamic NFT",  "Access NFT",  "Pack",  "NFT Marketplace", "Other" ]
 
 export const getModuleType = (id, length) => {
+    const web3 = new Web3(Moralis.provider)
     for(let i = 0; i < types.length; i++) {
         for(let j = 0; j < length; j++) {
             if(web3.utils.soliditySha3(j,i) === id) {
+                console.log('lol', types[i])
                 return types[i]
             }
         }
     }
 }
 
-export const getFirstMarketplace = (id,length) => {
+export const getFirstMarketplace =  (id,length) => {
+    const web3 = new Web3(Moralis.provider)
     for(let j = 0; j < length; j++) {
         if(web3.utils.soliditySha3(j,6) === id) {
             return id
