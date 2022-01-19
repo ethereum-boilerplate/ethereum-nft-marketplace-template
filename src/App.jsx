@@ -17,10 +17,9 @@ import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import Text from "antd/lib/typography/Text";
-import { useProtocol } from "components/Admin/Module/contracts/Protocol/useProtocol";
 import Marketplace from "components/Admin/components/NFT/Marketplace";
 import { AdminAddress } from "components/Admin";
-import { useRegistry } from "components/Admin/Module/contracts/Registry/useRegistry";
+import useProtocol from "./components/Admin/Module/contracts/Protocol/typescript/useProtocol";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -53,19 +52,9 @@ const styles = {
     fontWeight: "600",
   },
 };
-const App = ({ isServerInfo }) => {
-  const { isWeb3Enabled, enableWeb3, isAuthenticated, isWeb3EnableLoading, web3, account } = useMoralis();
-  const [canSetProject, setPermission] = useState(false)
-  useRegistry(web3, isWeb3Enabled)
-  const { hasMarketplace, marketplaceAddress, checkRole, isAdmin, protocolAddress } = useProtocol(web3, isWeb3Enabled)
-
-  useEffect(() => {
-    if (isAuthenticated && !isWeb3Enabled && !isWeb3EnableLoading) {
-      enableWeb3()
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isAuthenticated]);
+const App = () => {
+  const { enableWeb3, isAuthenticated, web3, account } = useMoralis();
+  const { marketplaceAddress, hasMarketplace, canSetProject} = useProtocol();
 
 
   useEffect(() => {
@@ -73,15 +62,6 @@ const App = ({ isServerInfo }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  useEffect(() => {
-    if (isWeb3Enabled && account && protocolAddress && protocolAddress !== "0x0000000000000000000000000000000000000000") {
-      checkRole(account)
-      if (account.toUpperCase() === AdminAddress.toUpperCase()) {
-        setPermission(true)
-      }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isWeb3Enabled, account, protocolAddress])
 
   return (
     <Layout style={{ height: "100vh", overflow: "auto" }}>
@@ -100,7 +80,7 @@ const App = ({ isServerInfo }) => {
                 width: "100%",
               }}
             >
-              {(canSetProject && isAuthenticated) && <Menu.Item key="admin">
+              {(account && account.toUpperCase() === AdminAddress.toUpperCase() && isAuthenticated) && <Menu.Item key="admin">
                 <NavLink to="/admin">📑 Admin</NavLink>
               </Menu.Item>
               }
@@ -122,7 +102,7 @@ const App = ({ isServerInfo }) => {
           </Header>
           <div style={styles.content}>
             <Switch>
-              {account && account.toUpperCase() === AdminAddress.toUpperCase() &&
+              {account && (account.toUpperCase() === AdminAddress.toUpperCase()) &&
                 <Route path="/admin">
                   <Dashboard />
                 </Route>
@@ -137,7 +117,7 @@ const App = ({ isServerInfo }) => {
               }
               <Route path="/NFTMarketPlace">
                 {hasMarketplace &&
-                  <Marketplace address={marketplaceAddress} isAdmin={isAdmin} />
+                  <Marketplace address={marketplaceAddress} isAdmin={account && account.toUpperCase() === AdminAddress.toUpperCase()} />
                 }
                 {!hasMarketplace && canSetProject &&
                   <div>
@@ -153,7 +133,8 @@ const App = ({ isServerInfo }) => {
                 }
               </Route>
             </Switch>
-            {(isAuthenticated) && <Redirect to="/NFTBalance" />}
+            {(isAuthenticated) && (account && account.toUpperCase() === AdminAddress.toUpperCase()) && <Redirect to="/admin" />}
+            {(isAuthenticated) && (account && account.toUpperCase() !== AdminAddress.toUpperCase()) && hasMarketplace && (<Redirect to="/NFTMarketPlace" />)}
           </div>
         </Router>}
       <Footer style={{ textAlign: "center" }}>

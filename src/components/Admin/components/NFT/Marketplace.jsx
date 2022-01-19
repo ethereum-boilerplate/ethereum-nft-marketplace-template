@@ -1,22 +1,19 @@
-import { Table, Button, Image, Tag } from 'antd';
-import { useMarketplace } from 'components/Admin/Module/contracts/NFT/useMarketplace';
-import { useMoralis } from 'react-moralis';
 import React from 'react';
-import { getEllipsisTxt } from 'helpers/formatters';
-import { getExplorer } from 'helpers/networks';
+import useMarketplace from "../../Module/contracts/NFT/typescript/Marketplace/useMarketplace";
 
 export default function Marketplace(props) {
-    const { Moralis, web3, isAuthenticated, authenticate, chainId, account } =
-        useMoralis();
-    const {
-        allListings,
+/*    const {
         unlist,
         isUnlisting,
         buy,
         loadingListings,
         hasEnoughTokensToBuy,
         isBuying,
-    } = useMarketplace(web3, props.address);
+    } = useMarketplace(web3, props.address);*/
+/*
+    const { allListings, unlist, getListingsByUser, buy, dataAllListings, list } = useMarketplace(props.address)
+*/
+/*
     const columns = [
         {
             title: 'Image',
@@ -240,15 +237,17 @@ export default function Marketplace(props) {
             },
         },
     ];
+*/
 
     return (
         <div>
-            <Table
+            Do it for the lulz
+            {/*<Table
                 loading={loadingListings}
                 dataSource={!props.ownListings ? allListings : props.listings}
                 columns={!props.ownListings ? columns : customColumns}
                 scroll={{ x: true }}
-            />
+            />*/}
         </div>
     );
 }

@@ -1,17 +1,20 @@
-import { Modal, Table, Tabs, Tooltip } from 'antd'
+import { Modal, Tabs, Tooltip } from 'antd'
 import { useState, useEffect } from 'react'
-import { useMoralisQuery, useMoralis } from 'react-moralis'
-import { getEllipsisTxt } from 'helpers/formatters'
-import { getModuleColor, getModuleType } from 'helpers/modules';
-import { Tag } from "web3uikit"
+import {useMoralisQuery, useMoralis, useApiContract, useWeb3ExecuteFunction} from 'react-moralis'
+import { getEllipsisTxt } from '../../../helpers/formatters'
+import { getModuleColor, getModuleType } from '../../../helpers/modules';
+import {Avatar, Button, Icon, Table, Tag} from "web3uikit"
 import Minter from '../components/NFT/Minter';
 import Roles from './Permissions/Roles';
 import Marketplace from '../components/NFT/Marketplace';
 import Token from '../components/Token';
 import Bundle from '../components/NFT/Bundle';
 import CollectionList from '../components/NFT/CollectionList';
-import { getExplorer } from 'helpers/networks';
+import { getExplorer } from '../../../helpers/networks';
 import { useCollection } from './contracts/NFT/useCollection';
+import Moralis from "moralis";
+import {MasterKey, ProjectChainId} from "../index";
+import useProtocol from "./contracts/Protocol/typescript/useProtocol";
 const { TabPane } = Tabs;
 
 export default function Overview() {
@@ -19,52 +22,74 @@ export default function Overview() {
     const [modules, setModules] = useState([])
     const [limit] = useState(100)
     // Get installed modules
-    const { data } = useMoralisQuery("ModuleSync", query => query.limit(limit),[limit], { live: true})
+    const { data } = useMoralisQuery("Modules", query => query.limit(limit),[limit], { live: true})
     const { web3, chainId } = useMoralis()
     const { getNextTokenIdByAddress } = useCollection(web3, null)
     const [selectedModule, setSelectedModule] = useState(null)
     const [showModal, setShowModal] = useState(false)
-    const [isLoading, setLoading] = useState(false)
-
+    const { protocolAddress } = useProtocol()
+    const [isLoading, setLoading] = useState(true)
+    const { fetch } = useWeb3ExecuteFunction()
+    const [ tableData, setTableData ] = useState([])
 
     useEffect(() => {
         if(data && data.length > 0) {
             setLoading(true)
             setModules([])
-            data.forEach(async (mod) => {
-                let contract = new web3.eth.Contract([
-                    {
-                        "inputs": [],
-                        "name": "_contractURI",
-                        "outputs": [
-                            {
-                                "internalType": "string",
-                                "name": "",
-                                "type": "string"
-                            }
+            data.forEach(async (mod, index) => {
+                await fetch({
+                    params: {
+                        abi: [{
+                            "inputs": [],
+                            "name": "_contractURI",
+                            "outputs": [
+                                {
+                                    "internalType": "string",
+                                    "name": "",
+                                    "type": "string"
+                                }
+                            ],
+                            "stateMutability": "view",
+                            "type": "function"
+                        }
                         ],
-                        "stateMutability": "view",
-                        "type": "function"
-                    }
-                ], mod.get('module'))
+                        functionName: "_contractURI",
+                        contractAddress: mod.get('module'),
+                    },
+                    onSuccess: async (results) => {
+                        let metadata = {
+                            name: '', description: ''
+                        }
+                        const url = `https://ipfs.io/ipfs/${(results).split('ipfs://')[1]}`
+                        try {
+                            /*const x = await fetch(url)
+                            const y = await x.json()
+                            metadata.name = y.name*/
+                        } catch (e) {
+                            console.log(e)
+                        }
+                        let temp = modules
+                        let tempTable = tableData
+                        let typeText = getModuleType(mod.get('moduleId'), data.length)
 
-                let metadata = {
-                    name: '', description: ''
-                }
-                try {
-                    const uri = await contract.methods._contractURI().call()
-                    if(uri.includes('ipfs')) {
-                        const url = `https://ipfs.io/ipfs/${(uri).split('ipfs://')[1]}`
-                        const x = await fetch(url)
-                        const y = await x.json()
-                        metadata.name = y.name
+                        temp.push({type: typeText, module: mod.get('module'), key: mod.get('module'), metadata})
+                        tempTable.push(
+                            [
+                                <Avatar theme="letters" text={"MP"} />,
+                                'Owl Magi',
+                                <Tag color="purple" text={typeText}/>,
+                                mod.get('module'),
+                                <Icon fill="black" size={32} svg="more vert"/>
+                            ]
+                        )
+                        setModules(temp)
                     }
-                } catch (error) {
-                    console.log('no metadata found')
+                })
+                if(index === modules.length - 1) {
+                    setLoading(false)
+
                 }
-                setModules((prev) => [...prev, {type:getModuleType(mod.get('moduleId'), data.length), module: mod.get('module'), key: mod.get('module'), metadata}])
             })
-            setLoading(false)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data])
@@ -131,11 +156,42 @@ export default function Overview() {
         }
     }
 
+    const runCf = async () => {
+        if((modules && modules.length > 0 ) || !protocolAddress || !ProjectChainId) return
+        Moralis.masterKey = MasterKey
+        await Moralis.Cloud.run("watchContractEvent", {
+            chainId: ProjectChainId,
+            address: protocolAddress,
+            topic: "ModuleUpdated(bytes32, address)",
+            abi: {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "bytes32",
+                        "name": "moduleId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "module",
+                        "type": "address"
+                    }
+                ],
+                "name": "ModuleUpdated",
+                "type": "event"
+            },
+            tableName: "Modules",
+            "sync_historical": true
+        }, {useMasterKey: true})
+    }
+
     return (
         <div>
-            { !modules && <p>No Modules installed</p> }
-            { modules && 
-                <Table 
+            { modules && modules.length === 0 && !isLoading && <p>No Modules installed.. if you think this is an error. <Button onClick={() => {runCf(protocolAddress)}} text={"Click here to force sync"}/> </p>  }
+            { modules && modules.length > 0 &&
+                /*<Table
                 loading={isLoading}
                 onRow={(record) => {
                     return {
@@ -145,7 +201,23 @@ export default function Overview() {
                 dataSource={modules} 
                 columns={columns}
                 scroll={{x: true}}
-                /> 
+                /> */
+
+                <Table
+                    columnsConfig="80px 3fr 2fr 2fr 80px"
+                    s
+                    data={tableData}
+                    header={[
+                        '',
+                        <span>Name</span>,
+                        <span>Type</span>,
+                        <span>Module</span>,
+                        ''
+                    ]}
+                    maxPages={3}
+                    onPageNumberChanged={function noRefCheck(){}}
+                    pageSize={5}
+                />
             }
             <Modal
             title={`${getEllipsisTxt(selectedModule?.module)} ${selectedModule?.type}`}

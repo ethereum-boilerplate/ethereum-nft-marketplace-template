@@ -4,17 +4,27 @@ import { useState, useEffect } from "react"
 import { collectionBytecode, collectionAbi } from "./contracts/NFT/collection";
 import { marketplaceBytecode, marketplaceAbi } from "./contracts/NFT/marketplace";
 import { tokenBytecode, tokenAbi } from "./contracts/Token/token";
-import { Card } from "web3uikit"
+import {Card, Illustration} from "web3uikit"
 import { useMoralis } from "react-moralis";
 import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/list"
-import { useProtocol } from "./contracts/Protocol/useProtocol";
+import useProtocol from "./contracts/Protocol/typescript/useProtocol";
+import Web3 from "web3"
+import {Flex} from "../../../uikit/Flex/Flex";
 export default function Adder() {
 
     const [selectedModule, setSelectedModule] = useState(null)
+    const [web3, setWeb3] = useState()
     const [isDeploying, setIsDeploying] = useState(false)
     const [deployConfirmed, setDeployConfirmed] = useState(false)
-    const { web3, isWeb3Enabled, Moralis,account, chainId } = useMoralis()
-    const { addModule,  hasMarketplace, protocolAddress, forwarder } = useProtocol(web3, isWeb3Enabled)
+    const { Moralis,account, chainId, provider } = useMoralis()
+    const { addModule, forwarder, protocolAddress, hasMarketplace } = useProtocol()
+
+    useEffect(() => {
+        if(provider) {
+            let web = new Web3(provider)
+            setWeb3(web)
+        }
+    }, [provider])
 
     const nftModules = [
         collectionModule,
@@ -53,11 +63,12 @@ export default function Adder() {
         if(selectedModule.key === "erc721module") {
             let code = '0x' + collectionBytecode;
             const contract = new web3.eth.Contract(collectionAbi)
+            console.log(protocolAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`, (e.royalty*100))
             const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`, (e.royalty*100)]})
             await toDeploy.send({from: account})
             .on('receipt', async (receipt) => {
                 triggerWeb3Api(receipt)
-                await addModule(2, receipt.contractAddress, account)
+                await addModule(2, receipt.contractAddress)
                 setDeployConfirmed(true)
                 setIsDeploying(false)
             })
@@ -72,7 +83,7 @@ export default function Adder() {
             const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, forwarder, `ipfs://${json.hash()}`, (e.marketFee*100)]})
             await toDeploy.send({from: account})
             .on('receipt', async (receipt) => {
-                await addModule(6, receipt.contractAddress, account)
+                await addModule(6, receipt.contractAddress)
                 setDeployConfirmed(true)
                 setIsDeploying(false)
             })
@@ -85,7 +96,7 @@ export default function Adder() {
             const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${json.hash()}`]})
             await toDeploy.send({from: account})
             .on('receipt', async (receipt) => {
-                await addModule(0, receipt.contractAddress, account)
+                await addModule(0, receipt.contractAddress)
                 setDeployConfirmed(true)
                 setIsDeploying(false)
             })
@@ -118,7 +129,7 @@ export default function Adder() {
                     <Form.Item label="Name" name="name" rules={[{ required: true, message: 'You need to provide a name!' }]}>
                         <Input/>
                     </Form.Item>
-                    <Form.Item label="Symbol" name="symbol" rules={[{ required: selectedModule.key === 'tokenModule' ? true : false, message: 'You need to provide a name!' }]}>
+                    <Form.Item label="Symbol" name="symbol" rules={[{ required: selectedModule.key === 'tokenModule' || 'erc721module', message: 'You need to provide a name!' }]}>
                         <Input/>
                     </Form.Item>
                     { selectedModule.key === "marketPlaceModule" && 
@@ -138,7 +149,7 @@ export default function Adder() {
                     }
                     {(selectedModule.key === "erc721module" || selectedModule.key === "lazyMintModule" || selectedModule.key === "bundleModule")  && 
                     <Form.Item label="Royalty" name="royalty" rules={[{ required: true, message: 'Please specify royalty' }]}>
-                        <Input suffix={ <PercentageOutlined/> } type="number" maxLength="100"/>
+                        <Input suffix={ <PercentageOutlined/> } type="number" maxLength="99"/>
                     </Form.Item>
                     }
                     
@@ -160,9 +171,19 @@ export default function Adder() {
                             <div
                             key={module.title}
                             onClick={()=> setSelectedModule(module)}
-                            style={{padding: '0.5em'}}
+                            style={{padding: "0.5em"}}
                             >
-                                <Card module={module.title} />
+                                <Card
+                                    selected={module === selectedModule}
+                                    title={module.title}
+                                    tooltipText={module.desc}
+                                    children={
+                                    [
+                                        <div style={{display: "grid", placeItems: 'center'}}>
+                                            <Illustration width="180px" height="200px" logo={module.logo}/>
+                                        </div>
+                                    ]}
+                                />
                             </div>
                         )
                     })}
@@ -177,7 +198,15 @@ export default function Adder() {
                                 onClick={()=> setSelectedModule(module)}
                                 style={{padding: '0.5em'}}
                                 >
-                                    <Card key={module.title} module={module.title}/>
+                                    <Card
+                                        title={module.title}
+                                        tooltipText={module.desc}
+                                        children={[
+                                            <div style={{display: "grid", placeItems: 'center'}}>
+                                                <Illustration width="180px" height="200px" logo={module.logo}/>
+                                            </div>
+                                        ]}
+                                    />
                                 </div>
                         )
                     })}

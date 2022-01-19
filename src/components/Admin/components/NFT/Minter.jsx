@@ -1,7 +1,7 @@
 import { Form, Input, Button, Upload } from 'antd'
 import { FileImageOutlined } from '@ant-design/icons'
 import { useMoralis } from 'react-moralis'
-import { useCollection } from 'components/Admin/Module/contracts/NFT/useCollection'
+import { useCollection } from '../../Module/contracts/NFT/useCollection'
 import { useState } from 'react'
 
 export default function Minter(props) {
@@ -45,7 +45,7 @@ export default function Minter(props) {
                             return false 
                         }}
                         onChange={() => {}} type="drag"
-                        disabled={uploaded ? true : false}
+                        disabled={uploaded}
                         >
                             { !uploaded && <><FileImageOutlined />
                                 <p className="ant-upload-text">Click or drag image to upload</p>

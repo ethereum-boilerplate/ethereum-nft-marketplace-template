@@ -10,13 +10,6 @@ export const useRegistry = (web3, isEnabled) => {
     const [ isDeployig, setDeploying ] = useState(false)
     const [ isDeployed, setDeployed ] = useState(false)
     const [ synced, setSynced ] = useState(false)
-    useEffect(() => {
-        if(web3 && isEnabled && registryAbi && RegistryAddress) {
-            getProtocol()
-            runCf(protocolAddress)
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [web3, isEnabled, registryAbi, RegistryAddress])
 
     const deployProtocol = async (uri, signer) => {
         setDeploying(true)
@@ -58,23 +51,12 @@ export const useRegistry = (web3, isEnabled) => {
                     "name": "ModuleUpdated",
                     "type": "event"
             },
-            tableName: "ModuleSync",
+            tableName: "Modules",
             "sync_historical": true
         }, {useMasterKey: true})
         setSynced(true)
     }
 
-    const getProtocol = async () => {
-        const contract = new web3.eth.Contract(registryAbi, RegistryAddress)
-        await contract.methods.getProtocolControl(AdminAddress, 1).call().then((res) => {
-            if(res === "0x0000000000000000000000000000000000000000") {
-                setHasProject(false)
-            } else {
-                setHasProject(true)
-                setProtocolAddress(res)
-            }
-        }).catch(() => console.log('err'))
-    }
 
     return {
         deployProtocol,
@@ -82,6 +64,5 @@ export const useRegistry = (web3, isEnabled) => {
         hasProject,
         isDeployed,
         isDeployig,
-        protocolAddress
     }
 }
