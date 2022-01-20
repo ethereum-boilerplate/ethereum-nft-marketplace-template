@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { collectionBytecode, collectionAbi } from "./contracts/NFT/collection";
 import { marketplaceBytecode, marketplaceAbi } from "./contracts/NFT/marketplace";
 import { tokenBytecode, tokenAbi } from "./contracts/Token/token";
-import {Card, Illustration} from "web3uikit"
+import {Breadcrumbs, Card, Illustration} from "web3uikit"
 import { useMoralis } from "react-moralis";
 import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/list"
 import useProtocol from "./contracts/Protocol/typescript/useProtocol";
@@ -163,6 +163,19 @@ export default function Adder() {
 
     return (
         <div style={wrapper}>
+            <Breadcrumbs
+                currentLocation={"addModule"}
+                routes={[
+                    {
+                        breadcrumb: 'Admin',
+                        path: 'admin'
+                    },
+                    {
+                        breadcrumb: 'Add Module',
+                        path: 'addModule'
+                    }
+                ]}
+            />
             <div>
                 <p style={{fontWeight: 600}}>NFT Modules</p>
                 <div style={{display: 'flex'}}>
@@ -179,10 +192,11 @@ export default function Adder() {
                                     tooltipText={module.desc}
                                     children={
                                     [
-                                        <div style={{display: "grid", placeItems: 'center'}}>
+                                        <div key={module.title} style={{display: "grid", placeItems: 'center'}}>
                                             <Illustration width="180px" height="200px" logo={module.logo}/>
                                         </div>
-                                    ]}
+                                    ]
+                                }
                                 />
                             </div>
                         )
@@ -202,7 +216,7 @@ export default function Adder() {
                                         title={module.title}
                                         tooltipText={module.desc}
                                         children={[
-                                            <div style={{display: "grid", placeItems: 'center'}}>
+                                            <div key={module.title} style={{display: "grid", placeItems: 'center'}}>
                                                 <Illustration width="180px" height="200px" logo={module.logo}/>
                                             </div>
                                         ]}

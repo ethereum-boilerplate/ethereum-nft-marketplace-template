@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react'
 import {useMoralisQuery, useMoralis, useApiContract, useWeb3ExecuteFunction} from 'react-moralis'
 import { getEllipsisTxt } from '../../../helpers/formatters'
 import { getModuleColor, getModuleType } from '../../../helpers/modules';
-import {Avatar, Button, Icon, Table, Tag} from "web3uikit"
+import {Avatar, Button, Icon, LinkTo, Table, Tag} from "web3uikit"
 import Minter from '../components/NFT/Minter';
 import Roles from './Permissions/Roles';
 import Marketplace from '../components/NFT/Marketplace';
@@ -29,7 +29,7 @@ export default function Overview() {
     const [showModal, setShowModal] = useState(false)
     const { protocolAddress } = useProtocol()
     const [isLoading, setLoading] = useState(true)
-    const { fetch } = useWeb3ExecuteFunction()
+    const { fetch: fetchWeb3 } = useWeb3ExecuteFunction()
     const [ tableData, setTableData ] = useState([])
 
     useEffect(() => {
@@ -37,7 +37,7 @@ export default function Overview() {
             setLoading(true)
             setModules([])
             data.forEach(async (mod, index) => {
-                await fetch({
+                await fetchWeb3({
                     params: {
                         abi: [{
                             "inputs": [],
@@ -62,9 +62,9 @@ export default function Overview() {
                         }
                         const url = `https://ipfs.io/ipfs/${(results).split('ipfs://')[1]}`
                         try {
-                            /*const x = await fetch(url)
+                            const x = await fetch(url)
                             const y = await x.json()
-                            metadata.name = y.name*/
+                            metadata.name = y.name
                         } catch (e) {
                             console.log(e)
                         }
@@ -75,10 +75,10 @@ export default function Overview() {
                         temp.push({type: typeText, module: mod.get('module'), key: mod.get('module'), metadata})
                         tempTable.push(
                             [
-                                <Avatar theme="letters" text={"MP"} />,
-                                'Owl Magi',
-                                <Tag color="purple" text={typeText}/>,
-                                mod.get('module'),
+                                <Avatar theme="letters" text={metadata.name} />,
+                                metadata.name,
+                                <Tag color={getModuleColor(typeText)} text={typeText}/>,
+                                <LinkTo text={getEllipsisTxt(mod.get('module'), 5)} address={`${getExplorer(chainId)}address/${mod.get('module')}`} />,
                                 <Icon fill="black" size={32} svg="more vert"/>
                             ]
                         )
@@ -191,18 +191,6 @@ export default function Overview() {
         <div>
             { modules && modules.length === 0 && !isLoading && <p>No Modules installed.. if you think this is an error. <Button onClick={() => {runCf(protocolAddress)}} text={"Click here to force sync"}/> </p>  }
             { modules && modules.length > 0 &&
-                /*<Table
-                loading={isLoading}
-                onRow={(record) => {
-                    return {
-                        onClick: () => onRowClick(record)
-                    }
-                }}
-                dataSource={modules} 
-                columns={columns}
-                scroll={{x: true}}
-                /> */
-
                 <Table
                     columnsConfig="80px 3fr 2fr 2fr 80px"
                     s

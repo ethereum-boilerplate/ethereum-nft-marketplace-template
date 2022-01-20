@@ -20,6 +20,7 @@ import Text from "antd/lib/typography/Text";
 import Marketplace from "components/Admin/components/NFT/Marketplace";
 import { AdminAddress } from "components/Admin";
 import useProtocol from "./components/Admin/Module/contracts/Protocol/typescript/useProtocol";
+import Adder from "./components/Admin/Module/Adder";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -106,6 +107,11 @@ const App = () => {
                 <Route path="/admin">
                   <Dashboard />
                 </Route>
+              }
+              {account && (account.toUpperCase() === AdminAddress.toUpperCase()) &&
+                  <Route path="/addModule">
+                    <Adder />
+                  </Route>
               }
               <Route path="/NFTBalance">
                 <NFTBalance marketplace={marketplaceAddress} />
