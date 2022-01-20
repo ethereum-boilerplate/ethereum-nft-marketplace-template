@@ -1,4 +1,4 @@
-import { Button, Form, Input, Tabs } from 'antd';
+import { Form, Input } from 'antd';
 import { useERC20Balances } from 'react-moralis';
 import { ProjectChainId } from '.';
 import Adder from "./Module/Adder";
@@ -6,9 +6,11 @@ import Moralis from 'moralis';
 import Overview from "./Module/Overview";
 import { useEffect } from 'react'
 import useRegistry from "./Module/contracts/Registry/typescript/useRegistry";
-import {Notification} from "web3uikit";
+import { Notification, TabList, Button, } from "web3uikit";
+import ProjectForm from "./Forms/Project";
+import {useHistory} from "react-router";
 
-const { TabPane } = Tabs;
+const { Tab } = TabList
 
 export default function Dashboard() {
 
@@ -17,6 +19,13 @@ export default function Dashboard() {
         address: protocolAddress,
         chain: ProjectChainId
     })
+
+    const history = useHistory();
+
+    const pushToAdder = () =>{
+        let path = `addModule`;
+        history.push(path);
+    }
 
     useEffect(() => {
         console.log(`CAN SET PROJECT? = ${canSetProject}`)
@@ -39,8 +48,40 @@ export default function Dashboard() {
     }
 
     return (
-
-        <Tabs defaultActiveKey={"0"}>
+        <TabList
+        defaultActiveKey={canSetProject ? 1 : 2}
+        tabStyle={"bar"}
+        >
+            <Tab
+                tabKey={1}
+                tabName={"Project"}
+                isDisabled={!canSetProject}
+            >
+                <ProjectForm/>
+            </Tab>
+            <Tab
+                tabKey={2}
+                tabName={"Modules"}
+                isDisabled={canSetProject}
+            >
+                {(!canSetProject) &&
+                    <>
+                        <div style={{display: 'flex', flexDirection: 'row-reverse', marginBottom: "15px"}}>
+                            <Button onClick={pushToAdder}  text={"Add Module"} theme={"primary"} icon={"plus"} iconLayout={"leading"}/>
+                        </div>
+                        <Overview />
+                    </>
+                }
+            </Tab>
+            <Tab
+                tabKey={3}
+                tabName={"Panel"}
+                isDisabled={canSetProject}
+            >
+                {(!canSetProject) && <span>Coming soon</span>}
+            </Tab>
+        </TabList>
+        /*<Tabs defaultActiveKey={"0"}>
                 <TabPane disabled={!canSetProject} tab="Project" key="0">
                     {(canSetProject) &&<Form layout="vertical" style={{width: '100%', margin: '0 auto'}} onFinish={(e) => deploy(e)}>
                         <Form.Item label="Name" name="name" rules={[{ required: true, message: 'You need to provide a name!' }]}>
@@ -73,6 +114,6 @@ export default function Dashboard() {
                     <Notification message={deployErr ? deployErr.message : ""} title={"Error"} isVisible={true}  />
                     < /div>
             </div>
-        </Tabs>
+        </Tabs>*/
     )
 }
