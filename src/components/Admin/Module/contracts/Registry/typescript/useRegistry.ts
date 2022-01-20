@@ -9,7 +9,7 @@ const useRegistry = () => {
     const [ hasProject, setHasProject ] = useState<boolean>(false);
     const [ canSetProject, setCanSetProject ] = useState<boolean>(false);
     const [ isLoading, setLoading ] = useState<boolean>(false);
-
+    const [ deployTx, setDeployTx] = useState();
     const { data, error, fetch } = useWeb3ExecuteFunction();
     const { data: deploy, error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
     const { data: forwarder, fetch: fetchForwarder  } = useWeb3ExecuteFunction();
@@ -44,7 +44,7 @@ const useRegistry = () => {
 
     useEffect(() => {
         if(deploy) {
-            console.log(deploy)
+            setDeployTx(deploy)
             setLoading(false)
         }
         if(deployErr) {
@@ -125,6 +125,7 @@ const useRegistry = () => {
         deployProtocol,
         getProtocolByUser,
         getForwarder,
+        deployTx,
         forwarder,
         canSetProject,
         hasProject,

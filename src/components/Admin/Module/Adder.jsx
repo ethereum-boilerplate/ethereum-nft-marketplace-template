@@ -6,10 +6,11 @@ import { marketplaceBytecode, marketplaceAbi } from "./contracts/NFT/marketplace
 import { tokenBytecode, tokenAbi } from "./contracts/Token/token";
 import {Breadcrumbs, Card, Illustration} from "web3uikit"
 import { useMoralis } from "react-moralis";
-import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/list"
+import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/modules"
 import useProtocol from "./contracts/Protocol/typescript/useProtocol";
 import Web3 from "web3"
-import {Flex} from "../../../uikit/Flex/Flex";
+import NFTCollection from "../Forms/NFTCollection";
+import MarketplaceForm from "../Forms/Marketplace";
 export default function Adder() {
 
     const [selectedModule, setSelectedModule] = useState(null)
@@ -115,9 +116,21 @@ export default function Adder() {
         ) {
             return ( <p>Coming Soon</p> )
         }
-        if(hasMarketplace && selectedModule.key === "marketPlaceModule") {
+        if(selectedModule.key === "marketPlaceModule") {
+            if(hasMarketplace) {
+                return (
+                    <p>Cannot deploy another marketplace</p>
+                )
+            }else {
+                return (
+                    <MarketplaceForm web3={web3}/>
+                )
+            }
+
+        }
+        if(selectedModule.key === "erc721module") {
             return (
-                <p>Cannot deploy another marketplace</p>
+                <NFTCollection web3={web3}/>
             )
         }
         return (
@@ -183,11 +196,12 @@ export default function Adder() {
                         return (
                             <div
                             key={module.title}
-                            onClick={()=> setSelectedModule(module)}
+                            onClick={()=> module === selectedModule ? setSelectedModule("") : setSelectedModule(module)}
                             style={{padding: "0.5em"}}
                             >
                                 <Card
                                     selected={module === selectedModule}
+                                    pressed={module === selectedModule}
                                     title={module.title}
                                     tooltipText={module.desc}
                                     children={
@@ -209,12 +223,14 @@ export default function Adder() {
                         return (
                                 <div
                                 key={module.title}
-                                onClick={()=> setSelectedModule(module)}
+                                onClick={()=> module === selectedModule ? setSelectedModule("") : setSelectedModule(module)}
                                 style={{padding: '0.5em'}}
                                 >
                                     <Card
                                         title={module.title}
                                         tooltipText={module.desc}
+                                        selected={module === selectedModule}
+                                        pressed={module === selectedModule}
                                         children={[
                                             <div key={module.title} style={{display: "grid", placeItems: 'center'}}>
                                                 <Illustration width="180px" height="200px" logo={module.logo}/>
@@ -226,15 +242,7 @@ export default function Adder() {
                     })}
                 </div>
             </div>
-
-            <div style={{backgroundColor: 'white', borderRadius: '10px', padding: '1em'}}>
-                { 
-                    !selectedModule && <p>Please Select A Module first</p>
-                }
-                {
-                    selectedModule && printSelectedModule()
-                }
-            </div>
+                {selectedModule?.key && printSelectedModule() }
         </div>
     )
 }

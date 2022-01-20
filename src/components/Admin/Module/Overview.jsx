@@ -1,9 +1,9 @@
-import { Modal, Tabs, Tooltip } from 'antd'
+import { Modal } from 'antd'
 import { useState, useEffect } from 'react'
-import {useMoralisQuery, useMoralis, useApiContract, useWeb3ExecuteFunction} from 'react-moralis'
+import {useMoralisQuery, useMoralis, useWeb3ExecuteFunction} from 'react-moralis'
 import { getEllipsisTxt } from '../../../helpers/formatters'
 import { getModuleColor, getModuleType } from '../../../helpers/modules';
-import {Avatar, Button, Icon, LinkTo, Table, Tag} from "web3uikit"
+import {Avatar, Button, Dropdown, DropdownElement, Icon, LinkTo, Table, Tag} from "web3uikit"
 import Minter from '../components/NFT/Minter';
 import Roles from './Permissions/Roles';
 import Marketplace from '../components/NFT/Marketplace';
@@ -14,23 +14,20 @@ import { getExplorer } from '../../../helpers/networks';
 import { useCollection } from './contracts/NFT/useCollection';
 import Moralis from "moralis";
 import {MasterKey, ProjectChainId} from "../index";
-import useProtocol from "./contracts/Protocol/typescript/useProtocol";
-const { TabPane } = Tabs;
 
-export default function Overview() {
+export default function Overview({ pushToAdder, protocolAddress }) {
 
     const [modules, setModules] = useState([])
     const [limit] = useState(100)
     // Get installed modules
-    const { data } = useMoralisQuery("Modules", query => query.limit(limit),[limit], { live: true})
+    const { data } = useMoralisQuery("Modules", query => query.limit(limit),[limit], { live: true })
     const { web3, chainId } = useMoralis()
     const { getNextTokenIdByAddress } = useCollection(web3, null)
     const [selectedModule, setSelectedModule] = useState(null)
     const [showModal, setShowModal] = useState(false)
-    const { protocolAddress } = useProtocol()
-    const [isLoading, setLoading] = useState(true)
+    const [ isLoading, setLoading ] = useState(true)
     const { fetch: fetchWeb3 } = useWeb3ExecuteFunction()
-    const [ tableData, setTableData ] = useState([])
+    const [ tableData ] = useState([])
 
     useEffect(() => {
         if(data && data.length > 0) {
@@ -79,7 +76,23 @@ export default function Overview() {
                                 metadata.name,
                                 <Tag color={getModuleColor(typeText)} text={typeText}/>,
                                 <LinkTo text={getEllipsisTxt(mod.get('module'), 5)} address={`${getExplorer(chainId)}address/${mod.get('module')}`} />,
-                                <Icon fill="black" size={32} svg="more vert"/>
+                                    <Dropdown
+                                        onClick={() => {}}
+                                        parent={<Icon key="3" fill="#68738D" size={20} svg="more vert"/>}
+                                        position="bottom"
+                                        children={[
+                                            <DropdownElement
+                                                backgroundColor="transparent"
+                                                icon="testnet"
+                                                iconSize={12}
+                                                onClick={() => {runCf()}}
+                                                text="Testnet Server"
+                                                textColor="#FFFFFF"
+                                                key={1}
+                                            />
+                                        ]}
+                                    />
+
                             ]
                         )
                         setModules(temp)
@@ -87,40 +100,12 @@ export default function Overview() {
                 })
                 if(index === modules.length - 1) {
                     setLoading(false)
-
                 }
             })
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data])
 
-
-    const columns = [ 
-        {
-            title: 'Name',
-            dataIndex: 'metadata',
-            key: 'name',
-            render: (record) => record.name !== "" ? record.name : "No Name Found"
-        },
-        {
-            title: 'Type',
-            dataIndex: 'type',
-            key: 'type',
-            render: (record) => <Tag color={getModuleColor(record)} text={record}/>
-        },
-        {
-            title: 'Module',
-            dataIndex: 'module',
-            key: 'module',
-            render: (record) => {
-                return (
-                    <Tooltip title={"View on Blockexplorer"}>
-                        <a href={`${getExplorer(chainId)}address/${record}`} rel='noreferrer' target={"_blank"}>{getEllipsisTxt(record, 4)}</a>
-                    </Tooltip>
-                )
-            }
-        },
-    ]
 
     const onRowClick = (record) => {
         const isEmptyCollection = async () => {
@@ -157,41 +142,46 @@ export default function Overview() {
     }
 
     const runCf = async () => {
-        if((modules && modules.length > 0 ) || !protocolAddress || !ProjectChainId) return
+        if(!protocolAddress || !ProjectChainId) return
         Moralis.masterKey = MasterKey
+        const options = {"tableName": "Modules"}
+        await Moralis.Cloud.run("unwatchContractEvent", options, {useMasterKey:true});
         await Moralis.Cloud.run("watchContractEvent", {
-            chainId: ProjectChainId,
-            address: protocolAddress,
-            topic: "ModuleUpdated(bytes32, address)",
-            abi: {
-                "anonymous": false,
-                "inputs": [
-                    {
-                        "indexed": true,
-                        "internalType": "bytes32",
-                        "name": "moduleId",
-                        "type": "bytes32"
-                    },
-                    {
-                        "indexed": true,
-                        "internalType": "address",
-                        "name": "module",
-                        "type": "address"
-                    }
-                ],
-                "name": "ModuleUpdated",
-                "type": "event"
-            },
-            tableName: "Modules",
-            "sync_historical": true
-        }, {useMasterKey: true})
+                chainId: ProjectChainId,
+                address: protocolAddress,
+                topic: "ModuleUpdated(bytes32, address)",
+                abi: {
+                    "anonymous": false,
+                    "inputs": [
+                        {
+                            "indexed": true,
+                            "internalType": "bytes32",
+                            "name": "moduleId",
+                            "type": "bytes32"
+                        },
+                        {
+                            "indexed": true,
+                            "internalType": "address",
+                            "name": "module",
+                            "type": "address"
+                        }
+                    ],
+                    "name": "ModuleUpdated",
+                    "type": "event"
+                },
+                tableName: "Modules",
+                "sync_historical": true
+            }, {useMasterKey: true})
     }
 
     return (
         <div>
-            { modules && modules.length === 0 && !isLoading && <p>No Modules installed.. if you think this is an error. <Button onClick={() => {runCf(protocolAddress)}} text={"Click here to force sync"}/> </p>  }
-            { modules && modules.length > 0 &&
-                <Table
+            {
+                <>
+                    <div style={{display: 'flex', flexDirection: 'row-reverse', marginBottom: "15px"}}>
+                        <Button onClick={pushToAdder}  text={"Add Module"} theme={"primary"} icon={"plus"} iconLayout={"leading"}/>
+                    </div>
+                    <Table
                     columnsConfig="80px 3fr 2fr 2fr 80px"
                     s
                     data={tableData}
@@ -205,7 +195,16 @@ export default function Overview() {
                     maxPages={3}
                     onPageNumberChanged={function noRefCheck(){}}
                     pageSize={5}
-                />
+                    customNoDataComponent={
+                        <div style={{display: 'grid', placeItems: 'center', width: "30vw", textAlign: 'center'}}>
+                            <h2>It looks like there is no data</h2>
+                            <span>If you think this is an error click to force re-sync</span>
+                            <Button onClick={() => runCf()} theme={"primary"} text={"Force Sync"} />
+                        </div>
+                    }
+
+                    />
+                </>
             }
             <Modal
             title={`${getEllipsisTxt(selectedModule?.module)} ${selectedModule?.type}`}
@@ -215,16 +214,12 @@ export default function Overview() {
             okButtonProps={{ disabled: true }}
             cancelButtonProps={{ disabled: false }}
             >
-                <Tabs defaultActiveKey="1">
-                    <TabPane tab="Overview" key="overview">
+
                         { 
                             selectedModule && printModuleInModal(selectedModule?.type, selectedModule)
                         }   
-                    </TabPane>
-                    <TabPane tab="Permissions" key="roles">
+
                         <Roles />
-                    </TabPane>
-                </Tabs>
             </Modal>
         </div>
     )

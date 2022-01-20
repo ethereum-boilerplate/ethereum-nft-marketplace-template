@@ -44,3 +44,4 @@ export const packModule = {
     logo: 'pack'
 }
 
+export type moduleTypes = "erc721module" | "bundleModule" | "lazyMintModule" | "marketPlaceModule" | "tokenModule" | "pack"

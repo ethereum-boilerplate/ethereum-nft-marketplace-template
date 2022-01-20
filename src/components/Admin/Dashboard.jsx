@@ -1,12 +1,9 @@
-import { Form, Input } from 'antd';
 import { useERC20Balances } from 'react-moralis';
 import { ProjectChainId } from '.';
-import Adder from "./Module/Adder";
-import Moralis from 'moralis';
 import Overview from "./Module/Overview";
 import { useEffect } from 'react'
 import useRegistry from "./Module/contracts/Registry/typescript/useRegistry";
-import { Notification, TabList, Button, } from "web3uikit";
+import { TabList } from "web3uikit";
 import ProjectForm from "./Forms/Project";
 import {useHistory} from "react-router";
 
@@ -14,7 +11,7 @@ const { Tab } = TabList
 
 export default function Dashboard() {
 
-    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, deployErr, canSetProject } = useRegistry()
+    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, canSetProject, deployErr, deployTx  } = useRegistry()
     const { fetchERC20Balances } = useERC20Balances({
         address: protocolAddress,
         chain: ProjectChainId
@@ -38,15 +35,6 @@ export default function Dashboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasProject])
 
-
-    const deploy = async (e) => {
-        setLoading(true)
-        delete e.submit
-        const json = new Moralis.File("metadata.json", {base64: btoa(JSON.stringify(e))})
-        await json.saveIPFS()
-        await deployProtocol(`ipfs://${json.hash()}`)
-    }
-
     return (
         <TabList
         defaultActiveKey={canSetProject ? 1 : 2}
@@ -57,21 +45,14 @@ export default function Dashboard() {
                 tabName={"Project"}
                 isDisabled={!canSetProject}
             >
-                <ProjectForm/>
+                <ProjectForm deployProtocol={deployProtocol} deployErr={deployErr} deployTx={deployTx} setLoading={setLoading} isLoading={isLoading}/>
             </Tab>
             <Tab
                 tabKey={2}
                 tabName={"Modules"}
                 isDisabled={canSetProject}
             >
-                {(!canSetProject) &&
-                    <>
-                        <div style={{display: 'flex', flexDirection: 'row-reverse', marginBottom: "15px"}}>
-                            <Button onClick={pushToAdder}  text={"Add Module"} theme={"primary"} icon={"plus"} iconLayout={"leading"}/>
-                        </div>
-                        <Overview />
-                    </>
-                }
+                {(!canSetProject) && <Overview pushToAdder={pushToAdder} protocolAddress={protocolAddress} />}
             </Tab>
             <Tab
                 tabKey={3}
