@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMoralis, useWeb3ExecuteFunction } from "react-moralis";
-import { AdminAddress, RegistryAddress } from '../../../../index'
+import { AdminAddress, RegistryAddress } from '../../../index'
 import registryInterface from "./interface";
 
 const useRegistry = () => {

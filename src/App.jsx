@@ -16,10 +16,11 @@ import { Menu, Layout } from "antd";
 import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
+import Web3 from "web3"
 import Text from "antd/lib/typography/Text";
 import Marketplace from "components/Admin/components/NFT/Marketplace";
 import { AdminAddress } from "components/Admin";
-import useProtocol from "./components/Admin/Module/contracts/Protocol/typescript/useProtocol";
+import useProtocol from "./components/Admin/Module/contracts/Protocol/useProtocol";
 import Adder from "./components/Admin/Module/Adder";
 const { Header, Footer } = Layout;
 
@@ -54,14 +55,21 @@ const styles = {
   },
 };
 const App = () => {
-  const { enableWeb3, isAuthenticated, web3, account } = useMoralis();
+  const { enableWeb3, isAuthenticated, account, provider } = useMoralis();
   const { marketplaceAddress, hasMarketplace, canSetProject} = useProtocol();
-
+  const [web3, setWeb3] = useState()
 
   useEffect(() => {
     enableWeb3()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    if(provider) {
+      let web = new Web3(provider)
+      setWeb3(web)
+    }
+  }, [provider])
 
 
   return (
@@ -105,7 +113,7 @@ const App = () => {
             <Switch>
               {account && (account.toUpperCase() === AdminAddress.toUpperCase()) &&
                 <Route path="/admin">
-                  <Dashboard />
+                  <Dashboard web3={web3} />
                 </Route>
               }
               {account && (account.toUpperCase() === AdminAddress.toUpperCase()) &&

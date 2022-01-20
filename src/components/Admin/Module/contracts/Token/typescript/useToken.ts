@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {useChain, useMoralisWeb3Api, useWeb3ExecuteFunction} from "react-moralis";
+import { useMoralisWeb3Api, useWeb3ExecuteFunction} from "react-moralis";
 import generateContractOptions from "../../../../helpers";
 import tokenInterface from "./interface";
 
@@ -14,7 +14,6 @@ const useToken = (address: string) => {
     const [ error, setError ] = useState(null)
     const { token } = useMoralisWeb3Api()
     const { data, fetch } = useWeb3ExecuteFunction()
-    const { chainId } = useChain();
     const { mintTokensAbi, totalSupplyAbi } = tokenInterface();
 
     useEffect(() => {
@@ -27,7 +26,7 @@ const useToken = (address: string) => {
 
     const getTotalSupply = () => {
         const params = generateContractOptions(totalSupplyAbi, address, "totalSupply", {})
-        fetch({params}).then((e) => console.log(e))
+        fetch({params, onSuccess: (e) => (setTotalSupply(e))}).then((e) => console.log(e))
     }
 
     const getTokenInformation = () => {

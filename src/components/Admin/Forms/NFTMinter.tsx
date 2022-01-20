@@ -2,22 +2,20 @@ import {Form, Notification} from "web3uikit";
 import React from "react";
 import useRegistry from "../Module/contracts/Registry/useRegistry";
 import {useMoralis, useMoralisFile} from "react-moralis";
-import useProtocol from "../Module/contracts/Protocol/useProtocol";
-import {marketplaceAbi, marketplaceBytecode} from "./Factory/marketplace";
+import {useCollection} from '../Module/contracts/NFT/useCollection'
 
-const MarketplaceForm: React.FC = ({ web3 }) => {
+const NFTMinterForm: React.FC = ({ web3, address }) => {
 
     const { deployErr, isLoading, setLoading } = useRegistry();
-    const { addModule, protocolAddress, forwarder } = useProtocol();
+    const { mint } = useCollection(web3, address);
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
 
-    const deployMarketplace = (e: any) => {
+    const mintNFT = (e: any) => {
         setLoading(true)
         let metadata = {
             name: e.name,
             symbol: e.symbol,
-            royalty: e.royalties,
             description: e.description,
         }
         saveFile(
@@ -29,16 +27,9 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                 saveIPFS: true
             }
 
-        ).then(async (e) => {
-            const hash = (e as any)["_hash"]
-            let code = '0x' + marketplaceBytecode;
-            const contract = new web3.eth.Contract(marketplaceAbi)
-            console.log(protocolAddress, forwarder, `ipfs://${hash}`, (metadata.royalty*100))
-            const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, forwarder, `ipfs://${hash}`, (metadata.royalty*100)]})
-            await toDeploy.send({from: account})
-                .on('receipt', async (receipt) => {
-                    await addModule(6, receipt.contractAddress)
-                })
+        ).then(async (file) => {
+            const hash = (file as any)["_hash"]
+            await mint(e.to, `ipfs://${hash}`, account)
         })
     }
 
@@ -78,9 +69,9 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                         value: '',
                     },
                     {
-                        name: 'Market Fee',
-                        type: 'number',
-                        value: '',
+                        name: 'To Address',
+                        type: 'text',
+                        value: account,
                         validation: {
                             required: true
                         },
@@ -90,14 +81,13 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                     const name = String(e.data[0].inputResult);
                     const symbol = e.data[1].inputResult;
                     const description = e.data[2].inputResult;
-                    const royalties = e.data[3].inputResult;
-                    console.log(name,symbol,description,royalties)
-                    deployMarketplace({name,symbol,description,royalties})
+                    const to = e.data[3].inputResult;
+                    mintNFT({name,symbol,description,to})
                 }}
-                title="NFT Marketplace"
+                title="NFT Collection"
             />
         </>
     )
 }
 
-export default MarketplaceForm;
+export default NFTMinterForm;

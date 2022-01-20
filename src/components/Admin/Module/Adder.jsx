@@ -1,13 +1,13 @@
 import { Input, Form, Button, Alert } from "antd"
 import { PercentageOutlined } from '@ant-design/icons';
 import { useState, useEffect } from "react"
-import { collectionBytecode, collectionAbi } from "./contracts/NFT/collection";
-import { marketplaceBytecode, marketplaceAbi } from "./contracts/NFT/marketplace";
+import { collectionBytecode, collectionAbi } from "../Forms/Factory/collection";
+import { marketplaceBytecode, marketplaceAbi } from "../Forms/Factory/marketplace";
 import { tokenBytecode, tokenAbi } from "./contracts/Token/token";
 import {Breadcrumbs, Card, Illustration} from "web3uikit"
 import { useMoralis } from "react-moralis";
 import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from "./types/modules"
-import useProtocol from "./contracts/Protocol/typescript/useProtocol";
+import useProtocol from "./contracts/Protocol/useProtocol";
 import Web3 from "web3"
 import NFTCollection from "../Forms/NFTCollection";
 import MarketplaceForm from "../Forms/Marketplace";

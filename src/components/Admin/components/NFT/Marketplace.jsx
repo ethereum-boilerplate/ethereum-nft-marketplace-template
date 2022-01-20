@@ -1,5 +1,5 @@
 import React from 'react';
-import useMarketplace from "../../Module/contracts/NFT/typescript/Marketplace/useMarketplace";
+import useMarketplace from "../../Module/contracts/NFT/Marketplace/useMarketplace";
 
 export default function Marketplace(props) {
 /*    const {

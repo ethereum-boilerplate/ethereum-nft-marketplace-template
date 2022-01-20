@@ -1,93 +1,77 @@
-import { useMoralis, useMoralisWeb3Api } from 'react-moralis'
-import { Button, Image, Table } from 'antd'
+import {useMoralis, useMoralisWeb3Api, useMoralisWeb3ApiCall} from 'react-moralis'
+import { Image } from 'antd'
 import { useEffect, useState } from 'react'
-// import { getEllipsisTxt } from 'helpers/formatters'
-export default function CollectionList(props) {
+import {Table, Button} from "web3uikit";
+import NFTMinterForm from "../../Forms/NFTMinter";
+export default function CollectionList({ address, web3 }) {
 
     const { chainId } = useMoralis()
-    const Web3Api = useMoralisWeb3Api()
-    const [ allNFTs, setNFTs] = useState([])
+    const [ showMinter, setShowMinter ] = useState(false)
+    const [ tableData, setTableData ] = useState([]);
     const [ isLoading, setLoading ] = useState(true)
 
-    useEffect(() => {
-        if(props.address) {
-            setLoading(true)
-            setNFTs([])
-            Web3Api.token.getAllTokenIds({
-                chain: chainId,
-                address: props.address,
-            }).then((res) => {
-                setNFTs(res.result)
-                setLoading(false)
-            }).catch(() => setLoading(false))
-        }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [props])
+    const Web3Api = useMoralisWeb3Api()
 
-    const columns = [
-        {
-            title: '#',
-            dataIndex: 'token_id',
-            key: 'id'
-        },
-        {
-            title: 'Image',
-            dataIndex: 'metadata',
-            key: 'img',
-            render: (record) => {
-                if(!record) {
-                    return <p>No Image</p>
+    const { data } = useMoralisWeb3ApiCall(Web3Api.token.getAllTokenIds, {
+        address: address,
+        chain: chainId
+    }, {autoFetch: true});
+
+
+    useEffect(() => {
+        setLoading(true)
+        if(data && data.result.length > 0) {
+            const temp = []
+            data.result.forEach((result, index) => {
+                console.log(JSON.parse(result.metadata))
+                const metadata = JSON.parse(result.metadata)
+                temp.push([
+                    <span>{result.token_id}</span>,
+                    <Image height={50} width={50} style={{borderRadius: '15px'}} src={metadata.image ? `https://ipfs.io/ipfs/${(metadata.image)}` : `https://i.ibb.co/FzDBLqk/Image.png`}/>,
+                    <span>{result.name}</span>,
+                    <div style={{display: 'flex', width: '120%', gap: '15px'}}>
+                        <Button isFullWidth onClick={() => {console.log('List')}} text={"List"}/>
+                        <Button isFullWidth onClick={() => {console.log('Transfer')}} text={"Transfer"}/>
+                    </div>
+                ])
+                console.log(temp)
+                if(index === data.result.length-1) {
+                    setTableData(temp)
                 }
-                const metadata = JSON.parse(record)
-                return <Image src={`https://ipfs.io/ipfs/${(metadata.image).split('ipfs://')[1]}`} width="50" height="50" />
-            }
-        },
-        {
-            title: 'Name',
-            dataIndex: 'metadata',
-            key: 'name',
-            render: (record) => {
-                if(!record) {
-                    return <p>No Metadata</p>
-                }
-                const metadata = JSON.parse(record)
-                return <p>{metadata.name}</p>
-            }
-        },
-        {
-            title: 'Description',
-            dataIndex: 'metadata',
-            key: 'desc',
-            render: (record) => {
-                if(!record) {
-                    return <p>No Description</p>
-                }
-                const metadata = JSON.parse(record)
-                return <p>{metadata.description}</p>
-            }
-        },
-        {
-            title: 'Actions',
-            dataIndex: 'token_id',
-            key: 'action',
-            render: (record,item) => {
-                // TODO: Transfer function
-                return <Button>Transfer</Button>
-            }
+            })
         }
-    ]
+        setLoading(false)
+    }, [ data ])
+
 
     return (
         <div>
-            <Table 
-            loading={isLoading}
-            dataSource={allNFTs} 
-            columns={columns}
-            scroll={{x: true}}
-            rowKey={(record) => {
-                return record.token_id;
-            }}
-            />
+            {!showMinter &&
+                <Table
+                columnsConfig="80px 3fr 2fr 2fr 80px"
+                s
+                data={tableData}
+                header={[
+                    '#',
+                    <span>Logo</span>,
+                    <span>Name</span>,
+                    ''
+                ]}
+                maxPages={3}
+                onPageNumberChanged={function noRefCheck() {
+                }}
+                pageSize={5}
+                customNoDataText={ !isLoading ?
+                    <div style={{display: 'grid', placeItems: 'center', gap: '5px'}}>
+                        <span>Collection is empty</span>
+                        <Button onClick={() => {
+                            setShowMinter(true)
+                        }} icon={"plus"} iconLayout={"leading"} theme={"primary"} text={"Mint NFT"}/>
+                    </div> : "Loading ..."
+                }
+
+            />}
+            {showMinter && <NFTMinterForm address={address} web3={web3}/>}
         </div>
     )
 }

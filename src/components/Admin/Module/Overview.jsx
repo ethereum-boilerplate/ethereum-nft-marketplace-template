@@ -1,38 +1,34 @@
-import { Modal } from 'antd'
 import { useState, useEffect } from 'react'
 import {useMoralisQuery, useMoralis, useWeb3ExecuteFunction} from 'react-moralis'
 import { getEllipsisTxt } from '../../../helpers/formatters'
 import { getModuleColor, getModuleType } from '../../../helpers/modules';
-import {Avatar, Button, Dropdown, DropdownElement, Icon, LinkTo, Table, Tag} from "web3uikit"
-import Minter from '../components/NFT/Minter';
-import Roles from './Permissions/Roles';
+import {Avatar, Button, Dropdown, DropdownElement, Icon, LinkTo, Table, Tag, Modal} from "web3uikit"
 import Marketplace from '../components/NFT/Marketplace';
 import Token from '../components/Token';
 import Bundle from '../components/NFT/Bundle';
 import CollectionList from '../components/NFT/CollectionList';
 import { getExplorer } from '../../../helpers/networks';
-import { useCollection } from './contracts/NFT/useCollection';
 import Moralis from "moralis";
 import {MasterKey, ProjectChainId} from "../index";
 
-export default function Overview({ pushToAdder, protocolAddress }) {
+export default function Overview({ pushToAdder, protocolAddress, web3 }) {
 
     const [modules, setModules] = useState([])
     const [limit] = useState(100)
     // Get installed modules
     const { data } = useMoralisQuery("Modules", query => query.limit(limit),[limit], { live: true })
-    const { web3, chainId } = useMoralis()
-    const { getNextTokenIdByAddress } = useCollection(web3, null)
+    const {  chainId } = useMoralis()
     const [selectedModule, setSelectedModule] = useState(null)
     const [showModal, setShowModal] = useState(false)
     const [ isLoading, setLoading ] = useState(true)
     const { fetch: fetchWeb3 } = useWeb3ExecuteFunction()
-    const [ tableData ] = useState([])
+    const [ tableData, setTableData ] = useState([])
 
     useEffect(() => {
         if(data && data.length > 0) {
             setLoading(true)
             setModules([])
+            setTableData([])
             data.forEach(async (mod, index) => {
                 await fetchWeb3({
                     params: {
@@ -65,37 +61,11 @@ export default function Overview({ pushToAdder, protocolAddress }) {
                         } catch (e) {
                             console.log(e)
                         }
-                        let temp = modules
-                        let tempTable = tableData
+
                         let typeText = getModuleType(mod.get('moduleId'), data.length)
 
-                        temp.push({type: typeText, module: mod.get('module'), key: mod.get('module'), metadata})
-                        tempTable.push(
-                            [
-                                <Avatar theme="letters" text={metadata.name} />,
-                                metadata.name,
-                                <Tag color={getModuleColor(typeText)} text={typeText}/>,
-                                <LinkTo text={getEllipsisTxt(mod.get('module'), 5)} address={`${getExplorer(chainId)}address/${mod.get('module')}`} />,
-                                    <Dropdown
-                                        onClick={() => {}}
-                                        parent={<Icon key="3" fill="#68738D" size={20} svg="more vert"/>}
-                                        position="bottom"
-                                        children={[
-                                            <DropdownElement
-                                                backgroundColor="transparent"
-                                                icon="testnet"
-                                                iconSize={12}
-                                                onClick={() => {runCf()}}
-                                                text="Testnet Server"
-                                                textColor="#FFFFFF"
-                                                key={1}
-                                            />
-                                        ]}
-                                    />
-
-                            ]
-                        )
-                        setModules(temp)
+                        setModules(prevState => [...prevState] !== [] ? [...prevState, {type: typeText, module: mod.get('module'), key: mod.get('module'), metadata}] : [{type: typeText, module: mod.get('module'), key: mod.get('module'), metadata}])
+                        setTableData(prevState => [...prevState] !== [] ? [...prevState,  rowData(metadata,typeText,mod)] : [rowData(metadata,typeText,mod)])
                     }
                 })
                 if(index === modules.length - 1) {
@@ -106,30 +76,41 @@ export default function Overview({ pushToAdder, protocolAddress }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data])
 
-
-    const onRowClick = (record) => {
-        const isEmptyCollection = async () => {
-            if(record.type === "NFT Collection") {
-                const next = await getNextTokenIdByAddress(record.module)
-
-                return { isEmpty: next.result === "0", contract: next.contract}
-            }
-        }
-        isEmptyCollection().then((result) => {
-            setSelectedModule({...record, ...result})
-            setShowModal(true)
-        })
-    }
+    const rowData = (metadata,typeText,mod) =>  [
+        <Avatar key={1} theme="letters" text={metadata.name} />,
+        <span>{metadata.name}</span>,
+        <Tag key={2} color={getModuleColor(typeText)} text={typeText}/>,
+        <LinkTo key={3} text={getEllipsisTxt(mod.get('module'), 5)} address={`${getExplorer(chainId)}address/${mod.get('module')}`} />,
+        <Dropdown key={34}
+            onClick={() => {}}
+            parent={<Icon key="3" fill="#68738D" size={20} svg="more vert"/>}
+            position="bottom"
+            children={[
+                <DropdownElement
+                    backgroundColor="transparent"
+                    icon="testnet"
+                    iconSize={12}
+                    onClick={() => {
+                        setSelectedModule({type: typeText, module: mod.get('module'), key: mod.get('module'), metadata})
+                        setShowModal(true)
+                    }}
+                    text="Manage"
+                    textColor="#FFFFFF"
+                    key={14}
+                />
+            ]}
+        />
+    ]
 
     const printModuleInModal = (type, selectedModule) => {
         if(type === "NFT Marketplace") {
-            return <Marketplace address={selectedModule.module} isAdmin={true}/>
+            return <Marketplace web3={web3} address={selectedModule.module} isAdmin={true}/>
         }
         if(type === "NFT Collection") {
             return (
                 <>
-                    <CollectionList address={selectedModule.module}/>
-                    <Minter address={selectedModule.module}/>
+                    <CollectionList web3={web3} address={selectedModule.module}/>
+                    {/*<Minter address={selectedModule.module}/>*/}
                 </>
             )
         }
@@ -195,31 +176,30 @@ export default function Overview({ pushToAdder, protocolAddress }) {
                     maxPages={3}
                     onPageNumberChanged={function noRefCheck(){}}
                     pageSize={5}
-                    customNoDataComponent={
-                        <div style={{display: 'grid', placeItems: 'center', width: "30vw", textAlign: 'center'}}>
-                            <h2>It looks like there is no data</h2>
+                    customNoDataText={
+                        !isLoading ? <div style={{display: 'grid', placeItems: 'center', width: "30vw", textAlign: 'center'}}>
+                            <>It looks like there is no data</>
                             <span>If you think this is an error click to force re-sync</span>
                             <Button onClick={() => runCf()} theme={"primary"} text={"Force Sync"} />
-                        </div>
+                        </div> : "No Data"
                     }
 
                     />
                 </>
             }
             <Modal
-            title={`${getEllipsisTxt(selectedModule?.module)} ${selectedModule?.type}`}
-            visible={showModal}
-            destroyOnClose={true}
-            onCancel={() => setShowModal(false)}
-            okButtonProps={{ disabled: true }}
-            cancelButtonProps={{ disabled: false }}
+                cancelText="Close"
+                id="disabled"
+                isOkDisabled
+                isVisible={showModal}
+                okText="Ok"
+                onCancel={() => setShowModal(false)}
+                onOk={function noRefCheck(){}}
+                title={`${getEllipsisTxt(selectedModule?.module)} ${selectedModule?.type}`}
             >
-
-                        { 
-                            selectedModule && printModuleInModal(selectedModule?.type, selectedModule)
-                        }   
-
-                        <Roles />
+                {
+                    selectedModule && printModuleInModal(selectedModule?.type, selectedModule)
+                }
             </Modal>
         </div>
     )

@@ -1,8 +1,8 @@
 import {useMoralis, useWeb3ExecuteFunction} from "react-moralis";
 import {useEffect, useState} from "react";
 import marketplaceInterface from "./interface";
-import useERC20 from "../../../../../../../hooks/useERC20";
-import useERC721 from "../../../../../../../hooks/useERC721";
+import useERC20 from "../../../../../../hooks/useERC20";
+import useERC721 from "../../../../../../hooks/useERC721";
 
 const useMarketplace = (marketplaceAddress: string) => {
 

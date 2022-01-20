@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import protocolInterface from "./interface";
-import useRegistry from "../../Registry/typescript/useRegistry";
+import useRegistry from "../Registry/useRegistry";
 
 const useProtocol = () => {
     const [ marketplaceAddress, setMarketplaceAddress ] = useState();

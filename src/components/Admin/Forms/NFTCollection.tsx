@@ -1,9 +1,9 @@
 import {Form, Notification} from "web3uikit";
 import React from "react";
-import useRegistry from "../Module/contracts/Registry/typescript/useRegistry";
+import useRegistry from "../Module/contracts/Registry/useRegistry";
 import {useMoralis, useMoralisFile} from "react-moralis";
-import {collectionAbi, collectionBytecode} from "../Module/contracts/NFT/collection";
-import useProtocol from "../Module/contracts/Protocol/typescript/useProtocol";
+import {collectionAbi, collectionBytecode} from "./Factory/collection";
+import useProtocol from "../Module/contracts/Protocol/useProtocol";
 
 const NFTCollectionForm: React.FC = ({ web3 }) => {
 

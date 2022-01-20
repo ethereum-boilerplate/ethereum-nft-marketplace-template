@@ -1,4 +1,4 @@
-import { collectionAbi } from "./collection"
+import { collectionAbi } from "../../../Forms/Factory/collection"
 import { useState, useEffect } from "react"
 import { useMoralis } from "react-moralis"
 
@@ -26,7 +26,7 @@ export const useCollection = (web3, address) => {
     }
 
     const mint = async (to, uri, signer) => {
-        const contract = await new web3.eth.Contract(collectionAbi, (address ? address : ""))
+        const contract = new web3.eth.Contract(collectionAbi, address)
 
         await contract.methods.mintNFT(to,uri).send({from: signer})
         .on('receipt', () => {
