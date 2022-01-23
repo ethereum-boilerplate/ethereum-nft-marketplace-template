@@ -113,7 +113,7 @@ export default function Overview({ protocolAddress, web3 }) {
             )
         }
         if(type === "Token") {
-            return <Token address={selectedModule.module} />
+            return <Token web3={web3} address={selectedModule.module} />
         }
     }
 

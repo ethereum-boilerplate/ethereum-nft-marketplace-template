@@ -6,6 +6,7 @@ import useRegistry from "./Module/contracts/Registry/useRegistry";
 import {Button, TabList} from "web3uikit";
 import ProjectForm from "./Forms/Project";
 import {useHistory} from "react-router";
+import ERC20Balance from "../ERC20Balance";
 
 const { Tab } = TabList
 
@@ -63,6 +64,14 @@ export default function Dashboard({ web3 }) {
                 {(!canSetProject) && <Overview web3={web3} protocolAddress={protocolAddress} />}
             </Tab>
             <Tab
+                tabKey={4}
+                tabName={"Panel"}
+                isDisabled={canSetProject}
+
+            >
+                {(!canSetProject) && <ERC20Balance address={protocolAddress} />}
+            </Tab>
+            <Tab
                 tabKey={3}
                 tabName={"Permissions"}
                 isDisabled={true}
@@ -70,6 +79,7 @@ export default function Dashboard({ web3 }) {
             >
                 {(!canSetProject) && <span>Coming soon</span>}
             </Tab>
+
             <div style={{position: "absolute", left: "70%"}}><Button onClick={pushToAdder} text={"Add Module"} theme={"primary"} icon={"plus"} iconLayout={"leading"}/></div>
         </TabList>
     )

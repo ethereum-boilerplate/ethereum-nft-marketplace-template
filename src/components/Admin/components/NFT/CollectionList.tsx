@@ -38,7 +38,7 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
                             theme={"outline"}
                             isFullWidth
                             onClick={async () => {
-                                await listNFT(result.token_address, result.token_id, "0x0000000000000000000000000000000000000000", 10, 1, 0, 0, 0, account)
+                                await listNFT(result.token_address, result.token_id, "0x5A450A88d138e19eF2280d5c2406830C47Cb2014", 10, 1, 0, 0, 0, account)
                             }}
                             text={"List"}
                         />

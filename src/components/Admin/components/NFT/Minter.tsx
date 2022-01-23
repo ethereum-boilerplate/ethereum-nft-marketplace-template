@@ -2,11 +2,11 @@ import { Form, Input, Button, Upload } from 'antd'
 import { FileImageOutlined } from '@ant-design/icons'
 import { useMoralis } from 'react-moralis'
 import { useCollection } from '../../Module/contracts/NFT/useCollection'
-import { useState } from 'react'
+import React, { useState } from 'react'
 
-export default function Minter(props) {
-    const { web3, Moralis, account } = useMoralis()
-    const { mint  } = useCollection(web3, props.address)
+const NFTMinter: React.FC = ({ address, web3 }) => {
+    const { Moralis, account } = useMoralis()
+    const { mint  } = useCollection(web3, address)
     const [ isSavingToIpfs, setSavingToIpfs ] = useState(false)
     const [ uploaded, setUploaded ] = useState(false)
     const [ showMinter, setToggleMinter ] = useState(false)
@@ -18,18 +18,26 @@ export default function Minter(props) {
         const metadata = {
             "name": params.name,
             "description": params.desc,
-            "image": `ipfs://${file.hash()}`,
+            /*"image": `ipfs://${file.hash()}`,*/
         }
         const json = new Moralis.File("metadata.json", {base64: btoa(JSON.stringify(metadata))})
         await json.saveIPFS()
-        await mint(account, `ipfs://${json.hash()}`, account)
+        await mint(
+            account,
+            /*`ipfs://${json.hash()}`, */
+            account
+        )
         setSavingToIpfs(false)
     }
 
     return (
         <div>
-            { !showMinter && <Button  style={{width: '100%'}} onClick={() => setToggleMinter(!showMinter)}>{showMinter ? "Back" : "Mint NFT"}</Button>}
-            { showMinter && <Form layout="vertical" style={{width: '100%', margin: '0 auto'}} onFinish={(e) => deployNft(e)}>
+            { !showMinter &&
+                // @ts-ignore
+                <Button style={{width: '100%'}} onClick={() => setToggleMinter(!showMinter)}>{showMinter ? "Back" : "Mint NFT"}</Button>}
+            { showMinter &&
+                // @ts-ignore
+                <Form layout="vertical" style={{width: '100%', margin: '0 auto'}} onFinish={(e) => deployNft(e)}>
                     <Form.Item label="Name" name="name" rules={[{ required: true, message: 'Give your NFT a name' }]}>
                         <Input/>
                     </Form.Item>
@@ -65,12 +73,19 @@ export default function Minter(props) {
                             - ADD Advanced Metadata
                         */
                     }
+
                     <Form.Item>
-                        <Button style={{width: '100%'}} htmlType="submit" loading={isSavingToIpfs}>
-                        Mint NFT
-                        </Button>
+
+                        {
+                            // @ts-ignore
+                            <Button style={{width: '100%'}} htmlType="submit" loading={isSavingToIpfs}>
+                                Mint NFT
+                            </Button>
+                        }
                     </Form.Item>
                 </Form>}
         </div>
     )
 }
+
+export default NFTMinter;

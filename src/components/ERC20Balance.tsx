@@ -1,11 +1,15 @@
-import { useMoralis, useERC20Balances } from "react-moralis";
+import {useMoralis, useERC20Balances, useChain} from "react-moralis";
 import { Skeleton, Table } from "antd";
 import { getEllipsisTxt } from "../helpers/formatters";
+import {Button, LinkTo} from "web3uikit";
+import useProtocol from "./Admin/Module/contracts/Protocol/useProtocol";
+import {getExplorer} from "../helpers/networks";
 
-function ERC20Balance(props) {
-  const { data: assets } = useERC20Balances(props);
-  const { Moralis } = useMoralis();
-
+function ERC20Balance({ address }) {
+  const { account } = useMoralis();
+  const { chainId } = useChain()
+  const { data: assets } = useERC20Balances({address: address, ["chain" as any]: chainId});
+  const { withdrawFunds } = useProtocol()
   const columns = [
     {
       title: "",
@@ -36,20 +40,29 @@ function ERC20Balance(props) {
       title: "Balance",
       dataIndex: "balance",
       key: "balance",
-      render: (value, item) =>
-        parseFloat(Moralis.Units.FromWei(value, item.decimals).toFixed(6)),
     },
     {
       title: "Address",
       dataIndex: "token_address",
       key: "token_address",
-      render: (address) => getEllipsisTxt(address, 5),
+      render: (address) => <LinkTo text={getEllipsisTxt(address, 4)} address={`${getExplorer(chainId)}address/${address}`}/>,
     },
+    {
+      title: "Actions",
+      dataIndex: "token_address",
+      key: "token_address",
+      render: (address) => {
+        return (
+            <Button onClick={() => {withdrawFunds(account, address).then(console.log)}} theme={"primary"} text={"Withdraw"}/>
+        )
+      },
+    }
+
   ];
 
   return (
-    <div style={{ width: "65vw", padding: "15px" }}>
-      <h1>💰Token Balances</h1>
+    <div style={{ padding: "15px" }}>
+      <h1 style={{marginBottom: '15px'}}>💰Royalties</h1>
       <Skeleton loading={!assets}>
         <Table
           dataSource={assets}

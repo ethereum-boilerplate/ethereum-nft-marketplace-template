@@ -32,7 +32,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
         ).then(async (e) => {
             const hash = (e as any)["_hash"]
             let code = '0x' + marketplaceBytecode;
-            const contract = new web3.eth.Contract(marketplaceAbi)
+            const contract = new web3.eth.Contract(marketplaceAbi as any)
             console.log(protocolAddress, forwarder, `ipfs://${hash}`, (metadata.royalty*100))
             const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, forwarder, `ipfs://${hash}`, (metadata.royalty*100)]})
             await toDeploy.send({from: account})
