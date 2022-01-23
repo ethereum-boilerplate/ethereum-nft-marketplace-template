@@ -8,7 +8,7 @@ import useProtocol from "../../Module/contracts/Protocol/useProtocol";
 export const CollectionList: React.FC = ({ address, web3 }) => {
 
     const { chainId } = useChain();
-    const [ showMinter ] = useState(false);
+    const [ showMinter, setShowMinter ] = useState(false);
     const [ tableData, setTableData ] = useState([]);
     const { marketplaceAddress } = useProtocol();
     const { account } = useMoralis()
@@ -27,11 +27,15 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
             const temp = []
             data.result.forEach((result, index) => {
                 const metadata = JSON.parse(result.metadata)
+                console.log(metadata)
                 temp.push([
                     <span>{result.token_id}</span>,
                     // @ts-ignore
-                    <Image height={50} width={50} style={{borderRadius: '15px'}} src={metadata.image ? `https://ipfs.io/ipfs/${(metadata.image)}` : `https://i.ibb.co/FzDBLqk/Image.png`}/>,
-                    <span>{result.name}</span>,
+                    <Image height={80} width={80} style={{borderRadius: '15px'}} src={metadata && metadata.image ? `${(metadata.image)}` : `https://i.ibb.co/FzDBLqk/Image.png`}/>,
+                    <div>
+                        <p>{metadata && metadata.name ? metadata.name :result.name}</p>
+                        <span style={{fontSize: "small", color: "gray", display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50ch"}}>{metadata && metadata.description ? metadata.description : "No Description"}</span>
+                    </div>,
                     <div style={{display: 'flex', width: '120%', gap: '15px'}}>
                         <Button theme={"outline"} isFullWidth onClick={() => {console.log('List')}} text={"Transfer"}/>
                         <Button
@@ -56,9 +60,11 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
     return (
         <div>
             {!showMinter &&
+                <Button theme={"primary"} text={"Mint NFT"} icon={"plus"} iconLayout={"leading"} onClick={() => setShowMinter(true)}/>
+            }
+            {!showMinter &&
                 <Table
-                columnsConfig="80px 2fr 2fr 2fr 2px"
-                s
+                columnsConfig="80px 90px 2fr 1fr"
                 data={tableData}
                 header={[
                     '#',
@@ -76,12 +82,3 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
         </div>
     )
 }
-
-
-/*
-<div style={{display: 'grid', placeItems: 'center', gap: '5px'}}>
-    <span>Collection is empty</span>
-    <Button onClick={() => {
-        setShowMinter(true)
-    }} icon={"plus"} iconLayout={"leading"}  text={"Mint NFT"}/>
-</div> */

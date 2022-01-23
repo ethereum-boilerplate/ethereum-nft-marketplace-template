@@ -42,6 +42,7 @@ const TokenForm: React.FC = ({ web3 }) => {
                 buttonConfig={{
                     isFullWidth: true,
                     text: "Deploy Token",
+                    theme: "primary"
                 }}
 
                 data={[
@@ -67,7 +68,7 @@ const TokenForm: React.FC = ({ web3 }) => {
                     const symbol = e.data[1].inputResult;
                     deployToken({name,symbol})
                 }}
-                title="NFT Collection"
+                title="ERC20 Token"
             />
         </>
     )

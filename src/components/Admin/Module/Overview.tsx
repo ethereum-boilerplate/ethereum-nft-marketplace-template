@@ -109,7 +109,7 @@ export default function Overview({ protocolAddress, web3 }) {
         }
         if(type === "NFT Collection") {
             return (
-                <CollectionList web3={web3} address={selectedModule.module}/>
+                    <CollectionList web3={web3} address={selectedModule.module}/>
             )
         }
         if(type === "Token") {

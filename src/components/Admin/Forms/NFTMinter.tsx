@@ -15,6 +15,7 @@ const NFTMinterForm: React.FC = ({ web3, address }) => {
         setLoading(true)
         let metadata = {
             name: e.name,
+            image: e.image,
             symbol: e.symbol,
             description: e.description,
         }
@@ -41,7 +42,7 @@ const NFTMinterForm: React.FC = ({ web3, address }) => {
             <Form
                 buttonConfig={{
                     isFullWidth: true,
-                    text: "Deploy",
+                    text: "Mint",
                     disabled: isLoading,
                     theme: !isLoading ? "primary" : "secondary"
                 }}
@@ -49,6 +50,14 @@ const NFTMinterForm: React.FC = ({ web3, address }) => {
                 data={[
                     {
                         name: 'Name',
+                        type: 'text',
+                        value: '',
+                        validation: {
+                            required: true
+                        },
+                    },
+                    {
+                        name: 'Image URL',
                         type: 'text',
                         value: '',
                         validation: {
@@ -79,10 +88,11 @@ const NFTMinterForm: React.FC = ({ web3, address }) => {
                 ]}
                 onSubmit={(e) => {
                     const name = String(e.data[0].inputResult);
-                    const symbol = e.data[1].inputResult;
-                    const description = e.data[2].inputResult;
-                    const to = e.data[3].inputResult;
-                    mintNFT({name,symbol,description,to})
+                    const image = String(e.data[1].inputResult);
+                    const symbol = e.data[2].inputResult;
+                    const description = e.data[3].inputResult;
+                    const to = e.data[4].inputResult;
+                    mintNFT({name,image,symbol,description,to})
                 }}
                 title="NFT Collection"
             />

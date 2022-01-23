@@ -17,6 +17,7 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
         let metadata = {
             name: e.name,
             symbol: e.symbol,
+            image: e.image,
             royalty: e.royalties,
             description: e.description,
         }
@@ -64,6 +65,14 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                         },
                     },
                     {
+                        name: 'Image URL',
+                        type: 'text',
+                        value: '',
+                        validation: {
+                            required: true
+                        },
+                    },
+                    {
                         name: 'Symbol',
                         type: 'text',
                         value: '',
@@ -87,11 +96,12 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                 ]}
                 onSubmit={(e) => {
                     const name = String(e.data[0].inputResult);
-                    const symbol = e.data[1].inputResult;
-                    const description = e.data[2].inputResult;
-                    const royalties = e.data[3].inputResult;
+                    const image = String(e.data[1].inputResult);
+                    const symbol = e.data[2].inputResult;
+                    const description = e.data[3].inputResult;
+                    const royalties = e.data[4].inputResult;
                     console.log(name,symbol,description,royalties)
-                    deployNftCollection({name,symbol,description,royalties})
+                    deployNftCollection({name,image,symbol,description,royalties})
                 }}
                 title="NFT Collection"
             />
