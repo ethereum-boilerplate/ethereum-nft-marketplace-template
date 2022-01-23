@@ -27,7 +27,7 @@ const TokenForm: React.FC = ({ web3 }) => {
         ).then(async (file) => {
             const hash = (file as any)["_hash"]
             let code = '0x' + tokenBytecode;
-            const contract = new web3.eth.Contract(tokenAbi)
+            const contract = new web3.eth.Contract(tokenAbi as any)
             const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${hash}`]})
             await toDeploy.send({from: account})
                 .on('receipt', async (receipt) => {

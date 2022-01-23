@@ -3,7 +3,7 @@ import { ProjectChainId } from '.';
 import Overview from "./Module/Overview";
 import { useEffect } from 'react'
 import useRegistry from "./Module/contracts/Registry/useRegistry";
-import { TabList } from "web3uikit";
+import {Button, TabList} from "web3uikit";
 import ProjectForm from "./Forms/Project";
 import {useHistory} from "react-router";
 
@@ -36,33 +36,41 @@ export default function Dashboard({ web3 }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasProject])
 
+    if(canSetProject) {
+        return (
+            <ProjectForm
+                web3={web3}
+                deployProtocol={deployProtocol}
+                deployErr={deployErr}
+                deployTx={deployTx}
+                setLoading={setLoading}
+                isLoading={isLoading}
+            />
+        )
+    }
+
     return (
         <TabList
-        defaultActiveKey={canSetProject ? 1 : 2}
-        tabStyle={"bulbUnion"}
+            defaultActiveKey={2}
+            tabStyle={"bulbSeperate"}
 
         >
             <Tab
-                tabKey={1}
-                tabName={"Project"}
-                isDisabled={!canSetProject}
-            >
-                <ProjectForm web3={web3} deployProtocol={deployProtocol} deployErr={deployErr} deployTx={deployTx} setLoading={setLoading} isLoading={isLoading}/>
-            </Tab>
-            <Tab
                 tabKey={2}
-                tabName={"Modules"}
+                tabName={"Overview"}
                 isDisabled={canSetProject}
             >
-                {(!canSetProject) && <Overview web3={web3} pushToAdder={pushToAdder} protocolAddress={protocolAddress} />}
+                {(!canSetProject) && <Overview web3={web3} protocolAddress={protocolAddress} />}
             </Tab>
             <Tab
                 tabKey={3}
-                tabName={"Panel"}
-                isDisabled={canSetProject}
+                tabName={"Permissions"}
+                isDisabled={true}
+
             >
                 {(!canSetProject) && <span>Coming soon</span>}
             </Tab>
+            <div style={{position: "absolute", left: "70%"}}><Button onClick={pushToAdder} text={"Add Module"} theme={"primary"} icon={"plus"} iconLayout={"leading"}/></div>
         </TabList>
     )
 }

@@ -1,11 +1,34 @@
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import {useMarketplace} from "../../Module/contracts/NFT/useMarketplace";
+import {Button, Table} from "web3uikit";
+import {useMoralis} from "react-moralis";
+import {getEllipsisTxt} from "../../../../helpers/formatters";
+
+interface NftForSaleType {
+    listingId: string;
+    contract: string;
+    metadata: {
+        description?: string;
+        name: string,
+        symbol: string
+    };
+    seller: string;
+    price: string | number;
+    currency: string;
+    tokenId: string;
+}
 
 const Marketplace: React.FC = ({ address, web3}) => {
     const {
-        allListings
+        allListings,
+        buy,
+        unlist
     } = useMarketplace(web3, address);
-/*
+    const { account } = useMoralis()
+
+    const [ nftsForSale, setNFTsForSale] = useState<Array<NftForSaleType>>([]);
+    const [ tableData, setTableData ] = useState([[]])
+    /*
     const { allListings, unlist, getListingsByUser, buy, dataAllListings, list } = useMarketplace(props.address)
 */
 /*
@@ -236,13 +259,80 @@ const Marketplace: React.FC = ({ address, web3}) => {
 
     useEffect(() => {
         if(allListings) {
-            console.log(allListings)
+            setNFTsForSale([])
+            allListings.forEach((listing) => {
+                if(listing.quantity === "0") return;
+                const listingId = listing.listingId;
+                const contract = listing.assetContract;
+                const metadata = listing.metadata;
+                const seller = listing.seller;
+                const price = listing.pricePerToken;
+                const currency = listing.currency;
+                const tokenId = listingId.token_id;
+
+                const nftToSell: NftForSaleType = {
+                    listingId,
+                    contract,
+                    tokenId,
+                    metadata,
+                    seller,
+                    price,
+                    currency
+                }
+
+                setNFTsForSale(prev => prev.length > 0 ? [...prev, nftToSell] : [nftToSell])
+
+            })
         }
     }, [allListings])
 
 
+    useEffect(() => {
+        if(nftsForSale) {
+            printTable().then()
+        }
+        // eslint-disable-next-line
+    }, [ nftsForSale ])
+
+
+    const printTable = async () => {
+        let p = []
+        await nftsForSale.forEach((nft) => {
+            p.push([
+                <span>{nft.tokenId}</span>,
+                '',
+                <span>{nft.metadata.name}</span>,
+                <span>{getEllipsisTxt(nft.seller, 4)}</span>,
+                <span>{nft.price}</span>,
+                <div style={{display: 'flex', alignItems: "center", justifyContent: "space-between"}}>
+                    <Button text={"Buy"} theme={"outline"} onClick={() => buy(nft.listingId, "1", nft.currency, nft.price, account)}/>
+                    <Button text={"Unlist"} theme={"outline"} onClick={() => unlist(nft.listingId, "1", account)}/>
+                </div>
+            ])
+        })
+        setTableData(p)
+    }
+
+
     return (
-        <div> Coming soon</div>
+        <Table
+            columnsConfig="80px 1fr 1fr 1fr 1fr 1.25fr"
+            s
+            data={tableData}
+            header={[
+                '#',
+                <span>Image</span>,
+                <span>Name</span>,
+                <span>Seller</span>,
+                <span>Price</span>,
+                <span>Actions</span>
+            ]}
+            maxPages={3}
+            onPageNumberChanged={function noRefCheck() {
+            }}
+            pageSize={5}
+            customNoDataText={"Loading ..."}
+        />
     );
 }
 

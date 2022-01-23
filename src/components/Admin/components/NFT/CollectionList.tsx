@@ -33,14 +33,14 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
                     <Image height={50} width={50} style={{borderRadius: '15px'}} src={metadata.image ? `https://ipfs.io/ipfs/${(metadata.image)}` : `https://i.ibb.co/FzDBLqk/Image.png`}/>,
                     <span>{result.name}</span>,
                     <div style={{display: 'flex', width: '120%', gap: '15px'}}>
-                        <Button theme={"outline"} isFullWidth onClick={() => {console.log('List')}} text={"List"}/>
+                        <Button theme={"outline"} isFullWidth onClick={() => {console.log('List')}} text={"Transfer"}/>
                         <Button
                             theme={"outline"}
                             isFullWidth
                             onClick={async () => {
                                 await listNFT(result.token_address, result.token_id, "0x0000000000000000000000000000000000000000", 10, 1, 0, 0, 0, account)
                             }}
-                            text={"Transfer"}
+                            text={"List"}
                         />
                     </div>
                 ])
@@ -57,7 +57,7 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
         <div>
             {!showMinter &&
                 <Table
-                columnsConfig="80px 3fr 2fr 2fr 80px"
+                columnsConfig="80px 2fr 2fr 2fr 2px"
                 s
                 data={tableData}
                 header={[

@@ -10,7 +10,7 @@ import { getExplorer } from '../../../helpers/networks';
 import Moralis from "moralis";
 import {MasterKey, ProjectChainId} from "../index";
 
-export default function Overview({ pushToAdder, protocolAddress, web3 }) {
+export default function Overview({ protocolAddress, web3 }) {
 
     const [modules, setModules] = useState([])
     const [limit] = useState(100)
@@ -79,26 +79,28 @@ export default function Overview({ pushToAdder, protocolAddress, web3 }) {
         <Avatar key={1} theme="letters" text={metadata.name} />,
         <span>{metadata.name}</span>,
         <Tag key={2} color={getModuleColor(typeText)} text={typeText}/>,
-        <LinkTo key={3} text={getEllipsisTxt(mod.get('module'), 5)} address={`${getExplorer(chainId)}address/${mod.get('module')}`} />,
-        <Dropdown key={34}
-            onClick={() => {}}
-            parent={<Icon key="3" fill="#68738D" size={20} svg="more vert"/>}
-            position="bottom"
-            children={[
-                <DropdownElement
-                    backgroundColor="transparent"
-                    icon="testnet"
-                    iconSize={12}
-                    onClick={() => {
-                        setSelectedModule({type: typeText, module: mod.get('module'), key: mod.get('module'), metadata})
-                        setShowModal(true)
-                    }}
-                    text="Manage"
-                    textColor="#FFFFFF"
-                    key={14}
-                />
-            ]}
-        />
+        <LinkTo key={3} text={getEllipsisTxt(mod.get('module'), 4)} address={`${getExplorer(chainId)}address/${mod.get('module')}`} />,
+        <div style={{ display: "grid", placeItems: "center"}}>
+            <Dropdown key={34}
+                      onClick={() => {}}
+                      parent={<Icon key="3" fill="#2E7DAF" size={20} svg="more vert"/>}
+                      position="top"
+                      children={[
+                          <DropdownElement
+                              backgroundColor="transparent"
+                              icon="testnet"
+                              iconSize={12}
+                              onClick={() => {
+                                  setSelectedModule({type: typeText, module: mod.get('module'), key: mod.get('module'), metadata})
+                                  setShowModal(true)
+                              }}
+                              text="Manage"
+                              textColor="#FFFFFF"
+                              key={14}
+                          />
+                      ]}
+            />
+        </div>
     ]
 
     const printModuleInModal = (type, selectedModule) => {
@@ -152,11 +154,8 @@ export default function Overview({ pushToAdder, protocolAddress, web3 }) {
         <div>
             {
                 <>
-                    <div style={{display: 'flex', flexDirection: 'row-reverse', marginBottom: "15px"}}>
-                        <Button onClick={pushToAdder}  text={"Add Module"} theme={"primary"} icon={"plus"} iconLayout={"leading"}/>
-                    </div>
                     <Table
-                    columnsConfig="80px 3fr 2fr 2fr 80px"
+                    columnsConfig="50px 100px 150px 120px 70px"
                     s
                     data={tableData}
                     header={[
