@@ -1,7 +1,7 @@
 import { Form } from "web3uikit";
 import React from "react";
 import {useMoralis, useMoralisFile} from "react-moralis";
-import {tokenAbi, tokenBytecode} from "../Module/contracts/Token/token";
+import {tokenAbi, tokenBytecode} from "./Factory/token";
 import useProtocol from "../Module/contracts/Protocol/useProtocol";
 
 const TokenForm: React.FC = ({ web3 }) => {

@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react'
 import {useMoralisQuery, useMoralis, useWeb3ExecuteFunction} from 'react-moralis'
 import { getEllipsisTxt } from '../../../helpers/formatters'
 import { getModuleColor, getModuleType } from '../../../helpers/modules';
-import {Avatar, Button, Dropdown, DropdownElement, Icon, LinkTo, Table, Tag, Modal} from "web3uikit"
-import Marketplace from '../components/NFT/Marketplace';
+import { Avatar, Button, Dropdown, DropdownElement, Icon, LinkTo, Table, Tag, Modal } from "web3uikit"
+import {Marketplace} from '../components/NFT/Marketplace';
 import Token from '../components/Token';
-import CollectionList from '../components/NFT/CollectionList';
+import { CollectionList } from '../components/NFT/CollectionList';
 import { getExplorer } from '../../../helpers/networks';
 import Moralis from "moralis";
 import {MasterKey, ProjectChainId} from "../index";
@@ -103,14 +103,11 @@ export default function Overview({ pushToAdder, protocolAddress, web3 }) {
 
     const printModuleInModal = (type, selectedModule) => {
         if(type === "NFT Marketplace") {
-            return <Marketplace web3={web3} address={selectedModule.module} isAdmin={true}/>
+            return <Marketplace web3={web3} address={selectedModule.module}/>
         }
         if(type === "NFT Collection") {
             return (
-                <>
-                    <CollectionList web3={web3} address={selectedModule.module}/>
-                    {/*<Minter address={selectedModule.module}/>*/}
-                </>
+                <CollectionList web3={web3} address={selectedModule.module}/>
             )
         }
         if(type === "Token") {
@@ -177,7 +174,7 @@ export default function Overview({ pushToAdder, protocolAddress, web3 }) {
                             <>It looks like there is no data</>
                             <span>If you think this is an error click to force re-sync</span>
                             <Button onClick={() => runCf()} theme={"primary"} text={"Force Sync"} />
-                        </div> : "No Data"
+                        </div> : "No Modules Installed"
                     }
 
                     />

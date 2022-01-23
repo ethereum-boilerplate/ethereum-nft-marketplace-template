@@ -1,5 +1,5 @@
 import {useMoralis, useWeb3ExecuteFunction} from "react-moralis";
-import {useEffect, useState} from "react";
+import { useState} from "react";
 import marketplaceInterface from "./interface";
 import useERC20 from "../../../../../../hooks/useERC20";
 import useERC721 from "../../../../../../hooks/useERC721";
@@ -19,16 +19,8 @@ const useMarketplace = (marketplaceAddress: string) => {
     const [ allListings, setAllListings ] = useState<Array<object> | null>(null)
     const [ isUnlisting, setUnlisting ] = useState<boolean>(false)
     const [ isListing, setIsListing ] = useState<boolean>(false)
-    const [ listSuccess, setListSuccess ] = useState<boolean>(false)
-    const [ listError, setListError ] = useState()
     const [ unlistSuccess, setUnlistSuccess ] = useState<boolean>(false)
     const [ unlistError, setUnlistError ] = useState()
-
-    useEffect(() => {
-        if(dataAllListings) {
-            setAllListings(allListings)
-        }
-    }, [ dataAllListings ])
 
     /**
      * approve NFTs
@@ -132,10 +124,11 @@ const useMarketplace = (marketplaceAddress: string) => {
                 }
             },
             onSuccess: (results) => {
+                console.log(results)
                 setUnlisting(false)
-
             },
-            onError: () => {setUnlisting(false)}
+            onError: () => {setUnlisting(false)},
+            onComplete: () => {console.log('finished unlisting')}
         }).then(() => {}).catch(() => {})
     }
 
@@ -166,6 +159,9 @@ const useMarketplace = (marketplaceAddress: string) => {
                 abi: [ getAllListingsAbi ],
                 contractAddress: marketplaceAddress,
                 functionName: "getAllListings",
+            },
+            onSuccess: results => {
+                setAllListings(results)
             }
         }).then(() => {}).catch(() => {})
     }
@@ -183,18 +179,15 @@ const useMarketplace = (marketplaceAddress: string) => {
         }).then(() => {}).catch(() => {})
     }
 
-    getAllListings()
-
     return {
         allListings,
         approveNFT,
         buy,
+        getAllListings,
         getListingsByUser,
         dataAllListings,
         list,
         unlist,
-        listSuccess,
-        listError,
         isListing,
         isUnlisting,
         unlistError,

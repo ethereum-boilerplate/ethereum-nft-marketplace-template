@@ -21,7 +21,6 @@ import Marketplace from "components/Admin/components/NFT/Marketplace";
 import { AdminAddress } from "components/Admin";
 import useProtocol from "./components/Admin/Module/contracts/Protocol/useProtocol";
 import Adder from "./components/Admin/Module/Adder";
-import {BannerStrip} from "web3uikit";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -132,7 +131,7 @@ const App = () => {
               }
               <Route path="/NFTMarketPlace">
                 {hasMarketplace &&
-                  <Marketplace address={marketplaceAddress} isAdmin={account && account.toUpperCase() === AdminAddress.toUpperCase()} />
+                  <Marketplace web3={web3} address={marketplaceAddress}/>
                 }
                 {!hasMarketplace && canSetProject &&
                   <div>
@@ -152,8 +151,8 @@ const App = () => {
             {(isAuthenticated) && (account && account.toUpperCase() !== AdminAddress.toUpperCase()) && hasMarketplace && (<Redirect to="/NFTMarketPlace" />)}
           </div>
         </Router>}
-      <Footer style={{ textAlign: "center" }}>
-        <BannerStrip type={"standard"} text={"Powered By Moralis"}/>
+      <Footer style={{display: 'grid', placeItems: 'center'}}>
+        Powered By Moralis
       </Footer>
     </Layout>
   );

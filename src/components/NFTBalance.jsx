@@ -1,12 +1,8 @@
-import React, { useState } from "react";
-import { useMoralis, useNFTBalances } from "react-moralis";
-import { Card, Image, Tooltip, Modal, Input, Skeleton } from "antd";
-import { FileSearchOutlined, SendOutlined, ShoppingCartOutlined } from "@ant-design/icons";
-import { getExplorer } from "helpers/networks";
+import React from "react";
+/*import { useMoralis, useNFTBalances } from "react-moralis";
+import { Modal, Input } from "antd";
 import AddressInput from "./AddressInput";
-import { useVerifyMetadata } from "hooks/useVerifyMetadata";
-
-const { Meta } = Card;
+import { useVerifyMetadata } from "hooks/useVerifyMetadata";*/
 
 const styles = {
   NFTs: {
@@ -22,16 +18,14 @@ const styles = {
 };
 
 function NFTBalance() {
-  const { data: NFTBalances } = useNFTBalances();
-  const { Moralis, chainId } = useMoralis();
+  /*const { Moralis} = useMoralis();
   const [visible, setVisibility] = useState(false);
   const [receiverToSend, setReceiver] = useState(null);
   const [amountToSend, setAmount] = useState(null);
   const [nftToSend, setNftToSend] = useState(null);
-  const [isPending, setIsPending] = useState(false);
-  const { verifyMetadata } = useVerifyMetadata();
+  const [isPending, setIsPending] = useState(false);*/
 
-  async function transfer(nft, amount, receiver) {
+/*  async function transfer(nft, amount, receiver) {
     const options = {
       type: nft.contract_type,
       tokenId: nft.token_id,
@@ -58,11 +52,11 @@ function NFTBalance() {
   const handleTransferClick = (nft) => {
     setNftToSend(nft);
     setVisibility(true);
-  };
+  };*/
 
-  const handleChange = (e) => {
+ /* const handleChange = (e) => {
     setAmount(e.target.value);
-  };
+  };*/
 
   return (
     <div style={{ padding: "15px", maxWidth: "1030px", width: "100%" }}>
@@ -107,7 +101,7 @@ function NFTBalance() {
             })}
         </Skeleton>*/}
       </div>
-      <Modal
+      {/*<Modal
         title={`Transfer ${nftToSend?.name || "NFT"}`}
         visible={visible}
         onCancel={() => setVisibility(false)}
@@ -119,7 +113,7 @@ function NFTBalance() {
         {nftToSend && nftToSend.contract_type === "erc1155" && (
           <Input placeholder="amount to send" onChange={(e) => handleChange(e)} />
         )}
-      </Modal>
+      </Modal>*/}
     </div>
   );
 }

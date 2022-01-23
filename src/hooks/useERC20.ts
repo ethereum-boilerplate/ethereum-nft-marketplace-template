@@ -17,10 +17,6 @@ const useERC20 = () => {
         return req[0].balance
     }
 
-    const allowance = () => {
-
-    }
-
     const approve = (contractAddress: string, spender: string, amount: string) => {
         fetchApprove({
             params:{

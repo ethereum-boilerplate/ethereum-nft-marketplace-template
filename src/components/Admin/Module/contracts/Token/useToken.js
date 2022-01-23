@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react"
-import { tokenAbi } from "./token"
+import { tokenAbi } from "../../../Forms/Factory/token"
 import Moralis from "moralis"
 
 

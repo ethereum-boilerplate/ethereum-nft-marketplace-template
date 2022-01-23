@@ -10,55 +10,19 @@ const useRegistry = () => {
     const [ canSetProject, setCanSetProject ] = useState<boolean>(false);
     const [ isLoading, setLoading ] = useState<boolean>(false);
     const [ deployTx, setDeployTx] = useState();
-    const { data, error, fetch } = useWeb3ExecuteFunction();
-    const { data: deploy, error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
+    const { fetch: getProtocol } = useWeb3ExecuteFunction();
+    const { error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
     const { data: forwarder, fetch: fetchForwarder  } = useWeb3ExecuteFunction();
     const { deployProtocolAbi, getProtocolControlAbi, getForwarderAbi } = registryInterface();
-    const { isWeb3Enabled } = useMoralis()
+    const { provider } = useMoralis()
 
     useEffect(() => {
-        if(error) {
-            console.log(`could not find protocolAddress: ${error}`)
-            setLoading(false)
-            return;
-        }
-        if(data && !(typeof data === undefined) && (data !== "0x0000000000000000000000000000000000000000")) {
-            /**
-             * user has project @ data
-             */
-            setProtocolAddress(data)
-            setHasProject(true)
-            setLoading(false)
-            console.log(`protocol found at ${data}`)
-            return;
-        } else if(data === "0x0000000000000000000000000000000000000000"){
-            /**
-             * user has no project
-             */
-            setHasProject(false)
-            setCanSetProject(true)
-            setLoading(false)
-            return;
-        }
-    }, [ data, error ])
-
-    useEffect(() => {
-        if(deploy) {
-            setDeployTx(deploy)
-            setLoading(false)
-        }
-        if(deployErr) {
-            console.log(deployErr)
-            setLoading(false)
-        }
-    }, [ deploy, deployErr])
-
-    useEffect(() => {
-        if(isWeb3Enabled) {
+        if(provider) {
             getProtocolByUser(AdminAddress)
             getForwarder()
         }
-    }, [ isWeb3Enabled ])
+        // eslint-disable-next-line
+    }, [provider])
 
     /**
      * Deploys the project contract from registry.
@@ -78,9 +42,12 @@ const useRegistry = () => {
                     uri: uri
                 }
             },
-            onSuccess: results => console.log(`success: ${results}`),
-            onError: error => console.log(error)
-        }).then((e) =>  {}).catch(() => setLoading(false))
+            onSuccess: results => {
+                setDeployTx(results)
+            },
+            onError: () => setLoading(false),
+            onComplete: () => console.log('completed deploying')
+        }).then(() =>  {}).catch(() => setLoading(false))
     }
     /**
      * gets the contract address of a user
@@ -89,7 +56,7 @@ const useRegistry = () => {
      */
     const getProtocolByUser = (userAddress: string) => {
         setLoading(true);
-        fetch({
+        getProtocol({
             params: {
                 abi: [
                     getProtocolControlAbi
@@ -101,7 +68,26 @@ const useRegistry = () => {
                     index: "1"
                 }
             },
-            onSuccess: results => console.log(`success: ${results}`),
+            onSuccess: results => {
+                if(results && !(typeof results === undefined) && (results !== "0x0000000000000000000000000000000000000000")) {
+                    /**
+                     * user has project @ data
+                     */
+                    setProtocolAddress(results)
+                    setHasProject(true)
+                    setLoading(false)
+                    console.log(`found protocol`)
+                    return;
+                } else if(results === "0x0000000000000000000000000000000000000000"){
+                    /**
+                     * user has no project
+                     */
+                    setHasProject(false)
+                    setCanSetProject(true)
+                    setLoading(false)
+                    return;
+                }
+            },
             onError: error => console.log(error)
         }).then(() => {}).catch(() => setLoading(false))
     }

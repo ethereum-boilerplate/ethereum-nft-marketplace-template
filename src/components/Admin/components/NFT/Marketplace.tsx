@@ -1,15 +1,11 @@
-import React from 'react';
-import useMarketplace from "../../Module/contracts/NFT/Marketplace/useMarketplace";
+import React, {useEffect} from 'react';
+import {useMarketplace} from "../../Module/contracts/NFT/useMarketplace";
+import {Table} from "web3uikit";
 
-export default function Marketplace(props) {
-/*    const {
-        unlist,
-        isUnlisting,
-        buy,
-        loadingListings,
-        hasEnoughTokensToBuy,
-        isBuying,
-    } = useMarketplace(web3, props.address);*/
+export const Marketplace: React.FC = ({ address, web3}) => {
+    const {
+        allListings
+    } = useMarketplace(web3, address);
 /*
     const { allListings, unlist, getListingsByUser, buy, dataAllListings, list } = useMarketplace(props.address)
 */
@@ -239,15 +235,16 @@ export default function Marketplace(props) {
     ];
 */
 
+    useEffect(() => {
+        if(allListings) {
+            console.log(allListings)
+        }
+    }, [allListings])
+
+
     return (
-        <div>
-            Do it for the lulz
-            {/*<Table
-                loading={loadingListings}
-                dataSource={!props.ownListings ? allListings : props.listings}
-                columns={!props.ownListings ? columns : customColumns}
-                scroll={{ x: true }}
-            />*/}
-        </div>
+        <Table
+        data={[]}
+        />
     );
 }

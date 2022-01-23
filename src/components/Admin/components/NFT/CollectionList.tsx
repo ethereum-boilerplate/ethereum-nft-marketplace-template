@@ -1,14 +1,18 @@
-import {useMoralis, useMoralisWeb3Api, useMoralisWeb3ApiCall} from 'react-moralis'
+import {useChain, useMoralis, useMoralisWeb3Api, useMoralisWeb3ApiCall} from 'react-moralis'
 import { Image } from 'antd'
-import { useEffect, useState } from 'react'
-import {Table, Button} from "web3uikit";
+import React, { useEffect, useState } from 'react'
+import {Table, Button } from "web3uikit";
 import NFTMinterForm from "../../Forms/NFTMinter";
-export default function CollectionList({ address, web3 }) {
+import {useMarketplace} from "../../Module/contracts/NFT/useMarketplace";
+import useProtocol from "../../Module/contracts/Protocol/useProtocol";
+export const CollectionList: React.FC = ({ address, web3 }) => {
 
-    const { chainId } = useMoralis()
-    const [ showMinter, setShowMinter ] = useState(false)
+    const { chainId } = useChain();
+    const [ showMinter ] = useState(false);
     const [ tableData, setTableData ] = useState([]);
-    const [ isLoading, setLoading ] = useState(true)
+    const { marketplaceAddress } = useProtocol();
+    const { account } = useMoralis()
+    const { listNFT } = useMarketplace(web3, marketplaceAddress)
 
     const Web3Api = useMoralisWeb3Api()
 
@@ -19,11 +23,9 @@ export default function CollectionList({ address, web3 }) {
 
 
     useEffect(() => {
-        setLoading(true)
         if(data && data.result.length > 0) {
             const temp = []
             data.result.forEach((result, index) => {
-                console.log(JSON.parse(result.metadata))
                 const metadata = JSON.parse(result.metadata)
                 temp.push([
                     <span>{result.token_id}</span>,
@@ -31,17 +33,23 @@ export default function CollectionList({ address, web3 }) {
                     <Image height={50} width={50} style={{borderRadius: '15px'}} src={metadata.image ? `https://ipfs.io/ipfs/${(metadata.image)}` : `https://i.ibb.co/FzDBLqk/Image.png`}/>,
                     <span>{result.name}</span>,
                     <div style={{display: 'flex', width: '120%', gap: '15px'}}>
-                        <Button isFullWidth onClick={() => {console.log('List')}} text={"List"}/>
-                        <Button isFullWidth onClick={() => {console.log('Transfer')}} text={"Transfer"}/>
+                        <Button theme={"outline"} isFullWidth onClick={() => {console.log('List')}} text={"List"}/>
+                        <Button
+                            theme={"outline"}
+                            isFullWidth
+                            onClick={async () => {
+                                await listNFT(result.token_address, result.token_id, "0x0000000000000000000000000000000000000000", 10, 1, 0, 0, 0, account)
+                            }}
+                            text={"Transfer"}
+                        />
                     </div>
                 ])
-                console.log(temp)
                 if(index === data.result.length-1) {
                     setTableData(temp)
                 }
             })
         }
-        setLoading(false)
+        // eslint-disable-next-line
     }, [ data ])
 
 
@@ -56,23 +64,24 @@ export default function CollectionList({ address, web3 }) {
                     '#',
                     <span>Logo</span>,
                     <span>Name</span>,
-                    ''
+                    <span>Actions</span>
                 ]}
                 maxPages={3}
                 onPageNumberChanged={function noRefCheck() {
                 }}
                 pageSize={5}
-                customNoDataText={ !isLoading ?
-                    <div style={{display: 'grid', placeItems: 'center', gap: '5px'}}>
-                        <span>Collection is empty</span>
-                        <Button onClick={() => {
-                            setShowMinter(true)
-                        }} icon={"plus"} iconLayout={"leading"} theme={"primary"} text={"Mint NFT"}/>
-                    </div> : "Loading ..."
-                }
-
+                customNoDataText={"Loading ..."}
             />}
             {showMinter && <NFTMinterForm address={address} web3={web3}/>}
         </div>
     )
 }
+
+
+/*
+<div style={{display: 'grid', placeItems: 'center', gap: '5px'}}>
+    <span>Collection is empty</span>
+    <Button onClick={() => {
+        setShowMinter(true)
+    }} icon={"plus"} iconLayout={"leading"}  text={"Mint NFT"}/>
+</div> */

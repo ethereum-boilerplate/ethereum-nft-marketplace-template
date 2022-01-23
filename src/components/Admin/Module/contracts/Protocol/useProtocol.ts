@@ -24,6 +24,7 @@ const useProtocol = () => {
              */
             getModuleById("0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8")
         }
+        // eslint-disable-next-line
     }, [ protocolAddress ])
 
     useEffect(() => {
