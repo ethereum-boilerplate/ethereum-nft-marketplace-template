@@ -3,7 +3,7 @@ import {useMoralisQuery, useMoralis, useWeb3ExecuteFunction} from 'react-moralis
 import { getEllipsisTxt } from '../../../helpers/formatters'
 import { getModuleColor, getModuleType } from '../../../helpers/modules';
 import { Avatar, Button, Dropdown, DropdownElement, Icon, LinkTo, Table, Tag, Modal } from "web3uikit"
-import {Marketplace} from '../components/NFT/Marketplace';
+import Marketplace from '../components/NFT/Marketplace';
 import Token from '../components/Token';
 import { CollectionList } from '../components/NFT/CollectionList';
 import { getExplorer } from '../../../helpers/networks';

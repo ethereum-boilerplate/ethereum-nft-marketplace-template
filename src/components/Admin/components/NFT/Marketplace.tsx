@@ -1,8 +1,7 @@
 import React, {useEffect} from 'react';
 import {useMarketplace} from "../../Module/contracts/NFT/useMarketplace";
-import {Table} from "web3uikit";
 
-export const Marketplace: React.FC = ({ address, web3}) => {
+const Marketplace: React.FC = ({ address, web3}) => {
     const {
         allListings
     } = useMarketplace(web3, address);
@@ -243,8 +242,8 @@ export const Marketplace: React.FC = ({ address, web3}) => {
 
 
     return (
-        <Table
-        data={[]}
-        />
+        <div> Coming soon</div>
     );
 }
+
+export default Marketplace;
