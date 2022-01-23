@@ -17,11 +17,11 @@ import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import Web3 from "web3"
-import Text from "antd/lib/typography/Text";
 import Marketplace from "components/Admin/components/NFT/Marketplace";
 import { AdminAddress } from "components/Admin";
 import useProtocol from "./components/Admin/Module/contracts/Protocol/useProtocol";
 import Adder from "./components/Admin/Module/Adder";
+import {BannerStrip} from "web3uikit";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -57,7 +57,7 @@ const styles = {
 const App = () => {
   const { enableWeb3, isAuthenticated, account, provider } = useMoralis();
   const { marketplaceAddress, hasMarketplace, canSetProject} = useProtocol();
-  const [web3, setWeb3] = useState()
+  const [web3, setWeb3] = useState<any>()
 
   useEffect(() => {
     enableWeb3()
@@ -66,13 +66,14 @@ const App = () => {
 
   useEffect(() => {
     if(provider) {
-      let web = new Web3(provider)
+      let web = new Web3(provider as any)
       setWeb3(web)
     }
   }, [provider])
 
 
   return (
+      // @ts-ignore
     <Layout style={{ height: "100vh", overflow: "auto" }}>
       {
         <Router>
@@ -152,40 +153,7 @@ const App = () => {
           </div>
         </Router>}
       <Footer style={{ textAlign: "center" }}>
-        {!isAuthenticated && <p style={{ marginBottom: '1em', fontWeight: 600, fontSize: 18 }}>Connect your wallet</p>}
-        <Text style={{ display: "block" }}>
-          ⭐️ Please star this{" "}
-          <a
-            href="https://github.com/ethereum-boilerplate/ethereum-boilerplate/"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            boilerplate
-          </a>
-          , every star makes us very happy!
-        </Text>
-
-        <Text style={{ display: "block" }}>
-          🙋 You have questions? Ask them on the {""}
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://forum.moralis.io/t/ethereum-boilerplate-questions/3951/29"
-          >
-            Moralis forum
-          </a>
-        </Text>
-
-        <Text style={{ display: "block" }}>
-          📖 Read more about{" "}
-          <a
-            target="_blank"
-            rel="noopener noreferrer"
-            href="https://moralis.io?utm_source=boilerplatehosted&utm_medium=todo&utm_campaign=no-code-nft"
-          >
-            Moralis
-          </a>
-        </Text>
+        <BannerStrip type={"standard"} text={"Powered By Moralis"}/>
       </Footer>
     </Layout>
   );

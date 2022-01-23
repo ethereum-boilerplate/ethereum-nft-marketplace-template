@@ -5,7 +5,6 @@ import { getModuleColor, getModuleType } from '../../../helpers/modules';
 import {Avatar, Button, Dropdown, DropdownElement, Icon, LinkTo, Table, Tag, Modal} from "web3uikit"
 import Marketplace from '../components/NFT/Marketplace';
 import Token from '../components/Token';
-import Bundle from '../components/NFT/Bundle';
 import CollectionList from '../components/NFT/CollectionList';
 import { getExplorer } from '../../../helpers/networks';
 import Moralis from "moralis";
@@ -53,7 +52,7 @@ export default function Overview({ pushToAdder, protocolAddress, web3 }) {
                         let metadata = {
                             name: '', description: ''
                         }
-                        const url = `https://ipfs.io/ipfs/${(results).split('ipfs://')[1]}`
+                        const url = `https://ipfs.io/ipfs/${(results as any).split('ipfs://')[1]}`
                         try {
                             const x = await fetch(url)
                             const y = await x.json()
@@ -116,9 +115,6 @@ export default function Overview({ pushToAdder, protocolAddress, web3 }) {
         }
         if(type === "Token") {
             return <Token address={selectedModule.module} />
-        }
-        if(type === "NFT Bundle") {
-            return <Bundle />
         }
     }
 

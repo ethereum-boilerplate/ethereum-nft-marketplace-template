@@ -18,7 +18,7 @@ export default function Token(props) {
                 {(!loading) && <Button onClick={() => addToMetamask()}>Add To Metamask</Button>}
             </div>
             <div>
-                <Button disabled={(!wantsToMint && !amountToMint && !addressToSend) ? false : (wantsToMint && (!amountToMint || !addressToSend)) ? true : false} onClick={() => {
+                <Button disabled={(!wantsToMint && !amountToMint && !addressToSend) ? false : (wantsToMint && (!amountToMint || !addressToSend))} onClick={() => {
                     if(!wantsToMint) {
                         toggleMinter(true)
                     } else {

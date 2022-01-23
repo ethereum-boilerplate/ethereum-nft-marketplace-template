@@ -14,7 +14,7 @@ export default function CollectionList({ address, web3 }) {
 
     const { data } = useMoralisWeb3ApiCall(Web3Api.token.getAllTokenIds, {
         address: address,
-        chain: chainId
+        ["chain" as any]: chainId
     }, {autoFetch: true});
 
 
@@ -27,6 +27,7 @@ export default function CollectionList({ address, web3 }) {
                 const metadata = JSON.parse(result.metadata)
                 temp.push([
                     <span>{result.token_id}</span>,
+                    // @ts-ignore
                     <Image height={50} width={50} style={{borderRadius: '15px'}} src={metadata.image ? `https://ipfs.io/ipfs/${(metadata.image)}` : `https://i.ibb.co/FzDBLqk/Image.png`}/>,
                     <span>{result.name}</span>,
                     <div style={{display: 'flex', width: '120%', gap: '15px'}}>

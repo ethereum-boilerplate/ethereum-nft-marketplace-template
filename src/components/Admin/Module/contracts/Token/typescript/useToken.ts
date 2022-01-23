@@ -1,20 +1,18 @@
 import {useEffect, useState} from "react";
 import { useMoralisWeb3Api, useWeb3ExecuteFunction} from "react-moralis";
-import generateContractOptions from "../../../../helpers";
-import tokenInterface from "./interface";
 
 const useToken = (address: string) => {
 
     const [ name, setName ] = useState(null)
     const [ symbol, setSymbol ] = useState(null)
-    const [ totalSupply, setTotalSupply ] = useState(null)
+    const [ totalSupply,  ] = useState(null)
     const [ decimals, setDecimals ] = useState(null)
     const [ loading, setLoading ] = useState(true)
-    const [ isMinting, setMinting ] = useState(false)
+    const [ isMinting,  ] = useState(false)
     const [ error, setError ] = useState(null)
     const { token } = useMoralisWeb3Api()
-    const { data, fetch } = useWeb3ExecuteFunction()
-    const { mintTokensAbi, totalSupplyAbi } = tokenInterface();
+    const { data, } = useWeb3ExecuteFunction()
+    /*const { mintTokensAbi, totalSupplyAbi } = tokenInterface();*/
 
     useEffect(() => {
         getTokenInformation();
@@ -25,8 +23,8 @@ const useToken = (address: string) => {
     }, [ data ])
 
     const getTotalSupply = () => {
-        const params = generateContractOptions(totalSupplyAbi, address, "totalSupply", {})
-        fetch({params, onSuccess: (e) => (setTotalSupply(e))}).then((e) => console.log(e))
+        /*const params = generateContractOptions(totalSupplyAbi, address, "totalSupply", {})
+        fetch({params, onSuccess: (e) => (setTotalSupply(e))}).then((e) => console.log(e))*/
     }
 
     const getTokenInformation = () => {
@@ -44,11 +42,11 @@ const useToken = (address: string) => {
             .catch(setError)
     }
 
-    const mintTokens = (toAddress: string, amount: number | string ) => {
-        const params = generateContractOptions(mintTokensAbi,address,"mint", {to: toAddress, amount: amount})
+    /*const mintTokens = (toAddress: string, amount: number | string ) => {
+        /!*const params = mintTokensAbi,address,"mint", {to: toAddress, amount: amount})
         setMinting(true)
-        fetch({params}).then(()=>setMinting(false))
-    }
+        fetch({params}).then(()=>setMinting(false))*!/
+    }*/
 
     return {
         name,
@@ -57,7 +55,6 @@ const useToken = (address: string) => {
         loading,
         isMinting,
         totalSupply,
-        mintTokens,
         getTotalSupply,
         error
     }

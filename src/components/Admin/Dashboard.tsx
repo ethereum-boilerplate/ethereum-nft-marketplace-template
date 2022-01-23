@@ -12,10 +12,15 @@ const { Tab } = TabList
 export default function Dashboard({ web3 }) {
 
     const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, canSetProject, deployErr, deployTx  } = useRegistry()
-    const { fetchERC20Balances } = useERC20Balances({
-        address: protocolAddress,
-        chain: ProjectChainId
-    })
+    const { fetchERC20Balances } = useERC20Balances(
+        {
+            address: protocolAddress,
+            chain: ProjectChainId
+        },
+        {
+            autoFetch: false
+        }
+    )
 
     const history = useHistory();
 
@@ -25,12 +30,8 @@ export default function Dashboard({ web3 }) {
     }
 
     useEffect(() => {
-        console.log(`CAN SET PROJECT? = ${canSetProject}`)
-    }, [canSetProject])
-
-    useEffect(() => {
         if(hasProject) {
-            fetchERC20Balances()
+            fetchERC20Balances().then(console.log)
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasProject])
@@ -38,7 +39,8 @@ export default function Dashboard({ web3 }) {
     return (
         <TabList
         defaultActiveKey={canSetProject ? 1 : 2}
-        tabStyle={"bar"}
+        tabStyle={"bulbUnion"}
+
         >
             <Tab
                 tabKey={1}
