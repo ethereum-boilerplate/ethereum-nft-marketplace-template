@@ -74,6 +74,7 @@ export const useCollection = (web3, address) => {
         mint,
         nextTokenId,
         getNextTokenIdByAddress,
+        triggerWeb3Api,
         nextTokenIdByAddress,
         royaltyPercentage
     }

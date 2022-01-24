@@ -92,13 +92,24 @@ const useProtocol = () => {
             },
             onError: (error) => console.log(`error on getting module by id ${error}`),
             onSuccess: (results) => {
-                if(results === "0x0000000000000000000000000000000000000000") {
-                    console.log('no marketplace found')
+                if(moduleId === "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8") {
+                    if(results === "0x0000000000000000000000000000000000000000") {
+                        console.log('no marketplace found')
+                        return;
+                    }
+                    setMarketplaceAddress(dataModuleById)
+                    setHasMarketplace(true)
+                    console.log(`found marketplace at ${results}`)
                     return;
+                } else {
+                    /**
+                     * TODO
+                     * check if there is a token deployed.
+                     * If yes make global state to access token information
+                     */
                 }
-                setMarketplaceAddress(dataModuleById)
-                setHasMarketplace(true)
-                console.log(`found marketplace at ${results}`)
+
+
             }
         }).then(() => {}).catch(() => {})
     }

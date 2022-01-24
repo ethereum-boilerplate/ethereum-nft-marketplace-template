@@ -16,7 +16,7 @@ export default function Overview({ protocolAddress, web3 }) {
     const [limit] = useState(100)
     // Get installed modules
     const { data } = useMoralisQuery("Modules", query => query.limit(limit),[limit], { live: true })
-    const {  chainId } = useMoralis()
+    const { chainId } = useMoralis()
     const [selectedModule, setSelectedModule] = useState(null)
     const [showModal, setShowModal] = useState<boolean>(false)
     const [ isLoading, setLoading ] = useState<boolean>(true)

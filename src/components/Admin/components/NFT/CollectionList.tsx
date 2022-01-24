@@ -3,8 +3,8 @@ import { Image } from 'antd'
 import React, { useEffect, useState } from 'react'
 import {Table, Button } from "web3uikit";
 import NFTMinterForm from "../../Forms/NFTMinter";
-import {useMarketplace} from "../../Module/contracts/NFT/useMarketplace";
 import useProtocol from "../../Module/contracts/Protocol/useProtocol";
+import NFTLister from "../../Forms/NFTLister";
 export const CollectionList: React.FC = ({ address, web3 }) => {
 
     const { chainId } = useChain();
@@ -12,8 +12,8 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
     const [ isEmpty, setIsEmpty ] = useState(false);
     const [ tableData, setTableData ] = useState([]);
     const { marketplaceAddress } = useProtocol();
-    const { account } = useMoralis()
-    const { listNFT } = useMarketplace(web3, marketplaceAddress)
+    const [ nftToList, setNftToList] = useState()
+    const [ showLister, setShowLister ] = useState<boolean>(false)
 
     const Web3Api = useMoralisWeb3Api()
 
@@ -29,7 +29,6 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
             const temp = []
             data.result.forEach((result, index) => {
                 const metadata = JSON.parse(result.metadata)
-                console.log(metadata)
                 temp.push([
                     <span>{result.token_id}</span>,
                     // @ts-ignore
@@ -39,12 +38,14 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
                         <span style={{fontSize: "small", color: "gray", display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: "50ch"}}>{metadata && metadata.description ? metadata.description : "No Description"}</span>
                     </div>,
                     <div style={{display: 'flex', width: '120%', gap: '15px'}}>
-                        <Button theme={"outline"} isFullWidth onClick={() => {console.log('List')}} text={"Transfer"}/>
+                        <Button theme={"outline"} isFullWidth onClick={() => {console.log('Transfer')}} text={"Transfer"}/>
                         <Button
                             theme={"outline"}
                             isFullWidth
-                            onClick={async () => {
-                                await listNFT(result.token_address, result.token_id, "0x5A450A88d138e19eF2280d5c2406830C47Cb2014", 10, 1, 0, 0, 0, account)
+                            onClick={() => {
+                                console.log(result.token_id)
+                                setNftToList({token_address: result.token_address, token_id: result.token_id, metadata: metadata})
+                                setShowLister(true)
                             }}
                             text={"List"}
                         />
@@ -84,6 +85,9 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
                 customNoDataText={!isEmpty ? "Loading ..." : "Collection is empty"}
             />}
             {showMinter && <NFTMinterForm address={address} web3={web3}/>}
+            {showLister &&
+                <NFTLister web3={web3} marketplaceAddress={marketplaceAddress} nft={nftToList}/>
+            }
         </div>
     )
 }

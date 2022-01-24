@@ -33,7 +33,7 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
         ).then(async (e) => {
             const hash = (e as any)["_hash"]
             let code = '0x' + collectionBytecode;
-            const contract = new web3.eth.Contract(collectionAbi)
+            const contract = new web3.eth.Contract(collectionAbi as any)
             const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, metadata.name, metadata.symbol, forwarder, `ipfs://${hash}`, metadata.royalty*100]})
             await toDeploy.send({from: account})
                 .on('receipt', async (receipt) => {

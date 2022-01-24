@@ -37,7 +37,7 @@ export default function Dashboard({ web3 }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasProject])
 
-    if(canSetProject) {
+    if(canSetProject && !isLoading) {
         return (
             <ProjectForm
                 web3={web3}

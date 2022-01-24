@@ -1,8 +1,9 @@
 import React, {useEffect, useState} from 'react';
 import {useMarketplace} from "../../Module/contracts/NFT/useMarketplace";
-import {Button, Table} from "web3uikit";
-import {useMoralis} from "react-moralis";
+import {Button, LinkTo, Table} from "web3uikit";
+import {useChain, useMoralis, useMoralisWeb3Api} from "react-moralis";
 import {getEllipsisTxt} from "../../../../helpers/formatters";
+import {getExplorer} from "../../../../helpers/networks";
 
 interface NftForSaleType {
     listingId: string;
@@ -25,15 +26,16 @@ const Marketplace: React.FC = ({ address, web3, ownListings = false }) => {
         buy,
         unlist
     } = useMarketplace(web3, address);
-    const { account } = useMoralis()
-
-    const [ nftsForSale, setNFTsForSale] = useState<Array<NftForSaleType>>([]);
+    const { account, Moralis } = useMoralis()
+    const { token } = useMoralisWeb3Api()
+    const { chainId } = useChain()
+    const [ nftsForSale, setNftsForSale] = useState<Array<NftForSaleType>>([]);
     const [ tableData, setTableData ] = useState([]);
     const [ isEmpty, setEmpty ] = useState<boolean>(false);
 
     useEffect(() => {
         if(allListings && !ownListings) {
-            setNFTsForSale([])
+            setNftsForSale([])
             allListings.forEach((listing) => {
                 if(listing.quantity === "0") return;
                 const listingId = listing.listingId;
@@ -54,7 +56,7 @@ const Marketplace: React.FC = ({ address, web3, ownListings = false }) => {
                     currency
                 }
 
-                setNFTsForSale(prev => prev.length > 0 ? [...prev, nftToSell] : [nftToSell])
+                setNftsForSale(prev => prev.length > 0 ? [...prev, nftToSell] : [nftToSell])
 
             })
         }
@@ -65,7 +67,7 @@ const Marketplace: React.FC = ({ address, web3, ownListings = false }) => {
 
         if(currentUsersListings) {
 
-            setNFTsForSale([])
+            setNftsForSale([])
             currentUsersListings.forEach((listing) => {
                 if (listing.quantity === "0") return;
                 const listingId = listing.listingId;
@@ -86,7 +88,7 @@ const Marketplace: React.FC = ({ address, web3, ownListings = false }) => {
                     currency
                 }
 
-                setNFTsForSale(prev => prev.length > 0 ? [...prev, nftToSell] : [nftToSell])
+                setNftsForSale(prev => prev.length > 0 ? [...prev, nftToSell] : [nftToSell])
             })
         }
 
@@ -106,18 +108,21 @@ const Marketplace: React.FC = ({ address, web3, ownListings = false }) => {
 
     const printTable = async () => {
         let p = []
+        console.log(nftsForSale)
         await nftsForSale.forEach((nft) => {
+            console.log(nft)
             p.push([
-                <span>{nft.tokenId}</span>,
+                <span>{nft.token_id}</span>,
                 '',
                 <span>{nft.metadata.name}</span>,
-                <span>{getEllipsisTxt(nft.seller, 4)}</span>,
-                <span>{nft.price}</span>,
+                <LinkTo text={getEllipsisTxt(nft.seller, 4)} address={`${getExplorer(chainId)}address/${nft.seller}`}/>,
+                <span>{`${Moralis.Units.FromWei(nft.price)}`}</span>,
                 <div style={{display: 'flex', alignItems: "center", justifyContent: "space-between"}}>
                     <Button text={"Buy"} theme={"outline"} onClick={() => buy(nft.listingId, "1", nft.currency, nft.price, account)}/>
                     <Button text={"Unlist"} theme={"outline"} onClick={() => unlist(nft.listingId, "1", account)}/>
                 </div>
             ])
+
         })
         setTableData(p)
     }

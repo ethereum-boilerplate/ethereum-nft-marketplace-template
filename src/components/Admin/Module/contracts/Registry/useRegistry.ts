@@ -3,6 +3,7 @@ import {useMoralis, useMoralisQuery, useNewMoralisObject, useWeb3ExecuteFunction
 import {MasterKey, ProjectChainId, RegistryAddress} from '../../../index'
 import registryInterface from "./interface";
 import Moralis from "moralis";
+import chainId = Moralis.chainId;
 
 const useRegistry = () => {
     const { data } = useMoralisQuery("Storefront", query => query.limit(2), [], {
@@ -39,6 +40,7 @@ const useRegistry = () => {
             console.log(`Project Admin = ${data[0].get('admin')}`)
             console.log(`Project Metadata = ${data[0].get('uri')}`)
             console.log(`Project Address = ${data[0].get('protocol')}`)
+            console.log(`Project Chain = ${data[0].get('chain')}`)
             setCanSetProject(false)
             setHasProject(true)
             setProtocolAdmin(data[0].get('admin'))
@@ -101,7 +103,7 @@ const useRegistry = () => {
             },
             onSuccess: results => {
                 (results as any).wait().then((e) => {
-                    save({admin: account, uri: uri, protocol: e.logs[0].address}).then(console.log).catch(console.log);
+                    save({admin: account, uri: uri, protocol: e.logs[0].address, chain: chainId}).then(console.log).catch(console.log);
                     runCf().then(console.log)
                 })
             },
