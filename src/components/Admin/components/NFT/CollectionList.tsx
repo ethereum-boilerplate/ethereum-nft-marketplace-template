@@ -9,6 +9,7 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
 
     const { chainId } = useChain();
     const [ showMinter, setShowMinter ] = useState(false);
+    const [ isEmpty, setIsEmpty ] = useState(false);
     const [ tableData, setTableData ] = useState([]);
     const { marketplaceAddress } = useProtocol();
     const { account } = useMoralis()
@@ -24,6 +25,7 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
 
     useEffect(() => {
         if(data && data.result.length > 0) {
+            setIsEmpty(false)
             const temp = []
             data.result.forEach((result, index) => {
                 const metadata = JSON.parse(result.metadata)
@@ -53,6 +55,9 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
                 }
             })
         }
+        if(data && data.result.length === 0) {
+            setIsEmpty(true)
+        }
         // eslint-disable-next-line
     }, [ data ])
 
@@ -76,7 +81,7 @@ export const CollectionList: React.FC = ({ address, web3 }) => {
                 onPageNumberChanged={function noRefCheck() {
                 }}
                 pageSize={5}
-                customNoDataText={"Loading ..."}
+                customNoDataText={!isEmpty ? "Loading ..." : "Collection is empty"}
             />}
             {showMinter && <NFTMinterForm address={address} web3={web3}/>}
         </div>

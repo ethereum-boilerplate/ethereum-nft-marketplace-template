@@ -32,6 +32,7 @@ const TokenForm: React.FC = ({ web3 }) => {
             await toDeploy.send({from: account})
                 .on('receipt', async (receipt) => {
                     await addModule(0, receipt.contractAddress)
+
                 })
         })
     }

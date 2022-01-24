@@ -1,13 +1,14 @@
 import { collectionAbi } from "../../../Forms/Factory/collection"
 import { useState, useEffect } from "react"
-import { useMoralis } from "react-moralis"
+import {useMoralis, useMoralisWeb3Api} from "react-moralis"
 
 
 export const useCollection = (web3, address) => {
     const [ nextTokenId, setNextTokenId ] = useState("")
     const [ nextTokenIdByAddress, setNextTokenIdByAddress ] = useState("")
-    const { Moralis, chainId } = useMoralis()
+    const { chainId } = useMoralis()
     const [ royaltyPercentage, setRoyaltyPercentage ] = useState(0)
+    const Web3API = useMoralisWeb3Api()
 
     useEffect(() => {
         if(address && web3) {
@@ -19,9 +20,15 @@ export const useCollection = (web3, address) => {
     }, [address, web3])
 
     const triggerWeb3Api = async () => {
-        await Moralis.Web3API.token.syncNFTContract({
+        await Web3API.token.syncNFTContract({
             chain: chainId,
             address: address
+        })
+        const nextToken = await getNextTokenId()
+        await Web3API.token.reSyncMetadata({
+            chain: chainId,
+            address: address,
+            token_id: nextToken-1
         })
     }
 

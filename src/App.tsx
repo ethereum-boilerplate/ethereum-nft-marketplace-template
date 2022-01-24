@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useMoralis } from "react-moralis";
+import {useMoralis, useMoralisQuery} from "react-moralis";
 import {
   BrowserRouter as Router,
   Switch,
@@ -18,7 +18,6 @@ import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import Web3 from "web3"
 import Marketplace from "components/Admin/components/NFT/Marketplace";
-import { AdminAddress } from "components/Admin";
 import useProtocol from "./components/Admin/Module/contracts/Protocol/useProtocol";
 import Adder from "./components/Admin/Module/Adder";
 const { Header, Footer } = Layout;
@@ -55,13 +54,19 @@ const styles = {
 };
 const App = () => {
   const { enableWeb3, isAuthenticated, account, provider } = useMoralis();
-  const { marketplaceAddress, hasMarketplace, canSetProject} = useProtocol();
+  const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isLoading } = useProtocol();
+
   const [web3, setWeb3] = useState<any>()
+
 
   useEffect(() => {
     enableWeb3()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
+
+  useEffect(() => {
+    console.log('is loading', isLoading)
+  }, [isLoading])
 
   useEffect(() => {
     if(provider) {
@@ -89,16 +94,18 @@ const App = () => {
                 width: "100%",
               }}
             >
-              {(account && account.toUpperCase() === AdminAddress.toUpperCase() && isAuthenticated) && <Menu.Item key="admin">
+              {((account && AdminAddress && account.toUpperCase() === AdminAddress.toUpperCase()) || !AdminAddress) && !isLoading && <Menu.Item key="admin">
                 <NavLink to="/admin">📑 Admin</NavLink>
               </Menu.Item>
               }
               {hasMarketplace && <Menu.Item key="nftMarket">
                 <NavLink to="/NFTMarketPlace">🛒 Explore Market</NavLink>
               </Menu.Item>}
-              {hasMarketplace && <Menu.Item key="user">
-                <NavLink to="/user">⚙ Account</NavLink>
-              </Menu.Item>}
+              {hasMarketplace &&
+                  <Menu.Item key="user">
+                    <NavLink to="/user">⚙ Account</NavLink>
+                  </Menu.Item>
+              }
               <Menu.Item key="nft">
                 <NavLink to="/NFTBalance">🖼 Your NFTs</NavLink>
               </Menu.Item>
@@ -111,12 +118,12 @@ const App = () => {
           </Header>
           <div style={styles.content}>
             <Switch>
-              {account && (account.toUpperCase() === AdminAddress.toUpperCase()) &&
+              {((account && AdminAddress && account.toUpperCase() === AdminAddress.toUpperCase()) || !AdminAddress) && !isLoading &&
                 <Route path="/admin">
                   <Dashboard web3={web3} />
                 </Route>
               }
-              {account && (account.toUpperCase() === AdminAddress.toUpperCase()) &&
+              {account && AdminAddress && (account.toUpperCase() === AdminAddress.toUpperCase()) && !isLoading &&
                   <Route path="/addModule">
                     <Adder />
                   </Route>
@@ -147,8 +154,8 @@ const App = () => {
                 }
               </Route>
             </Switch>
-            {(isAuthenticated) && (account && account.toUpperCase() === AdminAddress.toUpperCase()) && <Redirect to="/admin" />}
-            {(isAuthenticated) && (account && account.toUpperCase() !== AdminAddress.toUpperCase()) && hasMarketplace && (<Redirect to="/NFTMarketPlace" />)}
+            {(isAuthenticated) && ((account && AdminAddress && account.toUpperCase() === AdminAddress.toUpperCase()) || !AdminAddress) && !isLoading && <Redirect to="/admin" />}
+            {(isAuthenticated) && (account && AdminAddress && account.toUpperCase() !== AdminAddress.toUpperCase()) && hasMarketplace && (<Redirect to="/NFTMarketPlace" />)}
           </div>
         </Router>}
       <Footer style={{display: 'grid', placeItems: 'center'}}>

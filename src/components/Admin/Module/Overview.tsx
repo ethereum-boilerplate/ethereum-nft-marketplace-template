@@ -18,8 +18,8 @@ export default function Overview({ protocolAddress, web3 }) {
     const { data } = useMoralisQuery("Modules", query => query.limit(limit),[limit], { live: true })
     const {  chainId } = useMoralis()
     const [selectedModule, setSelectedModule] = useState(null)
-    const [showModal, setShowModal] = useState(false)
-    const [ isLoading, setLoading ] = useState(true)
+    const [showModal, setShowModal] = useState<boolean>(false)
+    const [ isLoading, setLoading ] = useState<boolean>(true)
     const { fetch: fetchWeb3 } = useWeb3ExecuteFunction()
     const [ tableData, setTableData ] = useState([])
 
@@ -169,11 +169,11 @@ export default function Overview({ protocolAddress, web3 }) {
                     onPageNumberChanged={function noRefCheck(){}}
                     pageSize={5}
                     customNoDataText={
-                        !isLoading ? <div style={{display: 'grid', placeItems: 'center', width: "30vw", textAlign: 'center'}}>
+                        <div style={{display: 'grid', placeItems: 'center', width: "30vw", textAlign: 'center'}}>
                             <>It looks like there is no data</>
                             <span>If you think this is an error click to force re-sync</span>
                             <Button onClick={() => runCf()} theme={"primary"} text={"Force Sync"} />
-                        </div> : "No Modules Installed"
+                        </div>
                     }
 
                     />

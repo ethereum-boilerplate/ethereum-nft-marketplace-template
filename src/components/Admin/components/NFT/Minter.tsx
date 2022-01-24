@@ -22,12 +22,13 @@ const NFTMinter: React.FC = ({ address, web3 }) => {
         }
         const json = new Moralis.File("metadata.json", {base64: btoa(JSON.stringify(metadata))})
         await json.saveIPFS()
+        setSavingToIpfs(false)
         await mint(
             account,
             /*`ipfs://${json.hash()}`, */
             account
         )
-        setSavingToIpfs(false)
+
     }
 
     return (

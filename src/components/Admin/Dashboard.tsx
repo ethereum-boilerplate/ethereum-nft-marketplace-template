@@ -12,7 +12,7 @@ const { Tab } = TabList
 
 export default function Dashboard({ web3 }) {
 
-    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, canSetProject, deployErr, deployTx  } = useRegistry()
+    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, canSetProject, deployErr } = useRegistry()
     const { fetchERC20Balances } = useERC20Balances(
         {
             address: protocolAddress,
@@ -43,7 +43,6 @@ export default function Dashboard({ web3 }) {
                 web3={web3}
                 deployProtocol={deployProtocol}
                 deployErr={deployErr}
-                deployTx={deployTx}
                 setLoading={setLoading}
                 isLoading={isLoading}
             />

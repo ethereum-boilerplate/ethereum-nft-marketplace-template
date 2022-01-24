@@ -18,247 +18,21 @@ interface NftForSaleType {
     tokenId: string;
 }
 
-const Marketplace: React.FC = ({ address, web3}) => {
+const Marketplace: React.FC = ({ address, web3, ownListings = false }) => {
     const {
         allListings,
+        currentUsersListings,
         buy,
         unlist
     } = useMarketplace(web3, address);
     const { account } = useMoralis()
 
     const [ nftsForSale, setNFTsForSale] = useState<Array<NftForSaleType>>([]);
-    const [ tableData, setTableData ] = useState([[]])
-    /*
-    const { allListings, unlist, getListingsByUser, buy, dataAllListings, list } = useMarketplace(props.address)
-*/
-/*
-    const columns = [
-        {
-            title: 'Image',
-            dataIndex: 'metadata',
-            key: 'image',
-            render: (record) => {
-                let url = `https://ipfs.io/ipfs/${
-                    record.image.split('ipfs://')[1]
-                }`;
-                return <Image src={url} width={'100px'} height={'100px'} />;
-            },
-        },
-        {
-            title: 'Description',
-            dataIndex: 'metadata',
-            key: 'desc',
-            render: (record) => {
-                return `${record.description}`;
-            },
-        },
-        {
-            title: 'Seller',
-            dataIndex: 'seller',
-            key: 'seller',
-            render: (record) => {
-                return (
-                    <a
-                        href={`${getExplorer(chainId)}address/${record}`}
-                        rel={'noreferrer'}
-                        target={'_blank'}
-                    >
-                        {getEllipsisTxt(record, 4)}
-                    </a>
-                );
-            },
-        },
-        {
-            title: 'Price',
-            dataIndex: 'pricePerToken',
-            key: 'pricePerToken',
-            render: (record, item) => {
-                return (
-                    <div>
-                        <p style={{ textAlign: 'center' }}>
-                            {Moralis.Units.FromWei(record, item[0].decimals)}{' '}
-                            {item.tokenInfo[0].symbol}
-                        </p>
-                    </div>
-                );
-            },
-        },
-        {
-            title: 'Actions',
-            dataIndex: 'listingId',
-            key: 'Action',
-            render: (record, item) => {
-                if (!isAuthenticated) {
-                    return (
-                        <Button onClick={() => authenticate()}>
-                            Connect Wallet
-                        </Button>
-                    );
-                }
-                if (props.isAdmin || item.seller === account) {
-                    return (
-                        <div style={{ display: 'flex', gap: '0.25em' }}>
-                            <Button
-                                loading={isBuying}
-                                onClick={async () => {
-                                    if (
-                                        !(await hasEnoughTokensToBuy(
-                                            item.currency,
-                                            item.pricePerToken,
-                                            account
-                                        ))
-                                    ) {
-                                        alert(
-                                            `Insufficient Funds. Buy ${Moralis.Units.FromWei(
-                                                item.pricePerToken,
-                                                item.decimals
-                                            )} ${item.tokenInfo[0].symbol}`
-                                        );
-                                        return;
-                                    }
-                                    console.log('CURRENCY', item.currency);
-                                    await buy(
-                                        item.listingId,
-                                        '1',
-                                        item.currency,
-                                        item.pricePerToken,
-                                        account
-                                    );
-                                }}
-                            >
-                                Buy
-                            </Button>
-                            <Button
-                                loading={isUnlisting}
-                                onClick={async () => {
-                                    await unlist(record, '1', account);
-                                }}
-                            >
-                                Unlist
-                            </Button>
-                        </div>
-                    );
-                } else
-                    return (
-                        <>
-                            <Button
-                                loading={isBuying}
-                                onClick={async () => {
-                                    if (
-                                        !(await hasEnoughTokensToBuy(
-                                            item.currency,
-                                            item.pricePerToken,
-                                            account
-                                        ))
-                                    ) {
-                                        alert(
-                                            `Insufficient Funds. Buy ${Moralis.Units.FromWei(
-                                                item.pricePerToken,
-                                                item.decimals
-                                            )} ${item.tokenInfo[0].symbol}`
-                                        );
-                                        return;
-                                    }
-                                    await buy(
-                                        item.listingId,
-                                        '1',
-                                        item.currency,
-                                        item.pricePerToken,
-                                        account
-                                    );
-                                }}
-                            >
-                                Buy
-                            </Button>
-                        </>
-                    );
-            },
-        },
-    ];
-
-    const customColumns = [
-        {
-            title: 'Image',
-            dataIndex: 'metadata',
-            key: 'image',
-            render: (record) => {
-                let url = `https://ipfs.io/ipfs/${
-                    record.image.split('ipfs://')[1]
-                }`;
-                return <Image src={url} width={'100px'} height={'100px'} />;
-            },
-        },
-        {
-            title: 'Description',
-            dataIndex: 'metadata',
-            key: 'desc',
-            render: (record) => {
-                return `${record.description}`;
-            },
-        },
-        {
-            title: 'Price',
-            dataIndex: 'pricePerToken',
-            key: 'pricePerToken',
-            render: (record, item) => {
-                return (
-                    <div>
-                        <p style={{ textAlign: 'center' }}>
-                            {Moralis.Units.FromWei(record, item[0].decimals)}{' '}
-                            {item.tokenInfo[0].symbol}
-                        </p>
-                    </div>
-                );
-            },
-        },
-        {
-            title: 'Buyer',
-            dataIndex: 'buyer',
-            key: 'buyer',
-            render: (record) => {
-                return `${record}`;
-            },
-        },
-        {
-            title: 'Actions',
-            dataIndex: 'listingId',
-            key: 'Action',
-            render: (record, item) => {
-                if (!isAuthenticated) {
-                    return (
-                        <Button onClick={() => authenticate()}>
-                            Connect Wallet
-                        </Button>
-                    );
-                }
-                if (props.ownListings && item.quantity > 0) {
-                    return (
-                        <Button
-                            loading={isUnlisting}
-                            onClick={async () => {
-                                await unlist(record, '1', account);
-                            }}
-                        >
-                            Unlist
-                        </Button>
-                    );
-                } else if (props.ownListings && item.quantity === '0') {
-                    return (
-                        <Tag
-                            style={{ width: '100%', textAlign: 'center' }}
-                            color={'red'}
-                        >
-                            SOLD
-                        </Tag>
-                    );
-                }
-            },
-        },
-    ];
-*/
+    const [ tableData, setTableData ] = useState([]);
+    const [ isEmpty, setEmpty ] = useState<boolean>(false);
 
     useEffect(() => {
-        if(allListings) {
+        if(allListings && !ownListings) {
             setNFTsForSale([])
             allListings.forEach((listing) => {
                 if(listing.quantity === "0") return;
@@ -288,7 +62,42 @@ const Marketplace: React.FC = ({ address, web3}) => {
 
 
     useEffect(() => {
+
+        if(currentUsersListings) {
+
+            setNFTsForSale([])
+            currentUsersListings.forEach((listing) => {
+                if (listing.quantity === "0") return;
+                const listingId = listing.listingId;
+                const contract = listing.assetContract;
+                const metadata = listing.metadata;
+                const seller = listing.seller;
+                const price = listing.pricePerToken;
+                const currency = listing.currency;
+                const tokenId = listingId.token_id;
+
+                const nftToSell: NftForSaleType = {
+                    listingId,
+                    contract,
+                    tokenId,
+                    metadata,
+                    seller,
+                    price,
+                    currency
+                }
+
+                setNFTsForSale(prev => prev.length > 0 ? [...prev, nftToSell] : [nftToSell])
+            })
+        }
+
+    }, [ currentUsersListings ])
+
+    useEffect(() => {
         if(nftsForSale) {
+            if(nftsForSale.length === 0) {
+                setEmpty(true)
+                return;
+            }
             printTable().then()
         }
         // eslint-disable-next-line
@@ -331,7 +140,7 @@ const Marketplace: React.FC = ({ address, web3}) => {
             onPageNumberChanged={function noRefCheck() {
             }}
             pageSize={5}
-            customNoDataText={"Loading ..."}
+            customNoDataText={!isEmpty ? "Loading ..." : "No Items listed"}
         />
     );
 }

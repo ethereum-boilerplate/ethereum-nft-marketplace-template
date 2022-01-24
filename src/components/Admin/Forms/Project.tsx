@@ -1,19 +1,13 @@
-import React, {useEffect} from "react";
+import React from "react";
 import {Form, Notification} from "web3uikit";
 
 import {useMoralisFile} from "react-moralis";
 
 
 
-const ProjectForm: React.FC = ({ deployProtocol, deployErr, deployTx, setLoading, isLoading }) => {
+const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoading }) => {
 
     const { saveFile } = useMoralisFile();
-
-    useEffect(() => {
-        if(deployTx) {
-            deployTx.wait()
-        }
-    }, [ deployTx ])
 
     const deploy = (name: string, description: string) => {
         setLoading(true)

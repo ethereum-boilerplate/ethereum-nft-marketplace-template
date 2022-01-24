@@ -6,7 +6,7 @@ import useRegistry from "../Registry/useRegistry";
 const useProtocol = () => {
     const [ marketplaceAddress, setMarketplaceAddress ] = useState();
     const [ hasMarketplace, setHasMarketplace ] = useState<boolean>(false);
-    const { protocolAddress, forwarder, canSetProject } = useRegistry();
+    const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress } = useRegistry();
     const { data: dataAddModule, fetch: fetchAddModule } = useWeb3ExecuteFunction();
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
@@ -52,7 +52,8 @@ const useProtocol = () => {
                     _newModuleAddress: moduleAddress,
                     _moduleType: moduleType
                 }
-            }
+            },
+            onSuccess: (tx) => { console.log(tx) }
         }).then((e) => console.log(e));
     }
 
@@ -90,7 +91,15 @@ const useProtocol = () => {
                 }
             },
             onError: (error) => console.log(`error on getting module by id ${error}`),
-            onSuccess: results => console.log(`result of getting module by id ${results}`)
+            onSuccess: (results) => {
+                if(results === "0x0000000000000000000000000000000000000000") {
+                    console.log('no marketplace found')
+                    return;
+                }
+                setMarketplaceAddress(dataModuleById)
+                setHasMarketplace(true)
+                console.log(`found marketplace at ${results}`)
+            }
         }).then(() => {}).catch(() => {})
     }
 
@@ -121,6 +130,8 @@ const useProtocol = () => {
         dataHasAdminRole,
         canSetProject,
         dataModuleById,
+        isLoading,
+        AdminAddress,
         dataWithdrawFunds,
         dataAddModule,
         forwarder,

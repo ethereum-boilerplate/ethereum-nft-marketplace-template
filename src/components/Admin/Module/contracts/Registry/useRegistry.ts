@@ -1,28 +1,85 @@
 import { useEffect, useState } from "react";
-import { useMoralis, useWeb3ExecuteFunction } from "react-moralis";
-import { AdminAddress, RegistryAddress } from '../../../index'
+import {useMoralis, useMoralisQuery, useNewMoralisObject, useWeb3ExecuteFunction} from "react-moralis";
+import {MasterKey, ProjectChainId, RegistryAddress} from '../../../index'
 import registryInterface from "./interface";
+import Moralis from "moralis";
 
 const useRegistry = () => {
-
+    const { data } = useMoralisQuery("Storefront", query => query.limit(2), [], {
+        autoFetch: true
+    })
     const [ protocolAddress, setProtocolAddress ] = useState<string | null>(null);
+    const [ protocolAdmin, setProtocolAdmin ] = useState<string | null>(null)
     const [ hasProject, setHasProject ] = useState<boolean>(false);
     const [ canSetProject, setCanSetProject ] = useState<boolean>(false);
-    const [ isLoading, setLoading ] = useState<boolean>(false);
-    const [ deployTx, setDeployTx] = useState();
+    const [ isLoading, setLoading ] = useState<boolean>(true);
     const { fetch: getProtocol } = useWeb3ExecuteFunction();
+    const { save } = useNewMoralisObject("Storefront")
     const { error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
     const { data: forwarder, fetch: fetchForwarder  } = useWeb3ExecuteFunction();
     const { deployProtocolAbi, getProtocolControlAbi, getForwarderAbi } = registryInterface();
-    const { provider } = useMoralis()
+    const { account, provider } = useMoralis()
 
     useEffect(() => {
         if(provider) {
-            getProtocolByUser(AdminAddress)
+            console.log('acc:', account)
+            getProtocolByUser(account)
             getForwarder()
         }
         // eslint-disable-next-line
     }, [provider])
+
+    useEffect(() => {
+        if(data) {
+            if(data.length === 0 ) {
+                setCanSetProject(true)
+                setHasProject(false)
+                return
+            }
+            console.log(`Project Admin = ${data[0].get('admin')}`)
+            console.log(`Project Metadata = ${data[0].get('uri')}`)
+            console.log(`Project Address = ${data[0].get('protocol')}`)
+            setCanSetProject(false)
+            setHasProject(true)
+            setProtocolAdmin(data[0].get('admin'))
+            setProtocolAddress(data[0].get('protocol'))
+            setLoading(false)
+        }
+    }, [ data ])
+
+
+    const runCf = async () => {
+        if(!protocolAddress || !ProjectChainId) return
+        Moralis.masterKey = MasterKey
+        const options = {"tableName": "Modules"}
+        await Moralis.Cloud.run("unwatchContractEvent", options, {useMasterKey:true});
+        await Moralis.Cloud.run("watchContractEvent", {
+            chainId: ProjectChainId,
+            address: protocolAddress,
+            topic: "ModuleUpdated(bytes32, address)",
+            abi: {
+                "anonymous": false,
+                "inputs": [
+                    {
+                        "indexed": true,
+                        "internalType": "bytes32",
+                        "name": "moduleId",
+                        "type": "bytes32"
+                    },
+                    {
+                        "indexed": true,
+                        "internalType": "address",
+                        "name": "module",
+                        "type": "address"
+                    }
+                ],
+                "name": "ModuleUpdated",
+                "type": "event"
+            },
+            tableName: "Modules",
+            "sync_historical": true
+        }, {useMasterKey: true})
+    }
 
     /**
      * Deploys the project contract from registry.
@@ -43,10 +100,13 @@ const useRegistry = () => {
                 }
             },
             onSuccess: results => {
-                setDeployTx(results)
+                (results as any).wait().then((e) => {
+                    save({admin: account, uri: uri, protocol: e.logs[0].address}).then(console.log).catch(console.log);
+                    runCf().then(console.log)
+                })
             },
             onError: () => setLoading(false),
-            onComplete: () => console.log('completed deploying')
+            onComplete: () => console.log('deploying ...')
         }).then(() =>  {}).catch(() => setLoading(false))
     }
     /**
@@ -69,31 +129,13 @@ const useRegistry = () => {
                 }
             },
             onSuccess: results => {
-                if(results && !(typeof results === undefined) && (results !== "0x0000000000000000000000000000000000000000")) {
-                    /**
-                     * user has project @ data
-                     */
-                    setProtocolAddress(results)
-                    setHasProject(true)
-                    setLoading(false)
-                    console.log(`found protocol`)
-                    return;
-                } else if(results === "0x0000000000000000000000000000000000000000"){
-                    /**
-                     * user has no project
-                     */
-                    setHasProject(false)
-                    setCanSetProject(true)
-                    setLoading(false)
-                    return;
-                }
+                setLoading(false);
             },
             onError: error => console.log(error)
         }).then(() => {}).catch(() => setLoading(false))
     }
 
     const getForwarder = () => {
-        setLoading(true);
         fetchForwarder({
             params: {
                 abi: [
@@ -102,7 +144,7 @@ const useRegistry = () => {
                 contractAddress: RegistryAddress,
                 functionName: "forwarder",
             },
-            onSuccess: results => console.log(`success: ${results}`),
+            onSuccess: results => console.log(`forwarder: ${results}`),
             onError: error => console.log(error)
         }).then(() => {}).catch(() => setLoading(false))
     }
@@ -111,7 +153,7 @@ const useRegistry = () => {
         deployProtocol,
         getProtocolByUser,
         getForwarder,
-        deployTx,
+        protocolAdmin,
         forwarder,
         canSetProject,
         hasProject,

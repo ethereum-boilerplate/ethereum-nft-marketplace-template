@@ -42,12 +42,6 @@ export default function Adder() {
         }
     }, [deployConfirmed])
 
-    /*const triggerWeb3Api = async (receipt) => {
-        await Moralis.Web3API.token.syncNFTContract({
-            ["chain" as any]: chainId,
-            address: receipt.contractAddress
-        })
-    }*/
 
     // TODO: 
     // Input Validation - create and bind function on add module

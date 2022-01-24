@@ -1,4 +1,3 @@
-import { StandardCurrency } from "components/Admin"
 import { useState, useEffect } from "react"
 import { useMoralis, useMoralisWeb3Api } from "react-moralis"
 export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
@@ -116,7 +115,7 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
         return (await contract.methods.balanceOf(wallet).call() >= amount)
     }
 
-    const listNFT = async (assetContract, tokenId, currency = StandardCurrency, pricePerToken = 0, quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
+    const listNFT = async (assetContract, tokenId, currency = "", pricePerToken = 0, quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
         if(quantity <= 0) {
             setError("Quantity cannot be 0 or lower")
             throw Error("Quantity cannot be 0 or lower")
