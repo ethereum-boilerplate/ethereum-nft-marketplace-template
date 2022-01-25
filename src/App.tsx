@@ -101,7 +101,7 @@ const App = () => {
                                     </Route>
                                 )}
                             <Route path="/NFTBalance">
-                                <NFTBalance address={account} chain={chainId} marketplace={marketplaceAddress} />
+                                <NFTBalance web3={web3} address={account} chain={chainId} marketplace={marketplaceAddress} />
                             </Route>
                             {hasMarketplace && (
                                 <Route path="/user">

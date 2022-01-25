@@ -76,8 +76,8 @@ export const CollectionList: React.FC<ICollectionList> = ({ address, web3 }) => 
                             theme={'outline'}
                             isFullWidth
                             onClick={() => {
-                                console.log(result.token_id);
-                                setNftToList({ token_address: result.token_address, token_id: result.token_id, metadata: metadata });
+                                console.log(result);
+                                setNftToList({ token_address: result.token_address, token_id: result.token_id, metadata: metadata, type: result.contract_type });
                                 setShowLister(true);
                             }}
                             text={'List'}
