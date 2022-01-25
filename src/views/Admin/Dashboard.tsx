@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useERC20Balances } from 'react-moralis';
 import { ProjectChainId } from '.';
 import Overview from './Module/Overview';
@@ -6,11 +7,11 @@ import { useEffect } from 'react';
 import useRegistry from './Module/contracts/Registry/useRegistry';
 import { Button, TabList } from 'web3uikit';
 import ProjectForm from './Forms/Project';
-import { useHistory } from 'react-router';
 import ERC20Balance from '../../components/ERC20Balance';
 import AdminStyles from './Admin.styles';
 import { Typography } from 'uikit/Typography';
 import { HeaderStyled } from 'uikit/HeaderStyled';
+import { useHistory } from 'react-router-dom';
 
 const { Tab } = TabList;
 const { ContentStyled } = AdminStyles;

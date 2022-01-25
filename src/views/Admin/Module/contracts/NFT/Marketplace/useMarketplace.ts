@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {useMoralis, useWeb3ExecuteFunction} from "react-moralis";
 import { useState} from "react";
 import marketplaceInterface from "./interface";

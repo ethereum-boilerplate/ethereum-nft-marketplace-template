@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Form } from "web3uikit";
 import React from "react";
 import {useMoralis, useMoralisFile} from "react-moralis";

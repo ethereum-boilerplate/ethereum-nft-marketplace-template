@@ -1,4 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
+// @ts-nocheck
 import React, { useState } from "react"
 import {useChain, useMoralis} from 'react-moralis'
 import { useToken } from "../Module/contracts/Token/useToken"

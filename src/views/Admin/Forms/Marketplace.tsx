@@ -1,67 +1,67 @@
-import {Form, Notification} from "web3uikit";
-import React from "react";
-import useRegistry from "../Module/contracts/Registry/useRegistry";
-import {useMoralis, useMoralisFile} from "react-moralis";
-import useProtocol from "../Module/contracts/Protocol/useProtocol";
-import {marketplaceAbi, marketplaceBytecode} from "./Factory/marketplace";
+// @ts-nocheck
+import { Form, Notification } from 'web3uikit';
+import React from 'react';
+import useRegistry from '../Module/contracts/Registry/useRegistry';
+import { useMoralis, useMoralisFile } from 'react-moralis';
+import useProtocol from '../Module/contracts/Protocol/useProtocol';
+import { marketplaceAbi, marketplaceBytecode } from './Factory/marketplace';
 
 const MarketplaceForm: React.FC = ({ web3 }) => {
-
     const { deployErr, isLoading, setLoading } = useRegistry();
     const { addModule, protocolAddress, forwarder } = useProtocol();
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
 
     const deployMarketplace = (e: any) => {
-        setLoading(true)
+        setLoading(true);
         let metadata = {
             name: e.name,
             symbol: e.symbol,
             royalty: e.royalties,
             description: e.description,
-        }
+        };
         saveFile(
-            "metadata.json",
-            {base64: btoa(JSON.stringify(metadata))},
+            'metadata.json',
+            { base64: btoa(JSON.stringify(metadata)) },
             {
-                type: "json",
+                type: 'json',
                 metadata,
-                saveIPFS: true
+                saveIPFS: true,
             }
-
         ).then(async (e) => {
-            const hash = (e as any)["_hash"]
+            const hash = (e as any)['_hash'];
             let code = '0x' + marketplaceBytecode;
-            const contract = new web3.eth.Contract(marketplaceAbi as any)
-            console.log(protocolAddress, forwarder, `ipfs://${hash}`, (metadata.royalty*100))
-            const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, forwarder, `ipfs://${hash}`, (metadata.royalty*100)]})
-            await toDeploy.send({from: account})
-                .on('receipt', async (receipt) => {
-                    await addModule(6, receipt.contractAddress)
-                })
-        })
-    }
+            const contract = new web3.eth.Contract(marketplaceAbi as any);
+            console.log(protocolAddress, forwarder, `ipfs://${hash}`, metadata.royalty * 100);
+            const toDeploy = contract.deploy({
+                data: code,
+                arguments: [protocolAddress, forwarder, `ipfs://${hash}`, metadata.royalty * 100],
+            });
+            await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
+                await addModule(6, receipt.contractAddress);
+            });
+        });
+    };
 
     return (
         <>
-            <div style={{position: "absolute", top: 70, right: 1}}>
-                <Notification isVisible={deployErr} message={deployErr ? deployErr.message : "" } title={"Error"}/>
+            <div style={{ position: 'absolute', top: 70, right: 1 }}>
+                <Notification isVisible={deployErr} message={deployErr ? deployErr.message : ''} title={'Error'} />
             </div>
             <Form
                 buttonConfig={{
                     isFullWidth: true,
-                    text: "Deploy",
+                    text: 'Deploy',
                     disabled: isLoading,
-                    theme: !isLoading ? "primary" : "secondary"
+                    theme: !isLoading ? 'primary' : 'secondary',
                 }}
-
                 data={[
                     {
                         name: 'Name',
                         type: 'text',
                         value: '',
                         validation: {
-                            required: true
+                            required: true,
                         },
                     },
                     {
@@ -69,7 +69,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                         type: 'text',
                         value: '',
                         validation: {
-                            required: true
+                            required: true,
                         },
                     },
                     {
@@ -82,7 +82,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                         type: 'number',
                         value: '',
                         validation: {
-                            required: true
+                            required: true,
                         },
                     },
                 ]}
@@ -91,13 +91,13 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                     const symbol = e.data[1].inputResult;
                     const description = e.data[2].inputResult;
                     const royalties = e.data[3].inputResult;
-                    console.log(name,symbol,description,royalties)
-                    deployMarketplace({name,symbol,description,royalties})
+                    console.log(name, symbol, description, royalties);
+                    deployMarketplace({ name, symbol, description, royalties });
                 }}
                 title="NFT Marketplace"
             />
         </>
-    )
-}
+    );
+};
 
 export default MarketplaceForm;

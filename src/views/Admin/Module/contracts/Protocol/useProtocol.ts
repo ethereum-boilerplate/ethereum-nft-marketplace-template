@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useEffect, useState } from "react";
 import { useWeb3ExecuteFunction } from "react-moralis";
 import protocolInterface from "./interface";

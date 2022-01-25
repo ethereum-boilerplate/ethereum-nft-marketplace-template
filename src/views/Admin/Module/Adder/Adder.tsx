@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { useState, useEffect } from 'react';
 import { Card, Illustration } from 'web3uikit';
 import { useMoralis } from 'react-moralis';
