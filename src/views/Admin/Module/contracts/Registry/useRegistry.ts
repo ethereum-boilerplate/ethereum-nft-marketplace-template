@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import {useMoralis, useMoralisQuery, useNewMoralisObject, useWeb3ExecuteFunction} from "react-moralis";
-import {MasterKey, ProjectChainId, RegistryAddress} from '../../../index'
+import {useChain, useMoralis, useMoralisQuery, useNewMoralisObject, useWeb3ExecuteFunction} from "react-moralis";
+import { ProjectChainId, RegistryAddress} from '../../../index'
 import registryInterface from "./interface";
-import Moralis from "moralis";
-import chainId = Moralis.chainId;
 
 const useRegistry = () => {
     const { data } = useMoralisQuery("Storefront", query => query.limit(2), [], {
@@ -19,7 +17,8 @@ const useRegistry = () => {
     const { error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
     const { data: forwarder, fetch: fetchForwarder  } = useWeb3ExecuteFunction();
     const { deployProtocolAbi, getProtocolControlAbi, getForwarderAbi } = registryInterface();
-    const { account, provider } = useMoralis()
+    const { account, provider, Moralis } = useMoralis()
+    const { chainId } = useChain()
 
     useEffect(() => {
         if(provider) {
@@ -50,9 +49,9 @@ const useRegistry = () => {
     }, [ data ])
 
 
-    const runCf = async () => {
+    const runCf = async (masterKey: string) => {
         if(!protocolAddress || !ProjectChainId) return
-        Moralis.masterKey = MasterKey
+        Moralis.masterKey = masterKey
         const options = {"tableName": "Modules"}
         await Moralis.Cloud.run("unwatchContractEvent", options, {useMasterKey:true});
         await Moralis.Cloud.run("watchContractEvent", {
@@ -87,8 +86,10 @@ const useRegistry = () => {
      * Deploys the project contract from registry.
      * note: Users should only deploy one project with one address. The App only checks for the first project
      * @param uri link to metadata of the project
+     *
+     * @param masterKey masterKey to sync events
      */
-    const deployProtocol = (uri: string) => {
+    const deployProtocol = (uri: string, masterKey: string) => {
         setLoading(true)
         deployFetch({
             params: {
@@ -104,7 +105,7 @@ const useRegistry = () => {
             onSuccess: results => {
                 (results as any).wait().then((e) => {
                     save({admin: account, uri: uri, protocol: e.logs[0].address, chain: chainId}).then(console.log).catch(console.log);
-                    runCf().then(console.log)
+                    runCf(masterKey).then(console.log)
                 })
             },
             onError: () => setLoading(false),

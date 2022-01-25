@@ -45,7 +45,6 @@ const Token: React.FC = ({ address, web3 }) => {
                     <Tab
                         tabKey={2}
                         tabName={"Permissions"}
-
                     >
                         <p>Coming Soon</p>
                     </Tab>
