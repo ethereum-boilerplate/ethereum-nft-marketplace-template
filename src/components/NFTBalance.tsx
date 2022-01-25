@@ -3,7 +3,6 @@ import {Button, Table} from "web3uikit";
 import React, {useEffect, useState} from "react";
 import {useNFTBalances} from "react-moralis";
 import {Image} from "antd";
-import {useMarketplace} from "../views/Admin/Module/contracts/NFT/useMarketplace";
 import NFTLister from "../views/Admin/Forms/NFTLister";
 
 interface NFTBalance {

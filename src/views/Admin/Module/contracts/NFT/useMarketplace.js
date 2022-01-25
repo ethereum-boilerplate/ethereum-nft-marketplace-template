@@ -115,12 +115,12 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
         return (await contract.methods.balanceOf(wallet).call() >= amount)
     }
 
-    const listNFT = async (assetContract, tokenId, currency = "", pricePerToken = "0", quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
+    const listNFT = async (assetContract, tokenId, currency, pricePerToken = "0", quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
         if(tokensPerBuyer === 0) tokensPerBuyer = quantity
         const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-
+        console.log(assetContract,marketplaceAddress, tokenId, currency, signer)
         const run = async () => {
-            if(!(await hasApproved(assetContract, signer))) {
+            if(!(await hasApproved(assetContract,signer))) {
                 await approve(assetContract,signer)
             } 
                 await contract.methods

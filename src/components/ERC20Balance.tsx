@@ -1,80 +1,79 @@
 import { useMoralis, useERC20Balances, useChain } from 'react-moralis';
-import { Skeleton, Table } from 'antd';
+import { Skeleton } from 'antd';
 import { getEllipsisTxt } from '../helpers/formatters';
-import { Button, LinkTo } from 'web3uikit';
+import {Button, LinkTo, Table} from 'web3uikit';
 import useProtocol from '../views/Admin/Module/contracts/Protocol/useProtocol';
 import { getExplorer } from '../helpers/networks';
+import React, {useEffect, useState} from "react";
 
 function ERC20Balance({ address }) {
-    const { account } = useMoralis();
+    const { account, Moralis } = useMoralis();
     const { chainId } = useChain();
     const { data: assets } = useERC20Balances({ address: address, ['chain' as any]: chainId });
     const { withdrawFunds } = useProtocol();
-    const columns = [
-        {
-            title: '',
-            dataIndex: 'logo',
-            key: 'logo',
-            render: (logo) => (
-                <img src={logo || 'https://etherscan.io/images/main/empty-token.png'} alt="nologo" width="28px" height="28px" />
-            ),
-        },
-        {
-            title: 'Name',
-            dataIndex: 'name',
-            key: 'name',
-            render: (name) => name,
-        },
-        {
-            title: 'Symbol',
-            dataIndex: 'symbol',
-            key: 'symbol',
-            render: (symbol) => symbol,
-        },
-        {
-            title: 'Balance',
-            dataIndex: 'balance',
-            key: 'balance',
-        },
-        {
-            title: 'Address',
-            dataIndex: 'token_address',
-            key: 'token_address',
-            render: (address) => (
-                <LinkTo text={getEllipsisTxt(address, 4)} address={`${getExplorer(chainId)}address/${address}`} type="external" />
-            ),
-        },
-        {
-            title: 'Actions',
-            dataIndex: 'token_address',
-            key: 'token_address',
-            render: (address) => {
-                return (
-                    <Button
-                        onClick={() => {
-                            withdrawFunds(account, address).then(console.log);
-                        }}
-                        theme={'primary'}
-                        text={'Withdraw'}
-                    />
-                );
-            },
-        },
-    ];
+    const [ tableData, setTableData ] = useState<Array<any>>([])
+    useEffect(() => {
+        if(assets) {
+            if(assets.length === 0) return;
+            printTable(assets).then()
+        }
+    }, [ assets])
+
+    const printTable = async (assetList: typeof  assets) => {
+        setTableData([])
+        assetList.forEach((erc20) => {
+            const row = [
+                '',
+                <span>{erc20.name}</span>,
+                <span>{erc20.symbol}</span>,
+                <span>{Moralis.Units.FromWei(erc20.balance, Number(erc20.decimals))}</span>,
+                <LinkTo address={getExplorer(chainId)} text={getEllipsisTxt(erc20.token_address, 4)} type={"external"} />,
+                <div style={{display: "flex", justifyContent:"space-between"}}>
+                    <Button onClick={() => {withdrawFunds(account, erc20.token_address)}} theme={"primary"} text={"Withdraw"} />
+                </div>
+            ]
+            setTableData(prevState => prevState.length === 0 ? [row] : [...prevState, row])
+        })
+    }
 
     return (
         <div style={{ padding: '15px' }}>
             <h1 style={{ marginBottom: '15px' }}>💰Royalties</h1>
-            <Skeleton loading={!assets}>
                 <Table
-                    dataSource={assets}
-                    columns={columns}
-                    rowKey={(record) => {
-                        return record.token_address;
-                    }}
+                 columnsConfig={"50px 1fr 1fr 1fr 1fr"}
+                 data={tableData}
+                 header={[
+                     '',
+                     <div style={columnNameStyle}>
+                         <span>Name</span>
+                     </div>,
+                     <div style={columnNameStyle}>
+                         <span>Symbol</span>
+                     </div>,
+                     <div style={columnNameStyle}>
+                         <span>Balance</span>
+                     </div>,
+                     <div style={columnNameStyle}>
+                         <span>Address</span>
+                     </div>,
+                     '',
+                 ]}
+                 pageSize={10}
+                 customNoDataText={"Nothing to withdraw"}
                 />
-            </Skeleton>
         </div>
     );
 }
+
+const columnNameStyle = {
+    color: "#68738D",
+    fontWeight: "500",
+    fontSize: "14px",
+    display: 'grid',
+    placeItems: "flex-start",
+    width: "100%",
+    marginTop: "5px",
+    marginBottom: "-5px"
+}
+
 export default ERC20Balance;

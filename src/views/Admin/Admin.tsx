@@ -1,4 +1,4 @@
-import { useEffect, useState, FC } from 'react';
+import { useEffect, useState } from 'react';
 import { useMoralis } from 'react-moralis';
 import { useRouteMatch } from 'react-router-dom';
 import { Switch, Route } from 'react-router-dom';
