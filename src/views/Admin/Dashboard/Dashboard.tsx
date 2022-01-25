@@ -1,31 +1,21 @@
 // @ts-nocheck
 import { useERC20Balances } from 'react-moralis';
-import { ProjectChainId } from '.';
-import Overview from './Module/Overview';
+import { ProjectChainId } from '..';
+import Overview from '../Module/Overview';
 import { Flex } from 'uikit/Flex/Flex';
 import { useEffect } from 'react';
-import useRegistry from './Module/contracts/Registry/useRegistry';
+import useRegistry from '../Module/contracts/Registry/useRegistry';
 import { Button, TabList } from 'web3uikit';
-import ProjectForm from './Forms/Project';
-import ERC20Balance from '../../components/ERC20Balance';
-import AdminStyles from './Admin.styles';
+import ProjectForm from '../Forms/Project';
+import ERC20Balance from '../../../components/ERC20Balance';
 import { Typography } from 'uikit/Typography';
 import { HeaderStyled } from 'uikit/HeaderStyled';
 import { useHistory } from 'react-router-dom';
 
 const { Tab } = TabList;
-const { ContentStyled } = AdminStyles;
 
-export default function Dashboard({ web3 }) {
-    const {
-        hasProject,
-        protocolAddress,
-        deployProtocol,
-        isLoading,
-        setLoading,
-        canSetProject,
-        deployErr,
-    } = useRegistry();
+const Dashboard = ({ web3 }) => {
+    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, canSetProject, deployErr } = useRegistry();
     const { fetchERC20Balances } = useERC20Balances(
         {
             address: protocolAddress,
@@ -39,7 +29,7 @@ export default function Dashboard({ web3 }) {
     const history = useHistory();
 
     const pushToAdder = () => {
-        let path = `addModule`;
+        let path = `admin/addModule`;
         history.push(path);
     };
 
@@ -52,13 +42,7 @@ export default function Dashboard({ web3 }) {
 
     if (canSetProject && !isLoading) {
         return (
-            <ProjectForm
-                web3={web3}
-                deployProtocol={deployProtocol}
-                deployErr={deployErr}
-                setLoading={setLoading}
-                isLoading={isLoading}
-            />
+            <ProjectForm web3={web3} deployProtocol={deployProtocol} deployErr={deployErr} setLoading={setLoading} isLoading={isLoading} />
         );
     }
 
@@ -69,27 +53,14 @@ export default function Dashboard({ web3 }) {
                 <Typography variant="span">Create, manage, explore</Typography>
             </HeaderStyled>
             <div style={{ position: 'absolute', right: 0 }}>
-                <Button
-                    onClick={pushToAdder}
-                    text={'Add Module'}
-                    theme={'primary'}
-                    icon={'plus'}
-                    iconLayout={'leading'}
-                />
+                <Button onClick={pushToAdder} text={'Add Module'} theme={'primary'} icon={'plus'} iconLayout={'leading'} />
             </div>
             <TabList defaultActiveKey={2} tabStyle={'bulbSeperate'}>
                 <Tab tabKey={2} tabName={'Overview'} isDisabled={canSetProject}>
-                    {!canSetProject && (
-                        <Overview
-                            web3={web3}
-                            protocolAddress={protocolAddress}
-                        />
-                    )}
+                    {!canSetProject && <Overview web3={web3} protocolAddress={protocolAddress} />}
                 </Tab>
                 <Tab tabKey={4} tabName={'Panel'} isDisabled={canSetProject}>
-                    {!canSetProject && (
-                        <ERC20Balance address={protocolAddress} />
-                    )}
+                    {!canSetProject && <ERC20Balance address={protocolAddress} />}
                 </Tab>
                 <Tab tabKey={3} tabName={'Permissions'} isDisabled={true}>
                     {!canSetProject && <span>Coming soon</span>}
@@ -97,4 +68,6 @@ export default function Dashboard({ web3 }) {
             </TabList>
         </Flex>
     );
-}
+};
+
+export default Dashboard;
