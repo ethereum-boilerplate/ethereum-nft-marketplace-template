@@ -6,12 +6,11 @@ import {useMoralisFile} from "react-moralis";
 
 
 
-const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoading }) => {
+const ProjectForm: React.FC = ({ deployProtocol, deployErr, isLoading }) => {
 
     const { saveFile } = useMoralisFile();
 
     const deploy = (name: string, description: string, masterKey: string) => {
-        setLoading(true)
         let metadata = {
             name: name,
             description: description
@@ -33,7 +32,7 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
     }
     
     return (
-            <>
+            <div style={{width: '70vw'}}>
                 <div style={{position: "absolute", top: 70, right: 1}}>
                     <Notification isVisible={deployErr} message={deployErr ? deployErr.message : "" } title={"Error"}/>
                 </div>
@@ -81,7 +80,7 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                     title="Deploy Project"
                     id={"id"}
                 />
-            </>
+            </div>
     )
 }
 

@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import {useChain, useMoralis, useMoralisQuery, useNewMoralisObject, useWeb3ExecuteFunction} from "react-moralis";
-import { ProjectChainId, RegistryAddress} from '../../../index'
+import { RegistryAddress} from '../../../index'
 import registryInterface from "./interface";
 
 const useRegistry = () => {
     const { data } = useMoralisQuery("Storefront", query => query.limit(2), [], {
-        autoFetch: true
+        autoFetch: true,
+        live: true
     })
     const [ protocolAddress, setProtocolAddress ] = useState<string | null>(null);
     const [ protocolAdmin, setProtocolAdmin ] = useState<string | null>(null)
@@ -20,6 +21,7 @@ const useRegistry = () => {
     const { deployProtocolAbi, getProtocolControlAbi, getForwarderAbi } = registryInterface();
     const { account, provider, Moralis } = useMoralis()
     const { chainId } = useChain()
+    const [ projectChain, setProjectChain ] = useState<typeof chainId>()
 
     useEffect(() => {
         if(provider) {
@@ -42,21 +44,18 @@ const useRegistry = () => {
             console.log(`Project Address = ${data[0].get('protocol')}`)
             console.log(`Project Chain = ${data[0].get('chain')}`)
             setCanSetProject(false)
+            setProjectChain(data[0].get('chain'))
             setHasProject(true)
             setProtocolAdmin(data[0].get('admin'))
             setProtocolAddress(data[0].get('protocol'))
-            setLoading(false)
         }
     }, [ data ])
 
 
-    const runCf = async (masterKey: string) => {
-        if(!protocolAddress || !ProjectChainId) return
+    const runCf = async (protocolAddress: string, masterKey: string) => {
         Moralis.masterKey = masterKey
-        const options = {"tableName": "Modules"}
-        await Moralis.Cloud.run("unwatchContractEvent", options, {useMasterKey:true});
         await Moralis.Cloud.run("watchContractEvent", {
-            chainId: ProjectChainId,
+            chainId: chainId,
             address: protocolAddress,
             topic: "ModuleUpdated(bytes32, address)",
             abi: {
@@ -91,7 +90,6 @@ const useRegistry = () => {
      * @param masterKey masterKey to sync events
      */
     const deployProtocol = (uri: string, masterKey: string) => {
-        setLoading(true)
         deployFetch({
             params: {
                 abi: [
@@ -105,8 +103,11 @@ const useRegistry = () => {
             },
             onSuccess: results => {
                 (results as any).wait().then((e) => {
-                    save({admin: account, uri: uri, protocol: e.logs[0].address, chain: chainId}).then(console.log).catch(console.log);
-                    runCf(masterKey).then(console.log)
+                    runCf(e.logs[0].address, masterKey).then()
+                    save({admin: account, uri: uri, protocol: e.logs[0].address, chain: chainId}).then(console.log).catch(console.log).then( () => {
+                        setCanSetProject(false)
+                        setLoading(false)
+                    })
                 })
             },
             onError: () => setLoading(false),
@@ -158,6 +159,7 @@ const useRegistry = () => {
         getProtocolByUser,
         getForwarder,
         protocolAdmin,
+        projectChain,
         forwarder,
         canSetProject,
         hasProject,

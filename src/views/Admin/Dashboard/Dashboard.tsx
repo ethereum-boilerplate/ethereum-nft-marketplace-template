@@ -1,6 +1,5 @@
 // @ts-nocheck
 import { useERC20Balances } from 'react-moralis';
-import { ProjectChainId } from '..';
 import Overview from '../Module/Overview';
 import { Flex } from 'uikit/Flex/Flex';
 import { useEffect } from 'react';
@@ -11,15 +10,14 @@ import ERC20Balance from '../../../components/ERC20Balance';
 import { Typography } from 'uikit/Typography';
 import { HeaderStyled } from 'uikit/HeaderStyled';
 import { useHistory } from 'react-router-dom';
-
 const { Tab } = TabList;
 
 const Dashboard = ({ web3 }) => {
-    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, canSetProject, deployErr } = useRegistry();
+    const { hasProject, protocolAddress, deployProtocol, isLoading, canSetProject, deployErr, projectChain } = useRegistry();
     const { fetchERC20Balances } = useERC20Balances(
         {
             address: protocolAddress,
-            chain: ProjectChainId,
+            chain: projectChain,
         },
         {
             autoFetch: false,
@@ -40,9 +38,15 @@ const Dashboard = ({ web3 }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasProject]);
 
-    if (canSetProject && !isLoading) {
+    if(isLoading) {
         return (
-            <ProjectForm web3={web3} deployProtocol={deployProtocol} deployErr={deployErr} setLoading={setLoading} isLoading={isLoading} />
+            <span>Loading ...</span>
+        )
+    }
+
+    if (canSetProject) {
+        return (
+            <ProjectForm web3={web3} deployProtocol={deployProtocol} deployErr={deployErr} isLoading={isLoading} />
         );
     }
 

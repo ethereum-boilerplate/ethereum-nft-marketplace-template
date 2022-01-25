@@ -7,7 +7,7 @@ import useRegistry from "../Registry/useRegistry";
 const useProtocol = () => {
     const [ marketplaceAddress, setMarketplaceAddress ] = useState();
     const [ hasMarketplace, setHasMarketplace ] = useState<boolean>(false);
-    const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress } = useRegistry();
+    const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress, projectChain } = useRegistry();
     const { fetch: fetchAddModule } = useWeb3ExecuteFunction();
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
@@ -49,11 +49,11 @@ const useProtocol = () => {
             },
             onSuccess: (tx) => {
                 tx.wait(() => {
-                    setIsAddingModule(true)
+                    setIsAddingModule(false)
                 })
             },
             onError: () => setIsAddingModule(false)
-        }).then((e) => console.log(e));
+        }).then();
     }
 
     /**
@@ -139,6 +139,7 @@ const useProtocol = () => {
         addingModule,
         checkIfUserIsAdmin,
         dataHasAdminRole,
+        projectChain,
         canSetProject,
         dataModuleById,
         isLoading,

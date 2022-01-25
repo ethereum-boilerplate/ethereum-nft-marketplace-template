@@ -4,7 +4,6 @@ import { Button, LinkTo, Table } from 'web3uikit';
 import { useChain, useMoralis } from 'react-moralis';
 import { getEllipsisTxt } from '../../../../helpers/formatters';
 import { getExplorer } from '../../../../helpers/networks';
-import marketplace from "web3uikit/dist/components/Illustrations/images/various/marketplace";
 
 interface NftForSaleType {
     listingId: string;

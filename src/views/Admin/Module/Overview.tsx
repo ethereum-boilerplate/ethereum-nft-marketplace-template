@@ -25,7 +25,6 @@ import { getExplorer } from '../../../helpers/networks';
 import Moralis from 'moralis';
 
 export default function Overview({ protocolAddress, web3 }) {
-    const [modules, setModules] = useState([]);
     const [limit] = useState(100);
     // Get installed modules
     const { data } = useMoralisQuery(
@@ -45,7 +44,6 @@ export default function Overview({ protocolAddress, web3 }) {
     useEffect(() => {
         if (data && data.length > 0) {
             setLoading(true);
-            setModules([]);
             setTableData([]);
             data.forEach(async (mod, index) => {
                 await fetchWeb3({
@@ -89,26 +87,6 @@ export default function Overview({ protocolAddress, web3 }) {
                             data.length
                         );
 
-                        setModules((prevState) =>
-                            [...prevState] !== []
-                                ? [
-                                      ...prevState,
-                                      {
-                                          type: typeText,
-                                          module: mod.get('module'),
-                                          key: mod.get('module'),
-                                          metadata,
-                                      },
-                                  ]
-                                : [
-                                      {
-                                          type: typeText,
-                                          module: mod.get('module'),
-                                          key: mod.get('module'),
-                                          metadata,
-                                      },
-                                  ]
-                        );
                         setTableData((prevState) =>
                             [...prevState] !== []
                                 ? [
@@ -119,10 +97,14 @@ export default function Overview({ protocolAddress, web3 }) {
                         );
                     },
                 });
+                console.log(`dat`)
                 if (index === data.length - 1) {
+                    console.log('trigger')
                     setLoading(false);
                 }
             });
+        } else {
+            setLoading(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
