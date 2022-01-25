@@ -1,8 +1,6 @@
 // @ts-nocheck
-import { useEffect, useState } from 'react';
-import { useMoralis, useMoralisQuery } from 'react-moralis';
-import { BrowserRouter as Router, Switch, Route, NavLink, Redirect } from 'react-router-dom';
-import Account from 'components/Account/Account';
+import { useMoralis } from 'react-moralis';
+import { BrowserRouter as Router, Switch, Route, NavLink } from 'react-router-dom';
 import Chains from 'components/Chains';
 import NFTBalance from 'components/NFTBalance';
 import UserDashboard from 'components/User/UserDashboard';
@@ -10,8 +8,6 @@ import { Menu, Layout } from 'antd';
 import 'antd/dist/antd.css';
 import NativeBalance from 'components/NativeBalance';
 import './style.css';
-import Web3 from 'web3';
-import { Adder } from 'views/Admin/Module/Adder';
 import Marketplace from 'views/Admin/components/NFT/Marketplace';
 import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 import Admin from 'views/Admin/Admin';
@@ -49,24 +45,8 @@ const styles = {
     },
 };
 const App = () => {
-    const { enableWeb3, isAuthenticated, account, provider, web3 } = useMoralis();
+    const {  account, web3 } = useMoralis();
     const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isLoading } = useProtocol();
-
-    // useEffect(() => {
-    //     enableWeb3();
-    //     // eslint-disable-next-line react-hooks/exhaustive-deps
-    // }, []);
-
-    // useEffect(() => {
-    //     console.log('is loading', isLoading);
-    // }, [isLoading]);
-
-    // useEffect(() => {
-    //     if (provider) {
-    //         let web = new Web3(provider as any);
-    //         setWeb3(web);
-    //     }
-    // }, [provider]);
 
     return (
         // @ts-ignore
@@ -143,14 +123,6 @@ const App = () => {
                                 )}
                             </Route>
                         </Switch>
-                        {/* {isAuthenticated &&
-                            ((account && AdminAddress && account.toUpperCase() === AdminAddress.toUpperCase()) || !AdminAddress) &&
-                            !isLoading && <Redirect to="/admin" />}
-                        {isAuthenticated &&
-                            account &&
-                            AdminAddress &&
-                            account.toUpperCase() !== AdminAddress.toUpperCase() &&
-                            hasMarketplace && <Redirect to="/NFTMarketPlace" />} */}
                     </div>
                 </Router>
             }
