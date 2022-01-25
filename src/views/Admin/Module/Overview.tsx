@@ -119,7 +119,7 @@ export default function Overview({ protocolAddress, web3 }) {
                         );
                     },
                 });
-                if (index === modules.length - 1) {
+                if (index === data.length - 1) {
                     setLoading(false);
                 }
             });
