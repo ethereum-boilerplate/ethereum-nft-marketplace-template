@@ -1,12 +1,11 @@
 import { useEffect, useState, FC } from 'react';
 import { useMoralis } from 'react-moralis';
-import { useRouteMatch } from 'react-router-dom';
-import { Switch, Route } from 'react-router-dom';
+import { Switch, Route, useRouteMatch } from 'react-router-dom';
 import Web3 from 'web3';
 import { Dashboard } from './Dashboard';
 import { Adder } from './Module/Adder';
 
-const Admin = () => {
+const Admin: FC = () => {
     let { path } = useRouteMatch();
     const { provider } = useMoralis();
 

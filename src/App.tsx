@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useMoralis } from 'react-moralis';
+import { useChain, useMoralis } from 'react-moralis';
 import { BrowserRouter as Router, Switch, Route, NavLink } from 'react-router-dom';
 import Chains from 'components/Chains';
 import NFTBalance from 'components/NFTBalance';
@@ -12,6 +12,8 @@ import Marketplace from 'views/Admin/components/NFT/Marketplace';
 import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 import Admin from 'views/Admin/Admin';
 import { ConnectButton } from 'web3uikit';
+import Web3 from 'web3';
+import { useEffect, useState } from 'react';
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -45,8 +47,23 @@ const styles = {
     },
 };
 const App = () => {
-    const {  account, web3 } = useMoralis();
+    const { account, enableWeb3, provider } = useMoralis();
     const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isLoading } = useProtocol();
+    const { chainId } = useChain();
+
+    const [web3, setWeb3] = useState();
+    console.log('provider', provider);
+    useEffect(() => {
+        enableWeb3();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        if (provider) {
+            let web = new Web3(provider as any);
+            setWeb3(web);
+        }
+    }, [provider]);
 
     return (
         // @ts-ignore
@@ -101,7 +118,7 @@ const App = () => {
                                     </Route>
                                 )}
                             <Route path="/NFTBalance">
-                                <NFTBalance marketplace={marketplaceAddress} />
+                                <NFTBalance web3={web3} address={account} chain={chainId} marketplace={marketplaceAddress} />
                             </Route>
                             {hasMarketplace && (
                                 <Route path="/user">
