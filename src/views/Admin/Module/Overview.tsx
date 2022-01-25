@@ -16,7 +16,7 @@ import {
     LinkTo,
     Table,
     Tag,
-    Modal, Input,
+    Modal, Input, Illustration,
 } from 'web3uikit';
 import Marketplace from '../components/NFT/Marketplace';
 import Token from '../components/Token';
@@ -248,9 +248,10 @@ export default function Overview({ protocolAddress, web3 }) {
                             display: 'grid',
                             placeItems: 'center',
                             textAlign: 'center',
-                            gap: "10px"
+                            gap: "25px"
                         }}
                     >
+                        <Illustration logo={"servers"} width={"150"} height={"150"} />
                         <span>It looks like there are no Modules</span>
                         <span>
                             If you think this is an error click to force re-sync
@@ -258,6 +259,7 @@ export default function Overview({ protocolAddress, web3 }) {
                         <Input validation={{ required: true }} label={"Moralis Masterkey"} onChange={(e) => setMasterKey((e as any).target.value)} type={"text"} />
                         <Button
                             isFullWidth
+
                             onClick={() => runCf(masterKey)}
                             theme={'primary'}
                             text={'Force Sync'}
