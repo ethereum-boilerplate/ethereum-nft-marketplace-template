@@ -2,7 +2,7 @@ import {useMoralis, useERC20Balances, useChain} from "react-moralis";
 import { Skeleton, Table } from "antd";
 import { getEllipsisTxt } from "../helpers/formatters";
 import {Button, LinkTo} from "web3uikit";
-import useProtocol from "./Admin/Module/contracts/Protocol/useProtocol";
+import useProtocol from "../views/Admin/Module/contracts/Protocol/useProtocol";
 import {getExplorer} from "../helpers/networks";
 
 function ERC20Balance({ address }) {

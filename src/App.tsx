@@ -10,16 +10,16 @@ import {
 import Account from "components/Account/Account";
 import Chains from "components/Chains";
 import NFTBalance from "components/NFTBalance";
-import Dashboard from "components/Admin/Dashboard";
+import Dashboard from "views/Admin/Dashboard";
 import UserDashboard from "components/User/UserDashboard";
 import { Menu, Layout } from "antd";
 import "antd/dist/antd.css";
 import NativeBalance from "components/NativeBalance";
 import "./style.css";
 import Web3 from "web3"
-import Marketplace from "components/Admin/components/NFT/Marketplace";
-import useProtocol from "./components/Admin/Module/contracts/Protocol/useProtocol";
-import Adder from "./components/Admin/Module/Adder";
+import Marketplace from "views/Admin/components/NFT/Marketplace";
+import useProtocol from "./views/Admin/Module/contracts/Protocol/useProtocol";
+import Adder from "./views/Admin/Module/Adder/Adder";
 const { Header, Footer } = Layout;
 
 const styles = {

@@ -1,6 +1,6 @@
 
-import Marketplace from "../../components/Admin/components/NFT/Marketplace";
-import { useMarketplace } from "components/Admin/Module/contracts/NFT/useMarketplace";
+import Marketplace from "../../views/Admin/components/NFT/Marketplace";
+import { useMarketplace } from "views/Admin/Module/contracts/NFT/useMarketplace";
 import { getEllipsisTxt } from "helpers/formatters";
 
 export default function UserDashboard({ web3, address, marketplace }) {
