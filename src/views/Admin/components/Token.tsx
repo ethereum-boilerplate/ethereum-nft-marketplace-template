@@ -25,8 +25,8 @@ const Token: React.FC = ({ address, web3 }) => {
                         tabName={"Overview"}
                     >
                         <div style={{display: "grid", placeItems: "center", gap: '20px'}}>
-                            <Avatar text={symbol} />
-                            <LinkTo address={`${getExplorer(chainId)}address/${address}`} text={getEllipsisTxt(address, 4)}/>
+                            <Avatar text={symbol} theme={"letters"}/>
+                            <LinkTo address={`${getExplorer(chainId)}address/${address}`} text={getEllipsisTxt(address, 4)} type={"external"}/>
                             <div style={{marginBottom: '15px', display: "flex", alignItems: "center", justifyContent: "space-between", gap: "25px"}}>
                                 <Button disabled={loading} onClick={() => addToMetamask()} iconLayout={"leading"} icon={"metamask"} theme={"outline"} text={"Add to Metamask"}/>
                                 <Button disabled={(loading || !amountToMint || !addressToSend)} onClick={() => mint(addressToSend, amountToMint)} theme={"primary"} iconLayout={"leading"} icon={"plus"} text={"Mint"}/>
@@ -36,7 +36,7 @@ const Token: React.FC = ({ address, web3 }) => {
                             <Input onChange={(e) => {setAmountToMint(e.target.value)}} placeholder={"Amount"} type={"number"} />
                             <Input onChange={(e) => {setAddressToSend(e.target.value)}} placeholder={"To Address"} type={"text"} />
                         </div>
-                        <div style={{display: 'flex', justifyContent: "space-between"}}>
+                        <div style={{display: 'flex', justifyContent: "space-between", gap: "50px"}}>
                             <Information topic={"Total Supply"} information={totalSupply ? Moralis.Units.FromWei(totalSupply) : "0"}/>
                             <Information topic={"Owned By You"} information={totalSupply ? Moralis.Units.FromWei(totalSupply): "0"}/>
                             <Information topic={"Decimals"} information={decimals}/>
@@ -50,54 +50,6 @@ const Token: React.FC = ({ address, web3 }) => {
                         <p>Coming Soon</p>
                     </Tab>
                 </TabList>
-
-            /*<div>
-                {(!loading) && <Button onClick={() => addToMetamask()}>Add To Metamask</Button>}
-            </div>
-            <div>
-                <Button disabled={(!wantsToMint && !amountToMint && !addressToSend) ? false : (wantsToMint && (!amountToMint || !addressToSend))} onClick={() => {
-                    if(!wantsToMint) {
-                        toggleMinter(true)
-                    } else {
-                        mint(amountToMint, addressToSend)
-                    }
-                }}
-                >
-                Mint Tokens
-                </Button>
-                {
-                    wantsToMint && 
-                    <div>
-                        <Input onChange={(e) => setAmountToMint(e.target.value)} placeholder="Amount"/>
-                        <Input onChange={(e) =>setAddressToSend(e.target.value)} placeholder="To Address" />
-                    </div>
-                }
-            </div>
-            <div>
-                <p>Name</p>
-                <Skeleton loading={loading} active style={{width: '50px', height: '20px'}}>
-                    <p>{name}</p>
-                </Skeleton>
-            </div>
-            <div>
-                <p>Symbol</p>
-                <Skeleton loading={loading} active style={{width: '50px', height: '20px'}}>
-                    <p>{symbol}</p>
-                </Skeleton>
-            </div>
-            <div>
-                <p>Total Supply</p>
-                <Skeleton loading={loading} active style={{width: '50px', height: '20px'}}>
-                    <p>{}</p>
-                </Skeleton>
-            </div>
-            <div>
-                <p>Decimals</p>
-                
-                <Skeleton loading={loading} active style={{width: '50px', height: '20px'}}>
-                    <p>{decimals}</p>
-                </Skeleton>
-            </div>*/
     )
 }
 
