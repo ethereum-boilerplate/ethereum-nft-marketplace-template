@@ -96,7 +96,7 @@ const useProtocol = () => {
                         console.log('no marketplace found')
                         return;
                     }
-                    setMarketplaceAddress(dataModuleById)
+                    setMarketplaceAddress(results)
                     setHasMarketplace(true)
                     console.log(`found marketplace at ${results}`)
                     return;
