@@ -23,7 +23,7 @@ export const dropModule = {
 }
 
 export const marketplaceModule = {
-    title: 'NFT MarketplaceForm',
+    title: 'NFT Marketplace',
     desc: 'Whitelabel marketplace for digital assets',
     tooltipText: 'Create your own NFT MarketplaceForm',
     key: 'marketPlaceModule',

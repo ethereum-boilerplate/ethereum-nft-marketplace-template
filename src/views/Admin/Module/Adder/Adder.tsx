@@ -71,7 +71,7 @@ const Adder: FC = () => {
                     ) : (
                         <>
                             {renderBreadCrumbs({
-                                breadcrumb: 'NFT MarketplaceForm ',
+                                breadcrumb: 'NFT Marketplace',
                                 path: '/admin/addModule/marketPlaceModule',
                             })}
                             <MarketplaceForm web3={web3} />
@@ -80,7 +80,7 @@ const Adder: FC = () => {
                 </Route>
                 <Route path={`${path}/erc721module`}>
                     {renderBreadCrumbs({
-                        breadcrumb: 'NFT Collection ',
+                        breadcrumb: 'NFT Collection',
                         path: '/admin/addModule/erc721module',
                     })}
                     <NFTCollectionForm web3={web3} />
