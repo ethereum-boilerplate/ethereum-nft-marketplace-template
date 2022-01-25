@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {useChain, useMoralis} from 'react-moralis';
+import { useChain, useMoralis } from 'react-moralis';
 import { BrowserRouter as Router, Switch, Route, NavLink } from 'react-router-dom';
 import Chains from 'components/Chains';
 import NFTBalance from 'components/NFTBalance';
@@ -12,8 +12,8 @@ import Marketplace from 'views/Admin/components/NFT/Marketplace';
 import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 import Admin from 'views/Admin/Admin';
 import { ConnectButton } from 'web3uikit';
-import Web3 from "web3";
-import {useEffect, useState} from "react";
+import Web3 from 'web3';
+import { useEffect, useState } from 'react';
 const { Header, Footer } = Layout;
 
 const styles = {
