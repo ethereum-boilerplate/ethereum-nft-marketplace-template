@@ -12,6 +12,8 @@ import Marketplace from 'views/Admin/components/NFT/Marketplace';
 import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 import Admin from 'views/Admin/Admin';
 import { ConnectButton } from 'web3uikit';
+import Web3 from "web3";
+import {useEffect, useState} from "react";
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -45,9 +47,24 @@ const styles = {
     },
 };
 const App = () => {
-    const {  account, web3 } = useMoralis();
+    const {  account, enableWeb3, provider } = useMoralis();
     const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isLoading } = useProtocol();
     const { chainId } = useChain();
+
+    const [web3, setWeb3] = useState()
+
+    useEffect(() => {
+        enableWeb3();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
+    useEffect(() => {
+        if (provider) {
+            let web = new Web3(provider as any);
+            setWeb3(web);
+        }
+    }, [provider]);
+
     return (
         // @ts-ignore
         <Layout style={{ height: '100vh', overflow: 'auto' }}>
