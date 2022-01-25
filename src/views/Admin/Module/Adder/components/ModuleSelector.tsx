@@ -32,12 +32,9 @@ const ModuleSelector = () => {
             <Typography variant="h4">NFT Modules</Typography>
             <ModulesGridStyled>
                 {nftModules.map((module) => {
-                    console.log('module', module);
                     return (
-                        <div key={module.title} onClick={() => pushToHistory(module.key)}>
+                        <div key={module.title} onClick={() => pushToHistory(module.key)} style={{ cursor: 'pointer' }}>
                             <Card
-                                // selected={module === selectedModule}
-                                // pressed={module === selectedModule}
                                 title={module.title}
                                 tooltipText={module.desc}
                                 children={[
@@ -60,15 +57,10 @@ const ModuleSelector = () => {
             <ModulesGridStyled>
                 {otherModules.map((module) => {
                     return (
-                        <div
-                            key={module.title}
-                            // onClick={() => (module === selectedModule ? setSelectedModule('') : setSelectedModule(module))}
-                        >
+                        <div key={module.title} onClick={() => pushToHistory(module.key)} style={{ cursor: 'pointer' }}>
                             <Card
                                 title={module.title}
                                 tooltipText={module.desc}
-                                // selected={module === selectedModule}
-                                // pressed={module === selectedModule}
                                 children={[
                                     <div
                                         key={module.title}
