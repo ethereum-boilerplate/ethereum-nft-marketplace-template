@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, {useEffect, useState} from "react"
+import React, { useState } from "react"
 import {useChain, useMoralis, useMoralisWeb3Api, useMoralisWeb3ApiCall} from 'react-moralis'
 import { useToken } from "../Module/contracts/Token/useToken"
 import {Avatar, Button, Information, Input, LinkTo, TabList} from "web3uikit";
@@ -22,10 +22,6 @@ const Token: React.FC = ({ address, web3 }) => {
     }, { autoFetch: true});
 
     const { decimals, loading, symbol, totalSupply, mint, addToMetamask} = useToken(web3, address, account)
-
-    useEffect(() => {
-        console.log(data)
-    }, data)
 
     return (
 
