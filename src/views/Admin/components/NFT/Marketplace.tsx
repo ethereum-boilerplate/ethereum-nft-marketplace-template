@@ -101,18 +101,16 @@ const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = fals
 
     const printTable = async () => {
         let p = [];
-        console.log(nftsForSale);
         await nftsForSale.forEach((nft) => {
-            console.log(nft);
             p.push([
-                <span>{nft.tokenId}</span>,
+                <span style={{fontSize: "16px", fontWeight: "600"}}>{nft.listingId}</span>,
                 '',
-                <span>{nft.metadata.name}</span>,
+                <span style={{fontSize: "16px", fontWeight: "600"}}>{nft.metadata.name}</span>,
                 <LinkTo text={getEllipsisTxt(nft.seller, 4)} address={`${getExplorer(chainId)}address/${nft.seller}`} type="external" />,
-                <span>{`${Moralis.Units.FromWei(nft.price)}`}</span>,
+                <span style={{textAlign: "center", fontSize: "16px", fontWeight: "600"}}>{`${Moralis.Units.FromWei(nft.price)}`}</span>,
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button text={'Buy'} theme={'outline'} onClick={() => buy(nft.listingId, '1', nft.currency, nft.price, account)} />
-                    <Button text={'Unlist'} theme={'outline'} onClick={() => unlist(nft.listingId, '1', account)} />
+                    { (account.toLowerCase() === nft.seller.toLowerCase()) && <Button text={'Unlist'} theme={'outline'} onClick={() => unlist(nft.listingId, '1', account)}/>}
                 </div>,
             ]);
         });
@@ -121,9 +119,16 @@ const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = fals
 
     return (
         <Table
-            columnsConfig="80px 1fr 1fr 1fr 1fr 1.25fr"
+            columnsConfig="80px 80px 2fr 1fr 1fr 1fr"
             data={tableData}
-            header={['#', <span>Image</span>, <span>Name</span>, <span>Seller</span>, <span>Price</span>, <span>Actions</span>]}
+            header={[
+                <div style={{...columnNameStyle, marginLeft: "20px"}}><span>#</span></div>,
+                <div style={columnNameStyle}><span>Image</span></div>,
+                <div style={columnNameStyle}><span>Name</span></div>,
+                <div style={columnNameStyle}><span>Seller</span></div>,
+                <div style={columnNameStyle}><span>Price</span></div>,
+                <div style={columnNameStyle}><span>Actions</span></div>
+            ]}
             maxPages={3}
             onPageNumberChanged={function noRefCheck() {}}
             pageSize={5}
@@ -131,5 +136,16 @@ const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = fals
         />
     );
 };
+
+const columnNameStyle = {
+    color: "#68738D",
+    fontWeight: "500",
+    fontSize: "14px",
+    display: 'grid',
+    placeItems: "flex-start",
+    width: "100%",
+    marginTop: "5px",
+    marginBottom: "-5px"
+}
 
 export default Marketplace;
