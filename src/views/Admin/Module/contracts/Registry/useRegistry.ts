@@ -1,9 +1,7 @@
 import { useEffect, useState } from "react";
-import {useMoralis, useMoralisQuery, useNewMoralisObject, useWeb3ExecuteFunction} from "react-moralis";
+import {useChain, useMoralis, useMoralisQuery, useNewMoralisObject, useWeb3ExecuteFunction} from "react-moralis";
 import { ProjectChainId, RegistryAddress} from '../../../index'
 import registryInterface from "./interface";
-import Moralis from "moralis";
-import chainId = Moralis.chainId;
 
 const useRegistry = () => {
     const { data } = useMoralisQuery("Storefront", query => query.limit(2), [], {
@@ -19,7 +17,8 @@ const useRegistry = () => {
     const { error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
     const { data: forwarder, fetch: fetchForwarder  } = useWeb3ExecuteFunction();
     const { deployProtocolAbi, getProtocolControlAbi, getForwarderAbi } = registryInterface();
-    const { account, provider } = useMoralis()
+    const { account, provider, Moralis } = useMoralis()
+    const { chainId } = useChain()
 
     useEffect(() => {
         if(provider) {
