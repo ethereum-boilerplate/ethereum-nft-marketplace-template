@@ -1,6 +1,6 @@
 // @ts-nocheck
-import React, { useState } from "react"
-import {useChain, useMoralis} from 'react-moralis'
+import React, {useEffect, useState} from "react"
+import {useChain, useMoralis, useMoralisWeb3Api, useMoralisWeb3ApiCall} from 'react-moralis'
 import { useToken } from "../Module/contracts/Token/useToken"
 import {Avatar, Button, Information, Input, LinkTo, TabList} from "web3uikit";
 import {getExplorer} from "../../../helpers/networks";
@@ -13,7 +13,19 @@ const Token: React.FC = ({ address, web3 }) => {
     const [ addressToSend, setAddressToSend ] = useState(null)
     const { Moralis, account, } = useMoralis()
     const { chainId } = useChain()
+    const Web3API = useMoralisWeb3Api()
+
+    const { data } = useMoralisWeb3ApiCall(Web3API.account.getTokenBalances, {
+        address: account,
+        token_addresses: [ address ],
+        chain: chainId
+    }, { autoFetch: true});
+
     const { decimals, loading, symbol, totalSupply, mint, addToMetamask} = useToken(web3, address, account)
+
+    useEffect(() => {
+        console.log(data)
+    }, data)
 
     return (
 
@@ -36,9 +48,9 @@ const Token: React.FC = ({ address, web3 }) => {
                             <Input onChange={(e) => {setAmountToMint(e.target.value)}} placeholder={"Amount"} type={"number"} />
                             <Input onChange={(e) => {setAddressToSend(e.target.value)}} placeholder={"To Address"} type={"text"} />
                         </div>
-                        <div style={{display: 'flex', justifyContent: "space-between", gap: "50px"}}>
+                        <div style={{display: 'flex', justifyContent: "space-between", gap: "2%"}}>
                             <Information topic={"Total Supply"} information={totalSupply ? Moralis.Units.FromWei(totalSupply) : "0"}/>
-                            <Information topic={"Owned By You"} information={totalSupply ? Moralis.Units.FromWei(totalSupply): "0"}/>
+                            <Information topic={"Owned By You"} information={data && data[0] ? Moralis.Units.FromWei(data[0].balance): "..."}/>
                             <Information topic={"Decimals"} information={decimals}/>
                         </div>
                     </Tab>
