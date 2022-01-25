@@ -49,7 +49,7 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
     return (
         <>
             <HeaderStyled>
-                <Typography variant="h1">Create NFT Marketplace</Typography>
+                <Typography variant="h1">Create NFT Collection</Typography>
             </HeaderStyled>
             <div style={{ position: 'absolute', top: 70, right: 1 }}>
                 <Notification isVisible={deployErr} message={deployErr ? deployErr.message : ''} title={'Error'} />
