@@ -74,6 +74,8 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                         text: 'Deploy',
                         disabled: isLoading,
                         theme: !isLoading ? 'primary' : 'secondary',
+                        type: "button",
+                        onClick: () => console.log('lol')
                     }}
                     data={[
                         {
@@ -128,7 +130,9 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                         console.log(name, symbol, description, royalties);
                         deployNftCollection({ name, image, symbol, description, royalties });
                     }}
-                    // title="Create NFT Collection"
+
+                    id={"s"}
+                    title={""}
                 />
             </Flex>
         </>

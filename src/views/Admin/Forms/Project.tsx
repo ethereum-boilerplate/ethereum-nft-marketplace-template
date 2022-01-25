@@ -42,7 +42,8 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                         isFullWidth: true,
                         text: "Deploy",
                         disabled: isLoading,
-                        theme: !isLoading ? "primary" : "secondary"
+                        theme: !isLoading ? "primary" : "secondary",
+                        onClick: () => console.log('submitting ...')
                     }}
 
                     data={[
@@ -78,6 +79,7 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                         deploy(e.data[0].inputResult, e.data[1].inputResult, e.data[2].inputResult)
                     }}
                     title="Deploy Project"
+                    id={"id"}
                 />
             </>
     )

@@ -65,6 +65,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                         text: 'Deploy',
                         disabled: isLoading,
                         theme: !isLoading ? 'primary' : 'secondary',
+                        onClick: () => console.log('lol')
                     }}
                     data={[
                         {
