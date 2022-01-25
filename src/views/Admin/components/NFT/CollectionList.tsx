@@ -46,7 +46,7 @@ export const CollectionList: React.FC<ICollectionList> = ({ address, web3 }) => 
                         height={80}
                         width={80}
                         style={{ borderRadius: '15px' }}
-                        src={metadata && metadata.image ? `${metadata.image}` : `https://i.ibb.co/FzDBLqk/Image.png`}
+                        src={metadata && metadata.image && metadata.image.includes('://' | 'https' | 'ipfs') ? metadata.image : "https://i.ibb.co/FzDBLqk/Image.png"}
                     />,
                     <div>
                         <p>{metadata && metadata.name ? metadata.name : result.name}</p>

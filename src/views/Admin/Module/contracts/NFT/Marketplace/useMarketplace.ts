@@ -18,6 +18,7 @@ const useMarketplace = (marketplaceAddress: string) => {
     const { getListingsByUserAbi, getAllListingsAbi, buyAbi, listNftAbi, unlistAbi } = marketplaceInterface()
     const { account } = useMoralis()
     const [ allListings, setAllListings ] = useState<Array<object> | null>(null)
+    const [ isGettingListings, setGettingListings ] = useState<boolean>(false)
     const [ isUnlisting, setUnlisting ] = useState<boolean>(false)
     const [ isListing, setIsListing ] = useState<boolean>(false)
     const [ unlistSuccess, setUnlistSuccess ] = useState<boolean>(false)
@@ -155,6 +156,7 @@ const useMarketplace = (marketplaceAddress: string) => {
     }
 
     const getAllListings = () => {
+        setGettingListings(true)
         fetchAllListings({
             params: {
                 abi: [ getAllListingsAbi ],
@@ -163,6 +165,12 @@ const useMarketplace = (marketplaceAddress: string) => {
             },
             onSuccess: results => {
                 setAllListings(results)
+                setGettingListings(false)
+
+            },
+            onError: error => {
+                setGettingListings(false)
+                console.log(error)
             }
         }).then(() => {}).catch(() => {})
     }
@@ -189,6 +197,7 @@ const useMarketplace = (marketplaceAddress: string) => {
         dataAllListings,
         list,
         unlist,
+        isGettingListings,
         isListing,
         isUnlisting,
         unlistError,

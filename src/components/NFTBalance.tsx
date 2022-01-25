@@ -44,10 +44,10 @@ const NFTBalanceTable: React.FC<NFTBalance> = ({
                 //@ts-ignore
                 '',
                 <div style={{height: "100%", width: "100%", display: "grid", placeItems: "center"}}>
-                    <Image style={{borderRadius: "15px", minHeight: "80px", minWidth: "80px"}} src={nft.metadata ? nft.metadata.image : "https://i.ibb.co/jvjKFFv/Image.png"}/>
+                    <Image style={{borderRadius: "15px", minHeight: "80px", minWidth: "80px"}} src={nft.metadata && nft.metadata.image.includes('://' | 'https' | 'ipfs') ? nft.metadata.image : "https://i.ibb.co/jvjKFFv/Image.png"} />
                 </div>,
                 <div key={1} style={{display: "grid", }}>
-                    <span style={{color: "deepskyblue", fontWeight: 600, fontSize: "14px"}}>{nft.contract_type}</span>
+                    <span style={{color: "#2E7DAF", fontWeight: 600, fontSize: "12px"}}>{nft.contract_type}</span>
                     <span style={{fontWeight: "600"}}>{nft.metadata ? nft.metadata.name : nft.name}</span>
                     <span style={{fontSize: "12px"}}>{(nft.metadata ? nft.metadata.description : "No Description found")}</span>
                 </div>,
@@ -67,7 +67,7 @@ const NFTBalanceTable: React.FC<NFTBalance> = ({
         setTableData(p);
     };
 
-//metadata ? <Image src={metadata.image} bgRadius={"15px"} width={80} height={80}/>  : '',
+
     return (
         <div style={{display: "grid", gap: "50px", margin: "0 20px"}}>
             <div style={{}}>

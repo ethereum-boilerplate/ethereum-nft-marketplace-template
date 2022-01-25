@@ -110,7 +110,8 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                         console.log(name, symbol, description, royalties);
                         deployMarketplace({ name, symbol, description, royalties });
                     }}
-                />
+                    id={"form-marketplace-id"}
+                    title={"NFT Marketplace"}/>
             </Flex>
         </>
     );

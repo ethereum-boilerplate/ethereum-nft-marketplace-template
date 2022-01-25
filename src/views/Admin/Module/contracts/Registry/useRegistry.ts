@@ -12,10 +12,11 @@ const useRegistry = () => {
     const [ hasProject, setHasProject ] = useState<boolean>(false);
     const [ canSetProject, setCanSetProject ] = useState<boolean>(false);
     const [ isLoading, setLoading ] = useState<boolean>(true);
+    const [ forwarder, setForwarder ] = useState<string | unknown>();
     const { fetch: getProtocol } = useWeb3ExecuteFunction();
     const { save } = useNewMoralisObject("Storefront")
     const { error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
-    const { data: forwarder, fetch: fetchForwarder  } = useWeb3ExecuteFunction();
+    const { fetch: fetchForwarder  } = useWeb3ExecuteFunction();
     const { deployProtocolAbi, getProtocolControlAbi, getForwarderAbi } = registryInterface();
     const { account, provider, Moralis } = useMoralis()
     const { chainId } = useChain()
@@ -131,7 +132,7 @@ const useRegistry = () => {
                     index: "1"
                 }
             },
-            onSuccess: results => {
+            onSuccess: () => {
                 setLoading(false);
             },
             onError: error => console.log(error)
@@ -147,7 +148,7 @@ const useRegistry = () => {
                 contractAddress: RegistryAddress,
                 functionName: "forwarder",
             },
-            onSuccess: results => console.log(`forwarder: ${results}`),
+            onSuccess: results => setForwarder(results),
             onError: error => console.log(error)
         }).then(() => {}).catch(() => setLoading(false))
     }

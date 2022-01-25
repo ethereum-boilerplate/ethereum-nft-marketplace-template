@@ -1,5 +1,4 @@
 import { useMoralis, useERC20Balances, useChain } from 'react-moralis';
-import { Skeleton } from 'antd';
 import { getEllipsisTxt } from '../helpers/formatters';
 import {Button, LinkTo, Table} from 'web3uikit';
 import useProtocol from '../views/Admin/Module/contracts/Protocol/useProtocol';
@@ -17,6 +16,7 @@ function ERC20Balance({ address }) {
             if(assets.length === 0) return;
             printTable(assets).then()
         }
+        // eslint-disable-next-line
     }, [ assets])
 
     const printTable = async (assetList: typeof  assets) => {
