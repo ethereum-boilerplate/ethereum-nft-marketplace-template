@@ -1,55 +1,30 @@
-// @ts-nocheck
-import { useERC20Balances } from 'react-moralis';
-import { ProjectChainId } from '.';
-import Overview from './Module/Overview';
-import { Flex } from 'uikit/Flex/Flex';
-import { useEffect } from 'react';
-import useRegistry from './Module/contracts/Registry/useRegistry';
-import { Button, TabList } from 'web3uikit';
-import ProjectForm from './Forms/Project';
-import ERC20Balance from '../../components/ERC20Balance';
-import { Typography } from 'uikit/Typography';
-import { HeaderStyled } from 'uikit/HeaderStyled';
+import { useEffect, useState, FC } from 'react';
+import { useMoralis } from 'react-moralis';
 import { useRouteMatch } from 'react-router-dom';
-import { BrowserRouter as Router, Switch, Route, NavLink, Redirect } from 'react-router-dom';
+import { Switch, Route } from 'react-router-dom';
+import Web3 from 'web3';
 import { Dashboard } from './Dashboard';
 import { Adder } from './Module/Adder';
 
-const { Tab } = TabList;
+const Admin = () => {
+    let { path } = useRouteMatch();
+    const { provider } = useMoralis();
 
-const Admin = ({ web3 }) => {
-    const { hasProject, protocolAddress, deployProtocol, isLoading, setLoading, canSetProject, deployErr } = useRegistry();
-    const { fetchERC20Balances } = useERC20Balances(
-        {
-            address: protocolAddress,
-            chain: ProjectChainId,
-        },
-        {
-            autoFetch: false,
-        }
-    );
-
-    let { path, url } = useRouteMatch();
+    const [web3, setWeb3] = useState<any>();
 
     useEffect(() => {
-        if (hasProject) {
-            fetchERC20Balances().then(console.log);
+        if (provider) {
+            let web = new Web3(provider as any);
+            setWeb3(web);
         }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [hasProject]);
-
-    if (canSetProject && !isLoading) {
-        return (
-            <ProjectForm web3={web3} deployProtocol={deployProtocol} deployErr={deployErr} setLoading={setLoading} isLoading={isLoading} />
-        );
-    }
+    }, [provider]);
 
     return (
         <Switch>
             <Route exact path={path}>
-                <Dashboard />
+                <Dashboard web3={web3} />
             </Route>
-            <Route path={`${path}/:topicId`}>
+            <Route path={`${path}/addModule`}>
                 <Adder />
             </Route>
         </Switch>
