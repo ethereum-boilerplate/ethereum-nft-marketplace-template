@@ -19,16 +19,10 @@ export const useCollection = (web3, address) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [address, web3])
 
-    const triggerWeb3Api = async () => {
+    const triggerWeb3Api = async (address) => {
         await Web3API.token.syncNFTContract({
             chain: chainId,
             address: address
-        })
-        const nextToken = await getNextTokenId()
-        await Web3API.token.reSyncMetadata({
-            chain: chainId,
-            address: address,
-            token_id: nextToken-1
         })
     }
 
@@ -37,7 +31,7 @@ export const useCollection = (web3, address) => {
 
         await contract.methods.mintNFT(to,uri).send({from: signer})
         .on('receipt', () => {
-            triggerWeb3Api()
+            triggerWeb3Api(address)
         })
     }
 

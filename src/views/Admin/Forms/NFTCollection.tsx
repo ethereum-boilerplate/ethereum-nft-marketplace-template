@@ -2,15 +2,17 @@
 import { Form, Notification } from 'web3uikit';
 import React from 'react';
 import useRegistry from '../Module/contracts/Registry/useRegistry';
-import { useMoralis, useMoralisFile } from 'react-moralis';
+import {useChain, useMoralis, useMoralisFile, useMoralisWeb3Api} from 'react-moralis';
 import { collectionAbi, collectionBytecode } from './Factory/collection';
 import useProtocol from '../Module/contracts/Protocol/useProtocol';
 
 const NFTCollectionForm: React.FC = ({ web3 }) => {
     const { deployErr, isLoading, setLoading } = useRegistry();
     const { addModule, protocolAddress, forwarder } = useProtocol();
+    const { token } = useMoralisWeb3Api()
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
+    const { chainId } = useChain()
 
     const deployNftCollection = (e: any) => {
         setLoading(true);
@@ -38,6 +40,10 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                 arguments: [protocolAddress, metadata.name, metadata.symbol, forwarder, `ipfs://${hash}`, metadata.royalty * 100],
             });
             await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
+                await token.syncNFTContract({
+                    address: receipt.contractAddress,
+                    chain: chainId
+                })
                 await addModule(2, receipt.contractAddress);
             });
         });

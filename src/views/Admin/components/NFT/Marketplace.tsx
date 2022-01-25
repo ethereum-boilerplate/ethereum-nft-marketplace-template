@@ -43,7 +43,7 @@ const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = fals
                 const seller = listing.seller;
                 const price = listing.pricePerToken;
                 const currency = listing.currency;
-                const tokenId = listingId.token_id;
+                const tokenId = listing.token_id;
 
                 const nftToSell: NftForSaleType = {
                     listingId,
