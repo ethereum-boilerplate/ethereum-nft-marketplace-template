@@ -70,8 +70,8 @@ const NFTBalanceTable: React.FC<NFTBalance> = ({
 
 //metadata ? <Image src={metadata.image} bgRadius={"15px"} width={80} height={80}/>  : '',
     return (
-        <div style={{display: "grid", gap: "50px"}}>
-            <div>
+        <div style={{display: "grid", gap: "50px", margin: "0 20px"}}>
+            <div style={{}}>
                 <h1 style={{ fontSize: "36px", lineHeight: "40px", fontWeight: "600"}}>Your NFT's</h1>
                 <span style={{ marginLeft: "5px", color: "#68738D", fontWeight: 600, fontSize: "14px", lineHeight: "24px"}}>{data ? data.result.length : "0"} {`token${data ? data.result.length > 1 ? "s" : "" : ""} inside`}</span>
             </div>

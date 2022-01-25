@@ -47,16 +47,12 @@ const styles = {
     },
 };
 const App = () => {
-    const {  account, enableWeb3, provider } = useMoralis();
+    const {  account, provider } = useMoralis();
     const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isLoading } = useProtocol();
     const { chainId } = useChain();
 
     const [web3, setWeb3] = useState()
 
-    useEffect(() => {
-        enableWeb3();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
 
     useEffect(() => {
         if (provider) {
