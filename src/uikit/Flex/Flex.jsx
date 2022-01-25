@@ -17,6 +17,8 @@ export const Flex = (props) => (
             height: props.height || 'auto',
             maxWidth: props.maxWidth || 'none',
             position: 'relative',
+            background: props.background || 'none',
+            borderRadius: props.borderRadius || 'none',
         }}
     >
         {props.children}
