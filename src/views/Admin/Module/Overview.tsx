@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     useMoralisQuery,
     useMoralis,
@@ -128,13 +128,14 @@ export default function Overview({ protocolAddress, web3 }) {
     }, [data]);
 
     const rowData = (metadata, typeText, mod) => [
-        <Avatar key={1} theme="letters" text={metadata.name} />,
-        <span>{metadata.name}</span>,
+        <Avatar isRounded={true} key={1} theme="letters" text={metadata.name} />,
+        <span style={{fontSize: "16px", color: "#041836"}}>{metadata.name}</span>,
         <Tag key={2} color={getModuleColor(typeText)} text={typeText} />,
         <LinkTo
             key={3}
             text={getEllipsisTxt(mod.get('module'), 4)}
             address={`${getExplorer(chainId)}address/${mod.get('module')}`}
+            type={"external"}
         />,
         <div style={{ display: 'grid', placeItems: 'center' }}>
             <Dropdown
@@ -227,9 +228,15 @@ export default function Overview({ protocolAddress, web3 }) {
                 data={tableData}
                 header={[
                     '',
-                    <span>Name</span>,
-                    <span>Type</span>,
-                    <span>Module</span>,
+                    <div style={columnNameStyle}>
+                        <span>Name</span>
+                    </div>,
+                    <div style={columnNameStyle}>
+                        <span>Type</span>
+                    </div>,
+                    <div style={columnNameStyle}>
+                        <span>Module</span>
+                    </div>,
                     '',
                 ]}
                 maxPages={3}
@@ -273,4 +280,15 @@ export default function Overview({ protocolAddress, web3 }) {
             </Modal>
         </>
     );
+}
+
+const columnNameStyle = {
+    color: "#68738D",
+    fontWeight: "500",
+    fontSize: "14px",
+    display: 'grid',
+    placeItems: "flex-start",
+    width: "100%",
+    marginTop: "5px",
+    marginBottom: "-5px"
 }

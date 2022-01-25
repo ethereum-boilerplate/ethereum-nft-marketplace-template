@@ -9,7 +9,7 @@ import { Image } from 'antd';
 
 const NFTLister: React.FC = ({ nft, web3, marketplaceAddress }) => {
     const { chainId, Moralis, account } = useMoralis();
-    const { listNFT } = useMarketplace(web3, marketplaceAddress);
+    const { listNFT } = useMarketplace(web3, marketplaceAddress, account);
     const [currency, setCurrency] = useState<string>('0x0000000000000000000000000000000000000000');
     const [price, setPrice] = useState<string | number>();
 
@@ -22,7 +22,7 @@ const NFTLister: React.FC = ({ nft, web3, marketplaceAddress }) => {
                 listNFT(
                     nft.token_address,
                     nft.token_id,
-                    currency ? currency : '0x0000000000000000000000000000000000000000',
+                    currency.toLowerCase(),
                     price,
                     1,
                     1,
@@ -53,13 +53,19 @@ const NFTLister: React.FC = ({ nft, web3, marketplaceAddress }) => {
                         <p style={{fontWeight: 600}}>{`${nft.metadata.name} #${nft.token_id}`}</p>
                         <p style={{fontSize: "12px"}}>{nft.type}</p>
                     </div>
-                    <Input width={'100%'} label="Currency Address" value={'0x0000000000000000000000000000000000000000'} />
+                    <Input
+                        width={'100%'}
+                        onChange={(e) => {
+                            console.log(e)
+                            setCurrency(e.target.value);
+                        }}
+                        label="Currency Address"
+                    />
                     <div style={{ width: '100%', display: 'flex', gap: '10px' }}>
                         <Select
                             defaultOptionIndex={0}
                             label={'Currency'}
-                            onChange={(e) => {
-                                setCurrency(e.tokenAddress);
+                            onChange={() => {
                             }}
                             options={[
                                 {

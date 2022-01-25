@@ -47,16 +47,12 @@ const styles = {
     },
 };
 const App = () => {
-    const { account, enableWeb3, provider } = useMoralis();
+    const {  account, provider } = useMoralis();
     const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isLoading } = useProtocol();
     const { chainId } = useChain();
 
-    const [web3, setWeb3] = useState();
-    console.log('provider', provider);
-    useEffect(() => {
-        enableWeb3();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const [web3, setWeb3] = useState()
+
 
     useEffect(() => {
         if (provider) {
@@ -118,7 +114,7 @@ const App = () => {
                                     </Route>
                                 )}
                             <Route path="/NFTBalance">
-                                <NFTBalance web3={web3} address={account} chain={chainId} marketplace={marketplaceAddress} />
+                                <NFTBalance web3={web3} address={account} chain={chainId} marketplaceAddress={marketplaceAddress} />
                             </Route>
                             {hasMarketplace && (
                                 <Route path="/user">
