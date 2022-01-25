@@ -59,6 +59,7 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                     {
                         name: 'Collection Name',
                         type: 'text',
+                        inputWidth: "100%",
                         value: '',
                         validation: {
                             required: true,
@@ -67,6 +68,7 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                     {
                         name: 'Image URL',
                         type: 'text',
+                        inputWidth: "100%",
                         value: '',
                         validation: {
                             required: true,
@@ -75,6 +77,7 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                     {
                         name: 'Symbol',
                         type: 'text',
+                        inputWidth: "100%",
                         value: '',
                         validation: {
                             required: true,
@@ -83,11 +86,13 @@ const NFTCollectionForm: React.FC = ({ web3 }) => {
                     {
                         name: 'Description',
                         type: 'text',
+                        inputWidth: "100%",
                         value: '',
                     },
                     {
                         name: 'Royalty',
                         type: 'number',
+                        inputWidth: "100%",
                         value: '',
                         validation: {
                             required: true,

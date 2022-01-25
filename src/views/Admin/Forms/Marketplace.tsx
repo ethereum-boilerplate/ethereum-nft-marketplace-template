@@ -59,6 +59,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                     {
                         name: 'Name',
                         type: 'text',
+                        inputWidth: "100%",
                         value: '',
                         validation: {
                             required: true,
@@ -67,6 +68,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                     {
                         name: 'Symbol',
                         type: 'text',
+                        inputWidth: "100%",
                         value: '',
                         validation: {
                             required: true,
@@ -75,11 +77,13 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                     {
                         name: 'Description',
                         type: 'text',
+                        inputWidth: "100%",
                         value: '',
                     },
                     {
                         name: 'Market Fee',
                         type: 'number',
+                        inputWidth: "100%",
                         value: '',
                         validation: {
                             required: true,

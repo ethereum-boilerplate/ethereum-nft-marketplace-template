@@ -50,6 +50,7 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                             name: 'Project Name',
                             type: 'text',
                             value: '',
+                            inputWidth: "100%",
                             validation: {
                                 required: true
                             },
@@ -58,6 +59,7 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                             name: 'Description',
                             type: 'text',
                             value: '',
+                            inputWidth: "100%",
                             validation: {
                                 required: true
                             },
