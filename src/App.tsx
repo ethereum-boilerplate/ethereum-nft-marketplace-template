@@ -1,19 +1,17 @@
 // @ts-nocheck
-import { useEffect, useState } from 'react';
 import {useChain, useMoralis} from 'react-moralis';
 import { BrowserRouter as Router, Switch, Route, NavLink } from 'react-router-dom';
-import Account from 'components/Account/Account';
 import Chains from 'components/Chains';
-import NFTBalanceTable from "./components/NFTBalance";
+import NFTBalance from 'components/NFTBalance';
 import UserDashboard from 'components/User/UserDashboard';
 import { Menu, Layout } from 'antd';
 import 'antd/dist/antd.css';
 import NativeBalance from 'components/NativeBalance';
 import './style.css';
-import Web3 from 'web3';
 import Marketplace from 'views/Admin/components/NFT/Marketplace';
 import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 import Admin from 'views/Admin/Admin';
+import { ConnectButton } from 'web3uikit';
 const { Header, Footer } = Layout;
 
 const styles = {
@@ -47,27 +45,9 @@ const styles = {
     },
 };
 const App = () => {
-    const { enableWeb3, account, provider } = useMoralis();
+    const {  account, web3 } = useMoralis();
     const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isLoading } = useProtocol();
     const { chainId } = useChain();
-    const [web3, setWeb3] = useState<any>();
-
-    useEffect(() => {
-        enableWeb3();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    useEffect(() => {
-        console.log('is loading', isLoading);
-    }, [isLoading]);
-
-    useEffect(() => {
-        if (provider) {
-            let web = new Web3(provider as any);
-            setWeb3(web);
-        }
-    }, [provider]);
-
     return (
         // @ts-ignore
         <Layout style={{ height: '100vh', overflow: 'auto' }}>
@@ -109,7 +89,7 @@ const App = () => {
                         <div style={styles.headerRight}>
                             <Chains />
                             <NativeBalance />
-                            <Account />
+                            <ConnectButton />
                         </div>
                     </Header>
                     <div style={styles.content}>
@@ -121,7 +101,7 @@ const App = () => {
                                     </Route>
                                 )}
                             <Route path="/NFTBalance">
-                                <NFTBalanceTable address={account} chain={chainId} marketplace={marketplaceAddress} />
+                                <NFTBalance address={account} chain={chainId} marketplace={marketplaceAddress} />
                             </Route>
                             {hasMarketplace && (
                                 <Route path="/user">
@@ -143,14 +123,6 @@ const App = () => {
                                 )}
                             </Route>
                         </Switch>
-                        {/* {isAuthenticated &&
-                            ((account && AdminAddress && account.toUpperCase() === AdminAddress.toUpperCase()) || !AdminAddress) &&
-                            !isLoading && <Redirect to="/admin" />}
-                        {isAuthenticated &&
-                            account &&
-                            AdminAddress &&
-                            account.toUpperCase() !== AdminAddress.toUpperCase() &&
-                            hasMarketplace && <Redirect to="/NFTMarketPlace" />} */}
                     </div>
                 </Router>
             }

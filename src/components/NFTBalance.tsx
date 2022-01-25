@@ -1,3 +1,4 @@
+// @ts-nocheck
 import {Button, Table} from "web3uikit";
 import React, {useEffect, useState} from "react";
 import {useNFTBalances} from "react-moralis";
@@ -43,7 +44,7 @@ const NFTBalanceTable: React.FC<NFTBalance> = ({
                 </div>,
                 <div key={2} style={{display: "flex", justifyContent: "space-between"}}>
                     <Button onClick={() => {}} theme={"outline"} text={"Sell"}/>
-                    <Button onClick={() => {}} iconLayout={"icon-only"} theme={"outline"} icon={"help circle"}/>
+                    <Button onClick={() => {}} iconLayout={"icon-only"} icon={"help circle"} theme={"outline"}/>
                 </div>,
             ]);
         });
