@@ -1,6 +1,6 @@
 import Moralis from "moralis"
 import Web3 from "web3"; // Only when using npm/yarn
-const types = [ "Token",  "NFT Bundle",  "NFT Collection",  "Dynamic NFT",  "Access NFT",  "Pack",  "NFT MarketplaceForm", "Other" ]
+const types = [ "Token",  "NFT Bundle",  "NFT Collection",  "Dynamic NFT",  "Access NFT",  "Pack",  "NFT Marketplace", "Other" ]
 const provider = Moralis.provider
 export const getModuleType = (id, length) => {
     const web3 = new Web3(provider)
@@ -29,7 +29,7 @@ export const getModuleColor = (type)  =>{
     if(type === "NFT Bundle") {
         return "yellow"
     }
-    if(type === "NFT MarketplaceForm") {
+    if(type === "NFT Marketplace") {
         return "red"
     }
     if(type === "NFT Collection") {
