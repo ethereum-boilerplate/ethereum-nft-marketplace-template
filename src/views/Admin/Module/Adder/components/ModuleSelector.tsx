@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { Card, Illustration } from 'web3uikit';
 import { Typography } from 'uikit/Typography';
-import { HeaderStyled } from 'uikit/HeaderStyled';
 import { ModulesGridStyled } from '../Adder.styles';
 import { dropModule, packModule, marketplaceModule, tokenModule, collectionModule, bundleModule } from '../../types/modules';
 import { useHistory, useRouteMatch } from 'react-router';
@@ -18,17 +17,8 @@ const ModuleSelector = () => {
         push(`${path}/${target}`);
     };
 
-    const wrapper = {
-        display: 'grid',
-        gridGap: '1rem',
-    };
-
     return (
         <>
-            <HeaderStyled>
-                <Typography variant="h1">Add Module</Typography>
-                <Typography variant="span">Please select a module first</Typography>
-            </HeaderStyled>
             <Typography variant="h4">NFT Modules</Typography>
             <ModulesGridStyled>
                 {nftModules.map((module) => {
