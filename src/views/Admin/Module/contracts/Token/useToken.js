@@ -11,6 +11,7 @@ export const useToken = (web3, address, signer) => {
     const [ decimals, setDecimals ] = useState(null)
     const [ loading, setLoading ] = useState(true)
     const [ isMinting, setMinting ] = useState(false)
+    const [ mintingSuccess, setMintingSuccess ] = useState();
     const [ error, setError ] = useState(null)
 
     useEffect( () => {
@@ -36,6 +37,7 @@ export const useToken = (web3, address, signer) => {
         let formattedAmount =  Moralis.Units.ETH(amount)
         await contract.methods.mint(to,formattedAmount).send({from: signer})
         .on('receipt', () => {
+            setMintingSuccess(true)
             setMinting(false)
         })
         .on('error', (err) => {
@@ -79,12 +81,13 @@ export const useToken = (web3, address, signer) => {
     }
     
     return {
+        addToMetamask,
         name,
         totalSupply,
         decimals,
         symbol,
         mint,
-        addToMetamask,
+        mintingSuccess,
         isMinting,
         loading,
         error

@@ -3,12 +3,13 @@ import React from 'react';
 import { Form, Notification } from 'web3uikit';
 
 import { useMoralisFile } from 'react-moralis';
+import useRegistry from '../Module/contracts/Registry/useRegistry';
 
-const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoading }) => {
+const ProjectForm: React.FC = () => {
     const { saveFile } = useMoralisFile();
+    const { deployProtocol, isLoading, deployErr } = useRegistry();
 
     const deploy = (name: string, description: string, masterKey: string) => {
-        setLoading(true);
         let metadata = {
             name: name,
             description: description,
@@ -26,9 +27,9 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
             deployProtocol(`ipfs://${hash}`, masterKey);
         });
     };
-
+    
     return (
-        <>
+        <div style={{ width: '70vw' }}>
             <div style={{ position: 'absolute', top: 70, right: 1 }}>
                 <Notification isVisible={deployErr} message={deployErr ? deployErr.message : ''} title={'Error'} />
             </div>
@@ -36,14 +37,15 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                 buttonConfig={{
                     isFullWidth: true,
                     text: 'Deploy',
-                    disabled: isLoading,
-                    theme: !isLoading ? 'primary' : 'secondary',
+                    theme: 'primary',
+                    onClick: () => console.log('submitting ...'),
+                    isLoading: isLoading,
                 }}
                 data={[
                     {
                         name: 'Project Name',
                         type: 'text',
-                        // value: '',
+                        value: '',
                         inputWidth: '100%',
                         validation: {
                             required: true,
@@ -52,7 +54,7 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                     {
                         name: 'Description',
                         type: 'text',
-                        // value: '',
+                        value: '',
                         inputWidth: '100%',
                         validation: {
                             required: true,
@@ -61,7 +63,7 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                     {
                         name: 'Moralis MasterKey',
                         type: 'text',
-                        // value: '',
+                        value: '',
                         inputWidth: '100%',
                         validation: {
                             required: true,
@@ -72,8 +74,9 @@ const ProjectForm: React.FC = ({ deployProtocol, deployErr, setLoading, isLoadin
                     deploy(e.data[0].inputResult, e.data[1].inputResult, e.data[2].inputResult);
                 }}
                 title="Deploy Project"
+                id={'id'}
             />
-        </>
+        </div>
     );
 };
 

@@ -1,41 +1,33 @@
 // @ts-nocheck
-import { useEffect, useState } from "react";
-import { useWeb3ExecuteFunction } from "react-moralis";
-import protocolInterface from "./interface";
-import useRegistry from "../Registry/useRegistry";
+import { useEffect, useState } from 'react';
+import { useWeb3ExecuteFunction } from 'react-moralis';
+import protocolInterface from './interface';
+import useRegistry from '../Registry/useRegistry';
 
 const useProtocol = () => {
-    const [ marketplaceAddress, setMarketplaceAddress ] = useState();
-    const [ hasMarketplace, setHasMarketplace ] = useState<boolean>(false);
-    const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress } = useRegistry();
-    const { data: dataAddModule, fetch: fetchAddModule } = useWeb3ExecuteFunction();
+    const [marketplaceAddress, setMarketplaceAddress] = useState();
+    const [hasMarketplace, setHasMarketplace] = useState<boolean>(false);
+    const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress, projectChain } = useRegistry();
+    const { fetch: fetchAddModule } = useWeb3ExecuteFunction();
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
     const { data: dataHasAdminRole, fetch: fetchHasAdminRole } = useWeb3ExecuteFunction();
+    const [addingModule, setIsAddingModule] = useState<boolean>(false);
     const { addModuleAbi, getModulesAbi, withdrawFundsAbi, hasRoleAbi } = protocolInterface();
 
     useEffect(() => {
-        if(protocolAddress) {
-            console.log(`getting protocol information at ${protocolAddress}`)
-            console.log(`checking for marketplace ...`)
+        if (protocolAddress) {
+            console.log(`getting protocol information at ${protocolAddress}`);
+            console.log(`checking for marketplace ...`);
             /**
              * this id stands for the first nft marketplace deployed of every contract.
              * if it returns the zer0 address 0x0...0 that means there is no marketplace deployed
              * otherwise it returns the contract address of the marketplace
              */
-            getModuleById("0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8")
+            getModuleById('0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8');
         }
         // eslint-disable-next-line
-    }, [ protocolAddress ])
-
-    useEffect(() => {
-        if(dataModuleById) {
-            if(dataModuleById === "0x0000000000000000000000000000000000000000") return;
-            setMarketplaceAddress(dataModuleById)
-            setHasMarketplace(true)
-            console.log(`found marketplace at ${dataModuleById}`)
-        }
-    }, [dataModuleById])
+    }, [protocolAddress]);
 
     /**
      * binds deployed contracts to the project.
@@ -43,20 +35,28 @@ const useProtocol = () => {
      * @param moduleType equals an index of the type array in src/helpers/module.js
      * @param moduleAddress should be deployed contracts that are not added to project yet
      */
-    const addModule = (moduleType: number, moduleAddress: string) => {
-        fetchAddModule({
+    const addModule = async (moduleType: number, moduleAddress: string) => {
+        setIsAddingModule(true);
+        return await fetchAddModule({
             params: {
-                abi: [ addModuleAbi ],
+                abi: [addModuleAbi],
                 contractAddress: protocolAddress,
-                functionName: "addModule",
+                functionName: 'addModule',
                 params: {
                     _newModuleAddress: moduleAddress,
-                    _moduleType: moduleType
-                }
+                    _moduleType: moduleType,
+                },
             },
-            onSuccess: (tx) => { console.log(tx) }
-        }).then((e) => console.log(e));
-    }
+            onSuccess: async (tx) => {
+                await tx.wait(() => {
+                    setIsAddingModule(false);
+                    console.log('onSuccess');
+                    return tx;
+                });
+            },
+            onError: () => setIsAddingModule(false),
+        });
+    };
 
     /**
      * check if user has the admin role
@@ -65,17 +65,16 @@ const useProtocol = () => {
     const checkIfUserIsAdmin = (user: string) => {
         fetchHasAdminRole({
             params: {
-                abi: [ hasRoleAbi ],
+                abi: [hasRoleAbi],
                 contractAddress: protocolAddress,
-                functionName: "hasRole",
+                functionName: 'hasRole',
                 params: {
-                    role: "0x0",
-                    account: user
-                }
-            }
+                    role: '0x0',
+                    account: user,
+                },
+            },
         }).then();
-    }
-
+    };
 
     /**
      * gets contract address by id
@@ -84,23 +83,23 @@ const useProtocol = () => {
     const getModuleById = (moduleId: string) => {
         fetchModuleById({
             params: {
-                abi: [ getModulesAbi ],
+                abi: [getModulesAbi],
                 contractAddress: protocolAddress,
-                functionName: "modules",
+                functionName: 'modules',
                 params: {
-                    "": moduleId
-                }
+                    '': moduleId,
+                },
             },
             onError: (error) => console.log(`error on getting module by id ${error}`),
             onSuccess: (results) => {
-                if(moduleId === "0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8") {
-                    if(results === "0x0000000000000000000000000000000000000000") {
-                        console.log('no marketplace found')
+                if (moduleId === '0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8') {
+                    if (results === '0x0000000000000000000000000000000000000000') {
+                        console.log('no marketplace found');
                         return;
                     }
-                    setMarketplaceAddress(dataModuleById)
-                    setHasMarketplace(true)
-                    console.log(`found marketplace at ${results}`)
+                    setMarketplaceAddress(results);
+                    setHasMarketplace(true);
+                    console.log(`found marketplace at ${results}`);
                     return;
                 } else {
                     /**
@@ -109,11 +108,11 @@ const useProtocol = () => {
                      * If yes make global state to access token information
                      */
                 }
-
-
-            }
-        }).then(() => {}).catch(() => {})
-    }
+            },
+        })
+            .then(() => {})
+            .catch(() => {});
+    };
 
     /**
      * Withdraw royalties. Can only be called by address with admin role.
@@ -123,36 +122,39 @@ const useProtocol = () => {
     const withdrawFunds = async (to: string, currency: string) => {
         fetchWithdrawFunds({
             params: {
-                abi: [ withdrawFundsAbi ],
+                abi: [withdrawFundsAbi],
                 contractAddress: protocolAddress,
-                functionName: "withdrawFunds",
+                functionName: 'withdrawFunds',
                 params: {
                     to: to,
-                    currency: currency
-                }
+                    currency: currency,
+                },
             },
-            onSuccess: results => console.log(`success: ${results}`),
-            onError: error => console.log(error)
-        }).then(() => {}).catch(() => {})
-    }
+            onSuccess: (results) => console.log(`success: ${results}`),
+            onError: (error) => console.log(error),
+        })
+            .then(() => {})
+            .catch(() => {});
+    };
 
     return {
         addModule,
+        addingModule,
         checkIfUserIsAdmin,
         dataHasAdminRole,
+        projectChain,
         canSetProject,
         dataModuleById,
         isLoading,
         AdminAddress,
         dataWithdrawFunds,
-        dataAddModule,
         forwarder,
         protocolAddress,
         getModuleById,
         hasMarketplace,
         marketplaceAddress,
-        withdrawFunds
-    }
-}
+        withdrawFunds,
+    };
+};
 
 export default useProtocol;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useMarketplace } from '../../Module/contracts/NFT/useMarketplace';
 import { Button, LinkTo, Table } from 'web3uikit';
-import { useChain, useMoralis, useMoralisWeb3Api } from 'react-moralis';
+import { useChain, useMoralis } from 'react-moralis';
 import { getEllipsisTxt } from '../../../../helpers/formatters';
 import { getExplorer } from '../../../../helpers/networks';
 
@@ -24,9 +24,8 @@ interface IMarketplace {
     ownListings?: boolean;
 }
 const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = false }) => {
-    const { allListings, currentUsersListings, buy, unlist } = useMarketplace(web3, address);
     const { account, Moralis } = useMoralis();
-    const { token } = useMoralisWeb3Api();
+    const { allListings, currentUsersListings, buy, unlist } = useMarketplace(web3, address, account);
     const { chainId } = useChain();
     const [nftsForSale, setNftsForSale] = useState<Array<NftForSaleType>>([]);
     const [tableData, setTableData] = useState([]);
@@ -58,6 +57,7 @@ const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = fals
                 setNftsForSale((prev) => (prev.length > 0 ? [...prev, nftToSell] : [nftToSell]));
             });
         }
+        // eslint-disable-next-line
     }, [allListings]);
 
     useEffect(() => {
