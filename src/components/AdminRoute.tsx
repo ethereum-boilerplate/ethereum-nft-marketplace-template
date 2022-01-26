@@ -8,10 +8,10 @@ const AdminRoute: FC = ({ children, ...props }) => {
     const { AdminAddress, hasMarketplace } = useProtocol();
     const { account } = useMoralis();
 
-    if (!AdminAddress || !account)
+    if (!account)
         return (
             <div style={{ marginTop: '150px' }}>
-                <Loading />
+                <Loading size={50} />
             </div>
         );
     return (

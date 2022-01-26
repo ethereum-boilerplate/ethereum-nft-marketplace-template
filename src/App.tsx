@@ -50,7 +50,14 @@ const App = () => {
                                 <Admin />
                             </AdminRoute>
                             <Route path="/NFTBalance">
-                                <NFTBalance web3={web3} address={account} chain={chainId} marketplaceAddress={marketplaceAddress} />
+                                { hasMarketplace &&
+                                    <NFTBalance web3={web3} address={account} chain={chainId} marketplaceAddress={marketplaceAddress}/>
+                                }
+                                { !hasMarketplace && (
+                                    <div>
+                                        <p style={{ fontWeight: 600 }}>Coming soon ... </p>
+                                    </div>
+                                )}
                             </Route>
                             {hasMarketplace && (
                                 <Route path="/user">

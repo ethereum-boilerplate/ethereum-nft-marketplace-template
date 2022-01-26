@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom';
 const { Tab } = TabList;
 
 const Dashboard = ({ web3 }) => {
-    const { hasProject, protocolAddress, isLoading, canSetProject, projectChain } = useRegistry();
+    const { hasProject, protocolAddress, canSetProject, projectChain } = useRegistry();
     const { fetchERC20Balances } = useERC20Balances(
         {
             address: protocolAddress,
@@ -38,9 +38,6 @@ const Dashboard = ({ web3 }) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [hasProject]);
 
-    if (isLoading) {
-        return <span>Loading ...</span>;
-    }
 
     if (canSetProject) {
         return <ProjectForm />;
