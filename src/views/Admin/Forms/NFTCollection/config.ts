@@ -1,4 +1,4 @@
-export const formconfig = [
+export const formConfig = [
     {
         name: 'Collection Name',
         type: 'text',

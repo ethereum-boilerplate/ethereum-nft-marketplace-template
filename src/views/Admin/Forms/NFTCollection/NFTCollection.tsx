@@ -8,7 +8,7 @@ import useProtocol from '../../Module/contracts/Protocol/useProtocol';
 import { HeaderStyled } from 'uikit/HeaderStyled';
 import { Typography } from 'uikit/Typography';
 import { Flex } from 'uikit/Flex/Flex';
-import { formconfig, stages } from './config';
+import { formConfig, stages } from './config';
 import { useHistory } from 'react-router';
 
 interface INFTCollectionForm {
@@ -43,7 +43,7 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
                 saveIPFS: true,
                 onSuccess: (e) => deployNFTCollection(e, metadata),
             }
-        );
+        ).then();
     };
 
     const deployNFTCollection = async (e, metadata) => {
@@ -116,7 +116,7 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
                         type: 'button',
                         loadingText: stages[stage],
                     }}
-                    data={formconfig}
+                    data={formConfig}
                     onSubmit={onSubmit}
                     id={'s'}
                     title={''}
