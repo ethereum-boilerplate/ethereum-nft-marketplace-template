@@ -13,6 +13,7 @@ const useProtocol = () => {
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
     const { data: dataHasAdminRole, fetch: fetchHasAdminRole } = useWeb3ExecuteFunction();
     const [isAddingModule, setIsAddingModule] = useState<boolean>(false);
+    const [isWithdrawing, setIsWithdrawing] = useState<boolean>(false);
     const { addModuleAbi, getModulesAbi, withdrawFundsAbi, hasRoleAbi } = protocolInterface();
     const history = useHistory();
 
@@ -131,8 +132,16 @@ const useProtocol = () => {
                     currency: currency,
                 },
             },
-            onSuccess: (results) => console.log(`success: ${results}`),
-            onError: (error) => console.log(error),
+            onSuccess: (tx) => {
+                setIsWithdrawing(true);
+                (tx as any).wait().then(() => {
+                    setIsWithdrawing(false)
+                })
+            },
+            onError: (error) => {
+                setIsWithdrawing(false)
+                console.log(error)
+            },
         })
             .then(() => {})
             .catch(() => {});
@@ -152,7 +161,9 @@ const useProtocol = () => {
         forwarder,
         protocolAddress,
         getModuleById,
+        isWithdrawing,
         hasMarketplace,
+        setIsWithdrawing,
         marketplaceAddress,
         withdrawFunds,
     };

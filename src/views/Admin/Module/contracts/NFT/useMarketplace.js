@@ -81,6 +81,7 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
     }
 
     const listNFT = async (assetContract, tokenId, currency, pricePerToken = "0", quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
+        toggleIsListing(true)
         if(tokensPerBuyer === 0) tokensPerBuyer = quantity
         const contract = await new web3.eth.Contract(abi, marketplaceAddress)
         console.log(assetContract,marketplaceAddress, tokenId, currency, signer)

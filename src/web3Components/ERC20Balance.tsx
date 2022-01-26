@@ -9,7 +9,7 @@ function ERC20Balance({ address }) {
     const { account, Moralis } = useMoralis();
     const { chainId } = useChain();
     const { data: assets } = useERC20Balances({ address: address, ['chain' as any]: chainId });
-    const { withdrawFunds } = useProtocol();
+    const { withdrawFunds, isWithdrawing, setIsWithdrawing } = useProtocol();
     const [ tableData, setTableData ] = useState<Array<any>>([])
     useEffect(() => {
         if(assets) {
@@ -23,12 +23,23 @@ function ERC20Balance({ address }) {
         setTableData([])
         assetList.forEach((erc20) => {
             const row = [
-                <img width={"70px"} height={"55px"} src={erc20.logo || "https://etherscan.io/images/main/empty-token.png"} alt={""} />,
-                <span style={{color: 'black', fontWeight: '600'}}>{erc20.name}</span>,
-                <span style={{color: 'black', fontWeight: '600'}}>{Moralis.Units.FromWei(erc20.balance, Number(erc20.decimals))} {erc20.symbol}</span>,
-                <LinkTo address={getExplorer(chainId)} text={getEllipsisTxt(erc20.token_address, 4)} type={"external"} />,
-                <div style={{display: "grid", placeItems:"center", marginTop: "-5px"}}>
-                    <Button onClick={() => {withdrawFunds(account, erc20.token_address)}} theme={"primary"} text={"Withdraw"} />
+                <div style={{display: "grid", alignItems: "center", width: "100%", height: "100%"}}>
+                    <img width={"45px"} height={"45px"} src={erc20.logo || "https://etherscan.io/images/main/empty-token.png"} alt={""} />
+                </div>,
+                <div style={{display: "grid", alignItems: "center", width: "100%", height: "100%"}}>
+                    <span style={{color: '#041836', fontSize: '16px'}}>{erc20.name}</span>
+                </div>,
+                <div style={{display: "grid", alignItems: "center", width: "100%", height: "100%"}}>
+                    <span style={{color: '#041836', fontSize: '16px'}}>{Moralis.Units.FromWei(erc20.balance, Number(erc20.decimals))} {erc20.symbol}</span>
+                </div>,
+                <div style={{display: "grid", alignItems: "center", width: "100%", height: "100%"}}>
+                    <LinkTo address={getExplorer(chainId)} text={getEllipsisTxt(erc20.token_address, 4)} type={"external"} />
+                </div>,
+                <div style={{display: "grid", alignItems:"center", placeItems: "center"}}>
+                    <Button disabled={isWithdrawing} onClick={() => {
+                        setIsWithdrawing(true)
+                        withdrawFunds(account, erc20.token_address)
+                    }} theme={!isWithdrawing ? "primary" : "outline"} text={"Withdraw"} />
                 </div>
             ]
             setTableData(prevState => prevState.length === 0 ? [row] : [...prevState, row])
@@ -39,7 +50,7 @@ function ERC20Balance({ address }) {
         <div style={{ padding: '15px' }}>
             <h1 style={{ marginBottom: '15px', fontWeight: 600 }}>💰Royalties</h1>
                 <Table
-                 columnsConfig={"80px 0.5fr 0.75fr 0.5fr 1fr"}
+                 columnsConfig={"70px 0.5fr 0.5fr 0.2fr 0.25fr"}
                  data={tableData}
                  header={[
                      '',

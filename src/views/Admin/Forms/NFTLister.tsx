@@ -9,7 +9,7 @@ import { Image } from 'antd';
 
 const NFTLister: React.FC = ({ nft, web3, marketplaceAddress, modalActive, setModalActive }) => {
     const { chainId, Moralis, account } = useMoralis();
-    const { listNFT } = useMarketplace(web3, marketplaceAddress, account);
+    const { listNFT, isListing } = useMarketplace(web3, marketplaceAddress, account);
     const [currency, setCurrency] = useState<string>("");
     const [price, setPrice] = useState<string | number>();
 
@@ -34,7 +34,7 @@ const NFTLister: React.FC = ({ nft, web3, marketplaceAddress, modalActive, setMo
                     account
                 )
             }
-            isOkDisabled={!price}
+            isOkDisabled={!price || isListing}
             children={[
                 <div key={1} style={{ display: 'grid', gap: '30px', placeItems: 'center' }}>
                     <div
