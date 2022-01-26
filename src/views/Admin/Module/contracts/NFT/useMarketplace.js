@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import {useState, useEffect, useMemo} from "react"
 import { useMoralis, useMoralisWeb3Api } from "react-moralis"
 export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
     const [confirmed, setConfirmed] = useState(false)
@@ -18,36 +18,18 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
 
     useEffect(() => {
         if(web3 && marketplaceAddress) {
-            getAllListings()
-            if(currentUser) {
+            getAllListings.then(setAllListings)
+            /*if(currentUser) {
                 getListingsByUser(currentUser)
-            }
+            }*/
         }
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [web3, marketplaceAddress, currentUser])
     // DONE
-    const getAllListings = async () => {
-        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-        const listings = await contract.methods.getAllListings().call()
-        await listings.forEach(async (item) => {
-            // If Quantity is 0 then item is not on sale 
-            if(item.quantity === "0") return;
-            incrementItemsCount(itemsCount+1)
-            const call = await token.getTokenIdMetadata({
-                address: item.assetContract,
-                chain: chainId,
-                token_id: item.tokenId
-            })
-            const metadata = JSON.parse(call.metadata)
-            const currency = await token.getTokenMetadata({
-                addresses: [item.currency],
-                chain: chainId,
-            })
-            setAllListings( prev => [...prev, {...item, key: item.listingId, metadata, tokenInfo: currency}])
-        })
-
-        setLoadingListings(false)
-    }
+    const getAllListings = useMemo(async () => {
+            const contract = await new web3.eth.Contract(abi, marketplaceAddress)
+            return await contract.methods.getAllListings().call()
+    }, [ web3, marketplaceAddress ])
     /*
     * done
      */
@@ -55,28 +37,11 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
         const contract = await new web3.eth.Contract(abi, marketplaceAddress)
         const listings = await contract.methods.getListingsBySeller(user).call()
         await listings.forEach(async (item) => {
-            let buyer = "N/A"
-            if(item.quantity === "0") {
-                buyer = "Need to Sync Event"
-                return
-            }
-            const call = await token.getTokenIdMetadata({
-                address: item.assetContract,
-                chain: chainId,
-                token_id: item.tokenId
-            }).catch(() => {return})
-            let metadata
-            if(!call?.metadata) {
-                metadata = {}
-                return
-            } else {
-                metadata = JSON.parse(call.metadata)
-            }
             const currency = await token.getTokenMetadata({
                 addresses: [item.currency],
                 chain: chainId,
             })
-            setUsersListings( prev => [...prev, {...item, key: item.listingId, metadata, tokenInfo: currency, buyer}])
+            setUsersListings( prev => [...prev, {...item, key: item.listingId, tokenInfo: currency}])
         })
         setLoadingListings(false)
     }
