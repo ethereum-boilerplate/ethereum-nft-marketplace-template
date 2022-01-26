@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Form, Loading, Notification } from 'web3uikit';
+import { Form, Notification } from 'web3uikit';
 import React, { useState } from 'react';
 import useRegistry from '../../Module/contracts/Registry/useRegistry';
 import { useChain, useMoralis, useMoralisFile, useMoralisWeb3Api } from 'react-moralis';
@@ -15,8 +15,8 @@ interface INFTCollectionForm {
     web3?: any;
 }
 const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
-    const { deployErr, isLoading, setLoading } = useRegistry();
-    const { addModule, protocolAddress, forwarder } = useProtocol();
+    const { deployErr } = useRegistry();
+    const { addModule, protocolAddress, forwarder, isAddingModule } = useProtocol();
     const { token } = useMoralisWeb3Api();
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
@@ -25,7 +25,6 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
     const { push: pushToHistory } = useHistory();
 
     const uploadNFTCollection = (e: any) => {
-        setLoading(true);
         setStage('uploading');
         let metadata = {
             name: e.name,
@@ -71,11 +70,8 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
             chain: chainId as any,
         });
         setStage('isAddingModule');
-        addModule(2, receipt.contractAddress)
-            .then(() => {
-                pushToHistory('/admin');
-            })
-            .finally(() => setLoading(false));
+        addModule(2, receipt.contractAddress);
+        pushToHistory('/admin');
     };
 
     const onSubmit = ({ data }) => {
@@ -108,9 +104,9 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
                 </div>
                 <Form
                     buttonConfig={{
-                        disabled: isLoading,
+                        disabled: isAddingModule,
                         isFullWidth: true,
-                        isLoading,
+                        isLoading: isAddingModule,
                         onClick: () => console.log(),
                         text: 'Deploy',
                         theme: 'primary',
