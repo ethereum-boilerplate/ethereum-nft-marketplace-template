@@ -6,7 +6,7 @@ import { useEffect } from 'react';
 import useRegistry from '../Module/contracts/Registry/useRegistry';
 import { Button, TabList } from 'web3uikit';
 import ProjectForm from '../Forms/Project';
-import ERC20Balance from '../../../components/ERC20Balance';
+import ERC20Balance from '../../../web3Components/ERC20Balance';
 import { Typography } from 'uikit/Typography';
 import { HeaderStyled } from 'uikit/HeaderStyled';
 import { useHistory } from 'react-router-dom';
