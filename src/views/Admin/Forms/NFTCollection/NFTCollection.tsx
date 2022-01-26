@@ -71,8 +71,7 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
             chain: chainId as any,
         });
         setStage('isAddingModule');
-        addModule(2, receipt.contractAddress)
-            .then(() => {
+        addModule(2, receipt.contractAddress).then(() => {
                 pushToHistory('/admin');
             })
             .finally(() => setLoading(false));

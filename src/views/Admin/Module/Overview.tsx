@@ -25,12 +25,11 @@ import { getExplorer } from '../../../helpers/networks';
 import Moralis from 'moralis';
 
 export default function Overview({ protocolAddress, web3 }) {
-    const [limit] = useState(100);
     // Get installed modules
     const { data } = useMoralisQuery(
         'Modules',
-        (query) => query.limit(limit),
-        [limit],
+        (query) => query.limit(100),
+        [],
         { live: true }
     );
     const { chainId } = useMoralis();
@@ -45,8 +44,8 @@ export default function Overview({ protocolAddress, web3 }) {
         if (data && data.length > 0) {
             setLoading(true);
             setTableData([]);
-            data.forEach(async (mod, index) => {
-                await fetchWeb3({
+            data.forEach((mod, index) => {
+                fetchWeb3({
                     params: {
                         abi: [
                             {
@@ -96,8 +95,7 @@ export default function Overview({ protocolAddress, web3 }) {
                                 : [rowData(metadata, typeText, mod)]
                         );
                     },
-                });
-                console.log(`dat`)
+                }).then();
                 if (index === data.length - 1) {
                     console.log('trigger')
                     setLoading(false);
