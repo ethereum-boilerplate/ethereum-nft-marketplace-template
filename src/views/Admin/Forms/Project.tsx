@@ -62,7 +62,7 @@ const ProjectForm: React.FC = () => {
                     },
                     {
                         name: 'Moralis MasterKey',
-                        type: 'text',
+                        type: 'password',
                         value: '',
                         inputWidth: '100%',
                         validation: {
