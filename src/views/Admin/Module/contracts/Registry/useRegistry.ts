@@ -90,6 +90,7 @@ const useRegistry = () => {
      * @param masterKey masterKey to sync events
      */
     const deployProtocol = (uri: string, masterKey: string) => {
+        console.log("deploy")
         setLoading(true)
         deployFetch({
             params: {
