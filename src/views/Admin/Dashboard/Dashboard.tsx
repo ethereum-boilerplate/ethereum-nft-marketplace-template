@@ -45,7 +45,7 @@ const Dashboard = ({ web3 }) => {
     if (canSetProject) {
         return <ProjectForm />;
     }
-
+ 
     return (
         <Flex maxWidth="900px" width="100%">
             <HeaderStyled>

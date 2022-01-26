@@ -36,7 +36,7 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
         };
         saveFile(
             'metadata.json',
-            { base64: btoa(JSON.stringify(metadata)) },
+            { base64: btoa(unescape(encodeURIComponent(JSON.stringify(metadata)))) },
             {
                 type: 'json',
                 metadata,

@@ -27,7 +27,7 @@ const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
         };
         saveFile(
             'metadata.json',
-            { base64: btoa(JSON.stringify(metadata)) },
+            { base64: btoa(unescape(encodeURIComponent(JSON.stringify(metadata)))) },
             {
                 type: 'json',
                 metadata,
@@ -45,20 +45,20 @@ const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
                 <Notification isVisible={!!deployErr} message={deployErr ? deployErr.message : ''} title={'Error'} />
             </div>
             <Form
-                id={"form-mint-nft"}
+                id={'form-mint-nft'}
                 buttonConfig={{
                     isFullWidth: true,
                     text: 'Mint',
                     disabled: isLoading,
                     theme: !isLoading ? 'primary' : 'secondary',
-                    onClick: () => console.log('submitting ...')
+                    onClick: () => console.log('submitting ...'),
                 }}
                 data={[
                     {
                         name: 'Name',
                         type: 'text',
                         value: '',
-                        inputWidth: "100%",
+                        inputWidth: '100%',
                         validation: {
                             required: true,
                         },
@@ -67,7 +67,7 @@ const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
                         name: 'Image URL',
                         type: 'text',
                         value: '',
-                        inputWidth: "100%",
+                        inputWidth: '100%',
                         validation: {
                             required: true,
                         },
@@ -76,7 +76,7 @@ const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
                         name: 'Symbol',
                         type: 'text',
                         value: '',
-                        inputWidth: "100%",
+                        inputWidth: '100%',
                         validation: {
                             required: true,
                         },
@@ -85,13 +85,12 @@ const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
                         name: 'Description',
                         type: 'text',
                         value: '',
-                        inputWidth: "100%",
-
+                        inputWidth: '100%',
                     },
                     {
                         name: 'To Address',
                         type: 'text',
-                        inputWidth: "100%",
+                        inputWidth: '100%',
                         value: account,
                         validation: {
                             required: true,
