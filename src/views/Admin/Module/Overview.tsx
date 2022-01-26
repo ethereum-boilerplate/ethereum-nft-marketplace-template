@@ -149,7 +149,7 @@ export default function Overview({ protocolAddress, web3 }) {
     ];
 
     const printModuleInModal = (type, selectedModule) => {
-        if (type === 'NFT MarketplaceForm') {
+        if (type === 'NFT Marketplace') {
             return <Marketplace web3={web3} address={selectedModule.module} />;
         }
         if (type === 'NFT Collection') {

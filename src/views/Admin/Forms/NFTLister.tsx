@@ -10,7 +10,7 @@ import { Image } from 'antd';
 const NFTLister: React.FC = ({ nft, web3, marketplaceAddress }) => {
     const { chainId, Moralis, account } = useMoralis();
     const { listNFT } = useMarketplace(web3, marketplaceAddress, account);
-    const [currency, setCurrency] = useState<string>('0x0000000000000000000000000000000000000000');
+    const [currency, setCurrency] = useState<string>("");
     const [price, setPrice] = useState<string | number>();
 
     return (
@@ -56,9 +56,9 @@ const NFTLister: React.FC = ({ nft, web3, marketplaceAddress }) => {
                     <Input
                         width={'100%'}
                         onChange={(e) => {
-                            console.log(e)
                             setCurrency(e.target.value);
                         }}
+                        value={getWrappedNative(chainId) || ""}
                         label="Currency Address"
                     />
                     <div style={{ width: '100%', display: 'flex', gap: '10px' }}>
@@ -67,13 +67,13 @@ const NFTLister: React.FC = ({ nft, web3, marketplaceAddress }) => {
                                 <Select
                                     defaultOptionIndex={0}
                                     label={'Currency'}
-                                    onChange={() => {
+                                    onChange={(e) => {
+                                        setCurrency(e.id)
                                     }}
                                     options={[
                                         {
-                                            id: getNativeByChain(chainId),
+                                            id: getWrappedNative(chainId),
                                             label: getWrappedNativeSymbol(chainId),
-                                            tokenAddress: getWrappedNative(chainId),
                                             prefix: <img src={getWrappedNativeLogo(chain)}  alt={""}/>
                                         },
                                     ]}
