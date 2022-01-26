@@ -101,7 +101,7 @@ const NFTBalanceTable: React.FC<NFTBalance> = ({ address, chain, marketplaceAddr
                 pageSize={10}
                 customNoDataText={'You do not have any NFTs'}
             />
-            {showLister && <NFTLister web3={web3} marketplaceAddress={marketplaceAddress} nft={nftToList} />}
+            {showLister && <NFTLister web3={web3} modalActive={showLister} setModalActive={setShowLister} marketplaceAddress={marketplaceAddress} nft={nftToList} />}
         </Flex>
     );
 };

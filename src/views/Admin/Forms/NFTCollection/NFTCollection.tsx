@@ -23,7 +23,7 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
     const { chainId } = useChain();
     const [stage, setStage] = useState('default');
     const { push: pushToHistory } = useHistory();
-
+    console.log('isAddingModule', isAddingModule);
     const uploadNFTCollection = (e: any) => {
         setStage('uploading');
         let metadata = {
@@ -70,8 +70,11 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
             chain: chainId as any,
         });
         setStage('isAddingModule');
-        addModule(2, receipt.contractAddress);
-        pushToHistory('/admin');
+        addModule(2, receipt.contractAddress)
+            .then(() => {
+                pushToHistory('/admin');
+            })
+            .finally(() => setLoading(false));
     };
 
     const onSubmit = ({ data }) => {
@@ -104,9 +107,9 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
                 </div>
                 <Form
                     buttonConfig={{
-                        disabled: isAddingModule,
+                        disabled: stage !== 'default',
                         isFullWidth: true,
-                        isLoading: isAddingModule,
+                        isLoading: stage !== 'default',
                         onClick: () => console.log(),
                         text: 'Deploy',
                         theme: 'primary',
