@@ -27,7 +27,7 @@ const styles = {
 };
 const App = () => {
     const { account, provider } = useMoralis();
-    const { marketplaceAddress, hasMarketplace, canSetProject } = useProtocol();
+    const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress } = useProtocol();
     const { chainId } = useChain();
 
     const [web3, setWeb3] = useState();
@@ -51,7 +51,7 @@ const App = () => {
                             </AdminRoute>
                             <Route path="/NFTBalance">
                                 { hasMarketplace &&
-                                    <NFTBalance web3={web3} address={account} chain={chainId} marketplaceAddress={marketplaceAddress}/>
+                                    <NFTBalance web3={web3} address={account} chain={chainId} admin={AdminAddress} marketplaceAddress={marketplaceAddress}/>
                                 }
                                 { !hasMarketplace && (
                                     <div>
@@ -61,7 +61,7 @@ const App = () => {
                             </Route>
                             {hasMarketplace && (
                                 <Route path="/user">
-                                    <UserDashboard address={account} web3={web3} marketplace={marketplaceAddress} />
+                                    <UserDashboard address={account} web3={web3} admin={AdminAddress} marketplace={marketplaceAddress} />
                                 </Route>
                             )}
                             <Route path="/NFTMarketPlace">

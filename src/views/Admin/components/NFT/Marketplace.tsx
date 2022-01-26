@@ -22,8 +22,9 @@ interface IMarketplace {
     address?: string;
     web3?: any;
     ownListings?: boolean;
+    admin?: any;
 }
-const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = false }) => {
+const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = false, admin }) => {
     const { account, Moralis } = useMoralis();
     const { allListings, currentUsersListings, buy, unlist } = useMarketplace(web3, address, account);
     const { chainId } = useChain();
@@ -110,7 +111,7 @@ const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = fals
                 <span style={{textAlign: "center", fontSize: "16px", fontWeight: "600"}}>{`${Moralis.Units.FromWei(nft.price)}`}</span>,
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                     <Button text={'Buy'} theme={'outline'} onClick={() => buy(nft.listingId, '1', nft.currency, nft.price, account)} />
-                    { (account.toLowerCase() === nft.seller.toLowerCase()) && <Button text={'Unlist'} theme={'outline'} onClick={() => unlist(nft.listingId, '1', account)}/>}
+                    { ((account.toLowerCase() === nft.seller.toLowerCase()) || (admin && (account.toLowerCase() === admin.toLowerCase()))) && <Button text={'Unlist'} theme={'outline'} onClick={() => unlist(nft.listingId, '1', account)}/>}
                 </div>,
             ]);
         });
@@ -132,7 +133,7 @@ const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = fals
             maxPages={3}
             onPageNumberChanged={function noRefCheck() {}}
             pageSize={5}
-            customNoDataText={!isEmpty ? 'Loading ...' : 'No Items listed'}
+            customNoDataText={!isEmpty ? 'Loading ...' : 'No Items listed yet'}
         />
     );
 };

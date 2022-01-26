@@ -3,11 +3,11 @@
 import React, { useState } from 'react';
 import {getWrappedNative, Input, Modal, Select} from 'web3uikit';
 import { useMoralis } from 'react-moralis';
-import {getNativeByChain, getWrappedNativeLogo, getWrappedNativeSymbol} from '../../../helpers/networks';
+import { getWrappedNativeLogo, getWrappedNativeSymbol} from '../../../helpers/networks';
 import { useMarketplace } from '../Module/contracts/NFT/useMarketplace';
 import { Image } from 'antd';
 
-const NFTLister: React.FC = ({ nft, web3, marketplaceAddress }) => {
+const NFTLister: React.FC = ({ nft, web3, marketplaceAddress, modalActive, setModalActive }) => {
     const { chainId, Moralis, account } = useMoralis();
     const { listNFT } = useMarketplace(web3, marketplaceAddress, account);
     const [currency, setCurrency] = useState<string>("");
@@ -15,9 +15,12 @@ const NFTLister: React.FC = ({ nft, web3, marketplaceAddress }) => {
 
     return (
         <Modal
-            isVisible={true}
+            isVisible={modalActive}
             okText={'List NFT'}
             title={`List ${nft.metadata ? nft.metadata.name : nft.name} #${nft.token_id} For Sale`}
+            onCancel={() => {
+                setModalActive(false)
+            }}
             onOk={() =>
                 listNFT(
                     nft.token_address,
