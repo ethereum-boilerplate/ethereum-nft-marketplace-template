@@ -236,7 +236,7 @@ export default function Overview({ protocolAddress, web3 }) {
                     <span>
                     If you think this is an error click to force re-sync
                     </span>
-                    <Input validation={{required: true}} label={"Moralis Masterkey"} onChange={(e) => setMasterKey((e as any).target.value)} type={"text"} />
+                    <Input validation={{required: true}} label={"Moralis Masterkey"} onChange={(e) => setMasterKey((e as any).target.value)} type={"password"} />
                     <Button
                     isFullWidth
 
