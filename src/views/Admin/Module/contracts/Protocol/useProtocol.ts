@@ -48,12 +48,14 @@ const useProtocol = () => {
                 },
             },
             onSuccess: (tx) => {
+                console.log("tx", tx)
                 tx.wait(() => {
                     setIsAddingModule(false);
+                    console.log('eeeeeeeeeeeeeeeeee')
                 });
             },
             onError: () => setIsAddingModule(false),
-        }).then();
+        });
     };
 
     /**

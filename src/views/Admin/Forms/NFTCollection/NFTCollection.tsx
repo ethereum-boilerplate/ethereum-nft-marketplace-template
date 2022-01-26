@@ -23,7 +23,7 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
     const { chainId } = useChain();
     const [stage, setStage] = useState('default');
     const { push: pushToHistory } = useHistory();
-    console.log('isAddingModule', isAddingModule);
+    console.log('stage', stage);
     const uploadNFTCollection = (e: any) => {
         setStage('uploading');
         let metadata = {
@@ -64,17 +64,19 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
     };
 
     const syncNFTContract = async (receipt) => {
+        console.log('receipt', receipt);
         setStage('syncing');
         await token.syncNFTContract({
             address: receipt.contractAddress,
             chain: chainId as any,
         });
         setStage('isAddingModule');
-        addModule(2, receipt.contractAddress)
-            .then(() => {
-                pushToHistory('/admin');
-            })
-            .finally(() => setLoading(false));
+        addModule(2, receipt.contractAddress);
+        // .then(() => {
+        //     console.log('redirect');
+        //     // pushToHistory('/admin');
+        // });
+        // .finally(() => setLoading(false));
     };
 
     const onSubmit = ({ data }) => {

@@ -47,6 +47,6 @@ export const stages = {
     default: 'Loading...',
     uploading: 'Uploading Metadata...',
     deploying: 'Deploying Contract...',
-    isAddingModule: 'Adding Module...',
+    addingModule: 'Adding Module...',
     syncing: 'Syncing Module...',
 };
