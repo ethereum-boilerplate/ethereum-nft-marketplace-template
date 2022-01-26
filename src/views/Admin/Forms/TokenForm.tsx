@@ -1,16 +1,26 @@
 // @ts-nocheck
 import { Form } from 'web3uikit';
-import React from 'react';
+import React, { useState } from 'react';
 import { useMoralis, useMoralisFile } from 'react-moralis';
 import { tokenAbi, tokenBytecode } from './Factory/token';
 import useProtocol from '../Module/contracts/Protocol/useProtocol';
+
+const stages = {
+    default: 'Loading...',
+    uploading: 'Uploading Metadata...',
+    deploying: 'Deploying Contract...',
+    addingModule: 'Adding Module...',
+    syncing: 'Syncing Module...',
+};
 
 const TokenForm: React.FC = ({ web3 }) => {
     const { protocolAddress, forwarder, addModule, isAddingModule } = useProtocol();
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
+    const [stage, setStage] = useState('default');
 
     const deployToken = (e: any) => {
+        setStage('uploading');
         let metadata = {
             name: e.name,
             symbol: e.symbol,
@@ -24,11 +34,13 @@ const TokenForm: React.FC = ({ web3 }) => {
                 saveIPFS: true,
             }
         ).then(async (file) => {
+            setStage('deploying');
             const hash = (file as any)['_hash'];
             let code = '0x' + tokenBytecode;
             const contract = new web3.eth.Contract(tokenAbi as any);
             const toDeploy = contract.deploy({ data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${hash}`] });
             await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
+                setStage('addingModule');
                 await addModule(0, receipt.contractAddress);
             });
         });
@@ -43,7 +55,8 @@ const TokenForm: React.FC = ({ web3 }) => {
                     text: 'Deploy Token',
                     theme: 'primary',
                     onClick: () => console.log('submitting ...'),
-                    isLoading: isAddingModule,
+                    isLoading: stage !== 'default',
+                    loadingText: stages[stage],
                 }}
                 data={[
                     {

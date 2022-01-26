@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Form, Notification } from 'web3uikit';
-import React from 'react';
+import React, { useState } from 'react';
 import useRegistry from '../Module/contracts/Registry/useRegistry';
 import { useMoralis, useMoralisFile } from 'react-moralis';
 import useProtocol from '../Module/contracts/Protocol/useProtocol';
@@ -9,14 +9,24 @@ import { HeaderStyled } from 'uikit/HeaderStyled';
 import { Typography } from 'uikit/Typography';
 import { Flex } from 'uikit/Flex/Flex';
 
+const stages = {
+    0: 'Loading...',
+    1: 'Uploading Metadata...',
+    2: 'Deploying Contract...',
+    3: 'Adding Module...',
+    4: 'Syncing Module...',
+};
+
 const MarketplaceForm: React.FC = ({ web3 }) => {
-    const { deployErr, isLoading, setLoading } = useRegistry();
+    const { deployErr, setLoading } = useRegistry();
     const { addModule, protocolAddress, forwarder } = useProtocol();
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
+    const [stage, setStage] = useState(0);
 
     const deployMarketplace = (e: any) => {
         setLoading(true);
+        setStage(1);
         let metadata = {
             name: e.name,
             symbol: e.symbol,
@@ -32,6 +42,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                 saveIPFS: true,
             }
         ).then(async (e) => {
+            setStage(2);
             const hash = (e as any)['_hash'];
             let code = '0x' + marketplaceBytecode;
             const contract = new web3.eth.Contract(marketplaceAbi as any);
@@ -41,6 +52,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                 arguments: [protocolAddress, forwarder, `ipfs://${hash}`, metadata.royalty * 100],
             });
             await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
+                setStage(3);
                 await addModule(6, receipt.contractAddress);
             });
         });
@@ -63,9 +75,10 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                     buttonConfig={{
                         isFullWidth: true,
                         text: 'Deploy',
-                        disabled: isLoading,
-                        theme: !isLoading ? 'primary' : 'secondary',
-                        onClick: () => console.log('lol')
+                        theme: 'primary',
+                        isLoading: stage !== 0,
+                        loadingText: stages[stage],
+                        onClick: () => console.log('lol'),
                     }}
                     data={[
                         {
@@ -113,8 +126,9 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
                         console.log(name, symbol, description, royalties);
                         deployMarketplace({ name, symbol, description, royalties });
                     }}
-                    id={"form-marketplace-id"}
-                    title={"NFT Marketplace"}/>
+                    id={'form-marketplace-id'}
+                    title={'NFT Marketplace'}
+                />
             </Flex>
         </>
     );
