@@ -137,7 +137,7 @@ export const CollectionList: React.FC<ICollectionList> = ({ address, web3 }) => 
             {showMinter && <NFTMinterForm address={address} web3={web3} />}
             {showLister && (
                 /* @ts-ignore */
-                <NFTLister web3={web3} marketplaceAddress={marketplaceAddress} nft={nftToList} />
+                <NFTLister web3={web3} modalActive={showLister} setModalActive={setShowLister} marketplaceAddress={marketplaceAddress} nft={nftToList} />
             )}
         </div>
     );
