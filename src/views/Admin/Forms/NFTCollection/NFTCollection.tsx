@@ -9,20 +9,18 @@ import { HeaderStyled } from 'uikit/HeaderStyled';
 import { Typography } from 'uikit/Typography';
 import { Flex } from 'uikit/Flex/Flex';
 import { formConfig, stages } from './config';
-import { useHistory } from 'react-router';
 
 interface INFTCollectionForm {
     web3?: any;
 }
 const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
     const { deployErr } = useRegistry();
-    const { addModule, protocolAddress, forwarder, isAddingModule } = useProtocol();
+    const { addModule, protocolAddress, forwarder } = useProtocol();
     const { token } = useMoralisWeb3Api();
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
     const { chainId } = useChain();
     const [stage, setStage] = useState('default');
-    const { push: pushToHistory } = useHistory();
     console.log('stage', stage);
     const uploadNFTCollection = (e: any) => {
         setStage('uploading');

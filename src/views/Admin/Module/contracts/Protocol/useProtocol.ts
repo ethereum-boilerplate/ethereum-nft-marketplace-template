@@ -1,11 +1,11 @@
-// @ts-nocheck
 import { useEffect, useState } from 'react';
 import { useWeb3ExecuteFunction } from 'react-moralis';
 import protocolInterface from './interface';
 import useRegistry from '../Registry/useRegistry';
+import { useHistory } from 'react-router-dom';
 
 const useProtocol = () => {
-    const [marketplaceAddress, setMarketplaceAddress] = useState();
+    const [marketplaceAddress, setMarketplaceAddress] = useState({});
     const [hasMarketplace, setHasMarketplace] = useState<boolean>(false);
     const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress, projectChain } = useRegistry();
     const { fetch: fetchAddModule } = useWeb3ExecuteFunction();
@@ -14,6 +14,7 @@ const useProtocol = () => {
     const { data: dataHasAdminRole, fetch: fetchHasAdminRole } = useWeb3ExecuteFunction();
     const [isAddingModule, setIsAddingModule] = useState<boolean>(false);
     const { addModuleAbi, getModulesAbi, withdrawFundsAbi, hasRoleAbi } = protocolInterface();
+    const history = useHistory();
 
     useEffect(() => {
         if (protocolAddress) {
@@ -48,10 +49,10 @@ const useProtocol = () => {
                 },
             },
             onSuccess: (tx) => {
-                console.log("tx", tx)
-                tx.wait(() => {
+                console.log('tx', tx);
+                (tx as any).wait().then(() => {
                     setIsAddingModule(false);
-                    console.log('eeeeeeeeeeeeeeeeee')
+                    history.push('/admin');
                 });
             },
             onError: () => setIsAddingModule(false),
