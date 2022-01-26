@@ -1,13 +1,12 @@
 // @ts-nocheck
-import { Form } from "web3uikit";
-import React from "react";
-import {useMoralis, useMoralisFile} from "react-moralis";
-import {tokenAbi, tokenBytecode} from "./Factory/token";
-import useProtocol from "../Module/contracts/Protocol/useProtocol";
+import { Form } from 'web3uikit';
+import React from 'react';
+import { useMoralis, useMoralisFile } from 'react-moralis';
+import { tokenAbi, tokenBytecode } from './Factory/token';
+import useProtocol from '../Module/contracts/Protocol/useProtocol';
 
 const TokenForm: React.FC = ({ web3 }) => {
-
-    const { protocolAddress, forwarder, addModule } = useProtocol()
+    const { protocolAddress, forwarder, addModule, isAddingModule } = useProtocol();
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
 
@@ -15,69 +14,66 @@ const TokenForm: React.FC = ({ web3 }) => {
         let metadata = {
             name: e.name,
             symbol: e.symbol,
-        }
+        };
         saveFile(
-            "metadata.json",
-            {base64: btoa(unescape(encodeURIComponent(JSON.stringify(metadata))))},
+            'metadata.json',
+            { base64: btoa(unescape(encodeURIComponent(JSON.stringify(metadata)))) },
             {
-                type: "json",
+                type: 'json',
                 metadata,
-                saveIPFS: true
+                saveIPFS: true,
             }
-
         ).then(async (file) => {
-            const hash = (file as any)["_hash"]
+            const hash = (file as any)['_hash'];
             let code = '0x' + tokenBytecode;
-            const contract = new web3.eth.Contract(tokenAbi as any)
-            const toDeploy = contract.deploy({data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${hash}`]})
-            await toDeploy.send({from: account})
-                .on('receipt', async (receipt) => {
-                    await addModule(0, receipt.contractAddress)
-
-                })
-        })
-    }
+            const contract = new web3.eth.Contract(tokenAbi as any);
+            const toDeploy = contract.deploy({ data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${hash}`] });
+            await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
+                await addModule(0, receipt.contractAddress);
+            });
+        });
+    };
 
     return (
         <>
             <Form
-                id={"token-form-id"}
+                id={'token-form-id'}
                 buttonConfig={{
                     isFullWidth: true,
-                    text: "Deploy Token",
-                    theme: "primary",
-                    onClick: () => console.log('submitting ...')
+                    text: 'Deploy Token',
+                    theme: 'primary',
+                    onClick: () => console.log('submitting ...'),
+                    isLoading: isAddingModule,
                 }}
-
                 data={[
                     {
                         name: 'Token Name',
                         type: 'text',
-                        inputWidth: "100%",
+                        inputWidth: '100%',
                         value: '',
                         validation: {
-                            required: true
+                            required: true,
                         },
                     },
                     {
                         name: 'Token Symbol',
                         type: 'text',
-                        inputWidth: "100%",
+                        inputWidth: '100%',
                         value: '',
                         validation: {
-                            required: true
+                            required: true,
                         },
-                    }
+                    },
                 ]}
                 onSubmit={(e) => {
                     const name = String(e.data[0].inputResult);
                     const symbol = e.data[1].inputResult;
-                    deployToken({name,symbol})
+                    deployToken({ name, symbol });
                 }}
                 title="ERC20 Token"
             />
         </>
-    )
-}
+    );
+};
 
 export default TokenForm;

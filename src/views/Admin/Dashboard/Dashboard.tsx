@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom';
 const { Tab } = TabList;
 
 const Dashboard = ({ web3 }) => {
-    const { hasProject, protocolAddress, deployProtocol, isLoading, canSetProject, deployErr, projectChain } = useRegistry();
+    const { hasProject, protocolAddress, isLoading, canSetProject, projectChain } = useRegistry();
     const { fetchERC20Balances } = useERC20Balances(
         {
             address: protocolAddress,

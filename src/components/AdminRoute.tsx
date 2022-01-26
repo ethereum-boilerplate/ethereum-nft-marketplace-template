@@ -5,7 +5,7 @@ import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 import { Loading } from 'web3uikit';
 
 const AdminRoute: FC = ({ children, ...props }) => {
-    const { AdminAddress } = useProtocol();
+    const { AdminAddress, hasMarketplace } = useProtocol();
     const { account } = useMoralis();
 
     if (!AdminAddress || !account)
@@ -18,7 +18,7 @@ const AdminRoute: FC = ({ children, ...props }) => {
         <Route
             {...props}
             render={({ location }) =>
-                account?.toLowerCase() === AdminAddress?.toLowerCase() ? (
+                account?.toLowerCase() === AdminAddress?.toLowerCase() || !hasMarketplace ? (
                     children
                 ) : (
                     <Redirect
