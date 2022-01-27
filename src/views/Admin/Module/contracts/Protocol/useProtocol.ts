@@ -1,14 +1,16 @@
 import { useEffect, useState } from 'react';
-import { useWeb3ExecuteFunction } from 'react-moralis';
+import {useNewMoralisObject, useWeb3ExecuteFunction} from 'react-moralis';
 import protocolInterface from './interface';
 import useRegistry from '../Registry/useRegistry';
 import { useHistory } from 'react-router-dom';
+import {getModuleType, types} from "../../../../../helpers/modules";
 
 const useProtocol = () => {
     const [marketplaceAddress, setMarketplaceAddress] = useState({});
     const [hasMarketplace, setHasMarketplace] = useState<boolean>(false);
     const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress, projectChain } = useRegistry();
     const { fetch: fetchAddModule } = useWeb3ExecuteFunction();
+    const { save } = useNewMoralisObject("Modules")
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
     const { data: dataHasAdminRole, fetch: fetchHasAdminRole } = useWeb3ExecuteFunction();
@@ -36,8 +38,9 @@ const useProtocol = () => {
      * note: contract does not make input validation.
      * @param moduleType equals an index of the type array in src/helpers/module.js
      * @param moduleAddress should be deployed contracts that are not added to project yet
+     * @param uri ipfs link to module metadata
      */
-    const addModule = async (moduleType: number, moduleAddress: string) => {
+    const addModule = async (moduleType: number, moduleAddress: string, uri: string) => {
         setIsAddingModule(true);
         fetchAddModule({
             params: {
@@ -52,8 +55,10 @@ const useProtocol = () => {
             onSuccess: (tx) => {
                 console.log('tx', tx);
                 (tx as any).wait().then(() => {
-                    setIsAddingModule(false);
-                    history.push('/admin');
+                    save({module: moduleAddress, type: types[moduleType], uri}).then(() => {
+                        setIsAddingModule(false);
+                        history.push('/admin');
+                    })
                 });
             },
             onError: () => setIsAddingModule(false),

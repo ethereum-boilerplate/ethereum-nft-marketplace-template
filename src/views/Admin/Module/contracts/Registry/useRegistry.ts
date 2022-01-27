@@ -77,7 +77,7 @@ const useRegistry = () => {
                 "name": "ModuleUpdated",
                 "type": "event"
             },
-            tableName: "Modules",
+            tableName: "ModuleSync",
             "sync_historical": true
         }, {useMasterKey: true})
     }

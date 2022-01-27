@@ -4,7 +4,7 @@ import {
     useMoralis,
 } from 'react-moralis';
 import { getEllipsisTxt } from '../../../helpers/formatters';
-import { getModuleColor, getModuleType } from '../../../helpers/modules';
+import { getModuleColor } from '../../../helpers/modules';
 import {
     Avatar,
     Button,
@@ -81,20 +81,19 @@ export default function Overview({ protocolAddress, web3 }) {
             setLoading(true);
             setTableData([]);
             data.forEach((mod, index) => {
+                console.log(mod)
                 let metadata = {
                     name: '',
                     description: '',
                 };
+                const uri = mod.get('uri');
                 const url = `https://ipfs.io/ipfs/${
-                    (mod.get('uri') as any).split('ipfs://')[1]
+                    uri.split('ipfs://')[1]
                 }`;
                     fetch(url).then((e) => {
                         e.json().then((value) => {
                             metadata.name = value.name
-                            let typeText = getModuleType(
-                                mod.get('moduleId'),
-                                data.length
-                            );
+                            const typeText = mod.get('type')
 
                             setTableData((prevState) =>
                                 [...prevState] !== []
@@ -184,7 +183,7 @@ export default function Overview({ protocolAddress, web3 }) {
     const runCf = async (masterKey: string) => {
         if (!protocolAddress || !chainId) return;
         Moralis.masterKey = masterKey;
-        const options = { tableName: 'Modules' };
+        const options = { tableName: 'ModuleSync' };
         await Moralis.Cloud.run('unwatchContractEvent', options, {
             useMasterKey: true,
         });
@@ -210,7 +209,7 @@ export default function Overview({ protocolAddress, web3 }) {
                             type: 'address',
                         },
                     ],
-                    name: 'ModuleUpdated',
+                    name: 'ModuleSync',
                     type: 'event',
                 },
                 tableName: 'Modules',
@@ -263,7 +262,7 @@ export default function Overview({ protocolAddress, web3 }) {
                 okText="Ok"
                 onCancel={() => setShowModal(false)}
                 onOk={function noRefCheck() {}}
-                title={`${getEllipsisTxt(selectedModule.module)} ${selectedModule.type}`}
+                title={`${getEllipsisTxt(selectedModule?.module)} ${selectedModule?.type}`}
             />
         </>
     );

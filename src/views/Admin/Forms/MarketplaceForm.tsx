@@ -46,14 +46,14 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
             const hash = (e as any)['_hash'];
             let code = '0x' + marketplaceBytecode;
             const contract = new web3.eth.Contract(marketplaceAbi as any);
-            console.log(protocolAddress, forwarder, `ipfs://${hash}`, metadata.royalty * 100);
+            const uri = `ipfs://${hash}`
             const toDeploy = contract.deploy({
                 data: code,
-                arguments: [protocolAddress, forwarder, `ipfs://${hash}`, metadata.royalty * 100],
+                arguments: [protocolAddress, forwarder, uri, metadata.royalty * 100],
             });
             await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
                 setStage(3);
-                await addModule(6, receipt.contractAddress);
+                await addModule(6, receipt.contractAddress, uri);
             });
         });
     };

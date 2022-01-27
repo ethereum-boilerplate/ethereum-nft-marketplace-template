@@ -14,7 +14,7 @@ const stages = {
 };
 
 const TokenForm: React.FC = ({ web3 }) => {
-    const { protocolAddress, forwarder, addModule, isAddingModule } = useProtocol();
+    const { protocolAddress, forwarder, addModule } = useProtocol();
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();
     const [stage, setStage] = useState('default');
@@ -36,12 +36,13 @@ const TokenForm: React.FC = ({ web3 }) => {
         ).then(async (file) => {
             setStage('deploying');
             const hash = (file as any)['_hash'];
+            const uri = `ipfs://${hash}`
             let code = '0x' + tokenBytecode;
             const contract = new web3.eth.Contract(tokenAbi as any);
-            const toDeploy = contract.deploy({ data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, `ipfs://${hash}`] });
+            const toDeploy = contract.deploy({ data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, uri] });
             await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
                 setStage('addingModule');
-                await addModule(0, receipt.contractAddress);
+                await addModule(0, receipt.contractAddress, uri);
             });
         });
     };

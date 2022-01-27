@@ -1,6 +1,6 @@
 import Moralis from "moralis"
 import Web3 from "web3"; // Only when using npm/yarn
-const types = [ "Token",  "NFT Bundle",  "NFT Collection",  "Dynamic NFT",  "Access NFT",  "Pack",  "NFT Marketplace", "Other" ]
+export const types = [ "Token",  "NFT Bundle",  "NFT Collection",  "Dynamic NFT",  "Access NFT",  "Pack",  "NFT Marketplace", "Other" ]
 const provider = Moralis.provider
 export const getModuleType = (id, length) => {
     const web3 = new Web3(provider)
