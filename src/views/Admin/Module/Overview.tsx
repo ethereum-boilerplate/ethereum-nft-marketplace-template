@@ -61,7 +61,7 @@ const columns = [
 export default function Overview({ web3 }) {
     // Get installed modules
     const { data, isFetching } = useMoralisQuery(
-        'Modules',
+        'InstalledModules',
         (query) => query.limit(100),
         [],
         { live: true }

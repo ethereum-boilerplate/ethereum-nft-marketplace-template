@@ -10,7 +10,7 @@ const useProtocol = () => {
     const [hasMarketplace, setHasMarketplace] = useState<boolean>(false);
     const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress, projectChain } = useRegistry();
     const { fetch: fetchAddModule } = useWeb3ExecuteFunction();
-    const { save } = useNewMoralisObject("Modules")
+    const { save } = useNewMoralisObject("InstalledModules")
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
     const { data: dataHasAdminRole, fetch: fetchHasAdminRole } = useWeb3ExecuteFunction();
