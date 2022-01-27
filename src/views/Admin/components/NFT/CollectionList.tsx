@@ -64,7 +64,7 @@ export const CollectionList: React.FC<ICollectionList> = ({ address, web3 }) => 
                             {metadata && metadata.description ? metadata.description : 'No Description'}
                         </span>
                     </div>,
-                    <div style={{ display: 'flex', width: '120%', gap: '15px' }}>
+                    <div style={{ display: 'flex', width: '100%', gap: '15px' }}>
                         <Button
                             theme={'outline'}
                             isFullWidth
@@ -106,7 +106,7 @@ export const CollectionList: React.FC<ICollectionList> = ({ address, web3 }) => 
             </div>
             {!showMinter && (
                 <Table
-                    columnsConfig="80px 90px 2fr 1fr"
+                    columnsConfig="80px 90px 1fr 1fr"
                     data={tableData}
                     header={[
                         <div style={{...columnNameStyle, marginLeft: "15px"}}>

@@ -6,6 +6,9 @@ import {useMoralis, useMoralisWeb3Api} from "react-moralis"
 export const useCollection = (web3, address) => {
     const [ nextTokenId, setNextTokenId ] = useState("")
     const [ nextTokenIdByAddress, setNextTokenIdByAddress ] = useState("")
+    const [ isMinting, setIsMinting ] = useState(false);
+    const [ mintingError, setMintingError ] = useState(false)
+    const [ mintingSuccess, setMintingSuccess ] = useState(false)
     const { chainId } = useMoralis()
     const [ royaltyPercentage, setRoyaltyPercentage ] = useState(0)
     const Web3API = useMoralisWeb3Api()
@@ -27,11 +30,18 @@ export const useCollection = (web3, address) => {
     }
 
     const mint = async (to, uri, signer) => {
+        setIsMinting(true)
         const contract = new web3.eth.Contract(collectionAbi, address)
 
         await contract.methods.mintNFT(to,uri).send({from: signer})
         .on('receipt', () => {
             triggerWeb3Api(address)
+            setMintingSuccess(true)
+            setIsMinting(false)
+        })
+        .on('error', (error) => {
+            setMintingError(error)
+            setIsMinting(false)
         })
     }
 
@@ -69,6 +79,9 @@ export const useCollection = (web3, address) => {
         nextTokenId,
         getNextTokenIdByAddress,
         triggerWeb3Api,
+        isMinting,
+        mintingError,
+        mintingSuccess,
         nextTokenIdByAddress,
         royaltyPercentage
     }

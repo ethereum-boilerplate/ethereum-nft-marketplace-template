@@ -71,11 +71,6 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
         });
         setStage('isAddingModule');
         await addModule(2, receipt.contractAddress, uri, name);
-        // .then(() => {
-        //     console.log('redirect');
-        //     // pushToHistory('/admin');
-        // });
-        // .finally(() => setLoading(false));
     };
 
     const onSubmit = ({ data }) => {

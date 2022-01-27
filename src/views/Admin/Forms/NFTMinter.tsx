@@ -12,13 +12,23 @@ interface INFTMinterForm {
 }
 
 const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
-    const { deployErr, isLoading, setLoading } = useRegistry();
-    const { mint } = useCollection(web3, address);
+
+    const { mint, isMinting, mintingError, mintingSuccess } = useCollection(web3, address);
     const { account } = useMoralis();
-    const { saveFile } = useMoralisFile();
+    const { saveFile, isUploading } = useMoralisFile();
+
+    const getButtonText = (): string => {
+        if(isUploading) {
+            return "Uploading Metadata"
+        }
+        if(isMinting) {
+            return "Minting"
+        }
+        return "Mint NFT"
+    }
 
     const mintNFT = (e: any) => {
-        setLoading(true);
+
         let metadata = {
             name: e.name,
             image: e.image,
@@ -41,16 +51,14 @@ const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
 
     return (
         <>
-            <div style={{ position: 'absolute', top: 70, right: 1 }}>
-                <Notification isVisible={!!deployErr} message={deployErr ? deployErr.message : ''} title={'Error'} />
-            </div>
+                <Notification position={"topR"} isPositionRelative={true} isVisible={mintingError || mintingSuccess} message={mintingError ? mintingError.message : mintingSuccess ? 'Minted!' : ''} title={'Error' || 'Success'} />
             <Form
                 id={'form-mint-nft'}
                 buttonConfig={{
                     isFullWidth: true,
-                    text: 'Mint',
-                    disabled: isLoading,
-                    theme: !isLoading ? 'primary' : 'secondary',
+                    text: getButtonText(),
+                    isLoading: isUploading || isMinting,
+                    theme: !isMinting ? 'primary' : 'secondary',
                     onClick: () => console.log('submitting ...'),
                 }}
                 data={[
