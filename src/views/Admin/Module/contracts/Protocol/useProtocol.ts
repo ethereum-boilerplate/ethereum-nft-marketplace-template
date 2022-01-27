@@ -8,7 +8,7 @@ import { types } from "../../../../../helpers/modules";
 const useProtocol = () => {
     const [marketplaceAddress, setMarketplaceAddress] = useState({});
     const [hasMarketplace, setHasMarketplace] = useState<boolean>(false);
-    const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress, projectChain } = useRegistry();
+    const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress, projectChain, isFetchingProject: isFetching, isWeb3Enabled, isAuthenticated } = useRegistry();
     const { fetch: fetchAddModule } = useWeb3ExecuteFunction();
     const { save } = useNewMoralisObject("InstalledModules")
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
@@ -20,9 +20,7 @@ const useProtocol = () => {
     const history = useHistory();
 
     useEffect(() => {
-        if (protocolAddress) {
-            console.log(`getting protocol information at ${protocolAddress}`);
-            console.log(`checking for marketplace ...`);
+        if (protocolAddress && isWeb3Enabled && isAuthenticated) {
             /**
              * this id stands for the first nft marketplace deployed of every contract.
              * if it returns the zer0 address 0x0...0 that means there is no marketplace deployed
@@ -31,7 +29,7 @@ const useProtocol = () => {
             getModuleById('0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8');
         }
         // eslint-disable-next-line
-    }, [protocolAddress]);
+    }, [protocolAddress, isWeb3Enabled, isAuthenticated]);
 
     /**
      * binds deployed contracts to the project.
@@ -163,6 +161,7 @@ const useProtocol = () => {
         projectChain,
         canSetProject,
         dataModuleById,
+        isFetching,
         isLoading,
         AdminAddress,
         dataWithdrawFunds,

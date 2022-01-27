@@ -11,7 +11,7 @@ const useRegistry = () => {
     const [ protocolAddress, setProtocolAddress ] = useState<string | null>(null);
     const [ protocolAdmin, setProtocolAdmin ] = useState<string | null>(null)
     const [ hasProject, setHasProject ] = useState<boolean>(false);
-    const [ canSetProject, setCanSetProject ] = useState<boolean>(false);
+    const [ canSetProject, setCanSetProject ] = useState<boolean>(true);
     const [ isLoading, setLoading ] = useState<boolean>(true);
     const [ forwarder, setForwarder ] = useState<string | unknown>();
     const { fetch: getProtocol } = useWeb3ExecuteFunction();
@@ -19,18 +19,10 @@ const useRegistry = () => {
     const { error: deployErr, fetch: deployFetch } = useWeb3ExecuteFunction();
     const { fetch: fetchForwarder  } = useWeb3ExecuteFunction();
     const { deployProtocolAbi, getProtocolControlAbi, getForwarderAbi } = registryInterface();
-    const { account, provider } = useMoralis()
+    const { account, isAuthenticated, isWeb3Enabled } = useMoralis()
     const { chainId } = useChain()
     const [ projectChain, setProjectChain ] = useState<typeof chainId>()
 
-    useEffect(() => {
-        if(provider) {
-            console.log('acc:', account)
-            getProtocolByUser(account)
-            getForwarder()
-        }
-        // eslint-disable-next-line
-    }, [provider])
 
     useEffect(() => {
         if(data) {
@@ -43,9 +35,9 @@ const useRegistry = () => {
             console.log(`Project Metadata = ${data[0].get('uri')}`)
             console.log(`Project Address = ${data[0].get('protocol')}`)
             console.log(`Project Chain = ${data[0].get('chain')}`)
-            setCanSetProject(false)
             setProjectChain(data[0].get('chain'))
             setHasProject(true)
+            setCanSetProject(false)
             setProtocolAdmin(data[0].get('admin'))
             setProtocolAddress(data[0].get('protocol'))
         }
@@ -128,6 +120,8 @@ const useRegistry = () => {
         projectChain,
         forwarder,
         isFetchingProject,
+        isAuthenticated,
+        isWeb3Enabled,
         canSetProject,
         hasProject,
         deployErr,
