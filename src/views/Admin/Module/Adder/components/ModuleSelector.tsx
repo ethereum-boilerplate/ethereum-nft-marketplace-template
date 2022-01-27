@@ -64,7 +64,7 @@ const ModuleSelector = () => {
                             if(isComingSoon(module.key)) return;
                             pushToHistory(module.key)
                         }} style={{ cursor: isComingSoon(module.key) ? 'not-allowed' : 'pointer' }}>
-                            { isComingSoon(module.key) ? printCard(module) : (
+                            { !isComingSoon(module.key) ? printCard(module) : (
                                 <Tooltip
                                     position={"bottom"}
                                     text={"Coming Soon 👀"}

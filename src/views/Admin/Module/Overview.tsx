@@ -7,7 +7,6 @@ import { getEllipsisTxt } from '../../../helpers/formatters';
 import { getModuleColor } from '../../../helpers/modules';
 import {
     Avatar,
-    Button,
     Dropdown,
     DropdownElement,
     Icon,
@@ -61,7 +60,7 @@ const columns = [
 
 export default function Overview({ web3 }) {
     // Get installed modules
-    const { data } = useMoralisQuery(
+    const { data, isFetching } = useMoralisQuery(
         'Modules',
         (query) => query.limit(100),
         [],
@@ -188,7 +187,7 @@ export default function Overview({ web3 }) {
                 onPageNumberChanged={function noRefCheck() {}}
                 pageSize={5}
                 customNoDataComponent={
-                     !isLoading ? <div
+                     !isFetching || !isLoading ? <div
                     style={{
                     display: 'grid',
                     placeItems: 'center',
