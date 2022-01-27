@@ -74,7 +74,6 @@ export default function Overview({ web3 }) {
 
     useEffect(() => {
         if (data && data.length > 0) {
-            setLoading(true);
             setTableData([]);
             data.forEach((mod, index) => {
                 console.log(mod)
@@ -109,7 +108,7 @@ export default function Overview({ web3 }) {
                         console.log(reason)
                     });
             });
-        } else {
+        } else if(!isFetching) {
             setLoading(false)
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -187,7 +186,7 @@ export default function Overview({ web3 }) {
                 onPageNumberChanged={function noRefCheck() {}}
                 pageSize={5}
                 customNoDataComponent={
-                     !isFetching || !isLoading ? <div
+                (!isFetching || isLoading) ? <div
                     style={{
                     display: 'grid',
                     placeItems: 'center',

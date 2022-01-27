@@ -54,11 +54,12 @@ const useProtocol = () => {
             },
             onSuccess: (tx) => {
                 console.log('tx', tx);
+                save({module: moduleAddress, type: types[moduleType], uri});
                 (tx as any).wait().then(() => {
-                    save({module: moduleAddress, type: types[moduleType], uri}).then(() => {
-                        setIsAddingModule(false);
-                        history.push('/admin');
-                    })
+                    setIsAddingModule(false);
+                    history.push('/admin');
+                }).catch(() => {
+                    addModule(moduleType,moduleAddress,uri)
                 });
             },
             onError: () => setIsAddingModule(false),
