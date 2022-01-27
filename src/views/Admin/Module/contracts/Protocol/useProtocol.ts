@@ -39,10 +39,12 @@ const useProtocol = () => {
      * @param moduleType equals an index of the type array in src/helpers/module.js
      * @param moduleAddress should be deployed contracts that are not added to project yet
      * @param uri ipfs link to module metadata
+     * @param name set name of project
+     * @param isTryingAgain set state so there are no duplicate rows in db
      */
-    const addModule = async (moduleType: number, moduleAddress: string, uri: string) => {
+    const addModule = async (moduleType: number, moduleAddress: string, uri: string, name: string, isTryingAgain = false) => {
         setIsAddingModule(true);
-        fetchAddModule({
+        await fetchAddModule({
             params: {
                 abi: [addModuleAbi],
                 contractAddress: protocolAddress,
@@ -54,12 +56,12 @@ const useProtocol = () => {
             },
             onSuccess: (tx) => {
                 console.log('tx', tx);
-                save({module: moduleAddress, type: types[moduleType], uri});
+                if(!isTryingAgain) save({module: moduleAddress, type: types[moduleType], uri, name});
                 (tx as any).wait().then(() => {
                     setIsAddingModule(false);
                     history.push('/admin');
                 }).catch(() => {
-                    addModule(moduleType,moduleAddress,uri)
+                    addModule(moduleType,moduleAddress, uri, name, true)
                 });
             },
             onError: () => setIsAddingModule(false),

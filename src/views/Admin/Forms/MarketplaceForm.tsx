@@ -53,7 +53,7 @@ const MarketplaceForm: React.FC = ({ web3 }) => {
             });
             await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
                 setStage(3);
-                await addModule(6, receipt.contractAddress, uri);
+                await addModule(6, receipt.contractAddress, uri, metadata.name);
             });
         });
     };

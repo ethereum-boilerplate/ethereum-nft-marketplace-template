@@ -42,7 +42,7 @@ const TokenForm: React.FC = ({ web3 }) => {
             const toDeploy = contract.deploy({ data: code, arguments: [protocolAddress, e.name, e.symbol, forwarder, uri] });
             await toDeploy.send({ from: account }).on('receipt', async (receipt) => {
                 setStage('addingModule');
-                await addModule(0, receipt.contractAddress, uri);
+                await addModule(0, receipt.contractAddress, uri, e.name, false);
             });
         });
     };

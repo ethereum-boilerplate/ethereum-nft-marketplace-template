@@ -55,14 +55,14 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
         });
         await toDeploy
             .send({ from: account })
-            .on('receipt', (receipt) => syncNFTContract(receipt, uri))
+            .on('receipt', (receipt) => syncNFTContract(receipt, uri, metadata.name))
             .on('error', (e) => {
                 console.error(e);
                 setLoading(false);
             });
     };
 
-    const syncNFTContract = async (receipt, uri: string) => {
+    const syncNFTContract = async (receipt, uri: string, name: string) => {
         console.log('receipt', receipt);
         setStage('syncing');
         await token.syncNFTContract({
@@ -70,7 +70,7 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
             chain: chainId as any,
         });
         setStage('isAddingModule');
-        await addModule(2, receipt.contractAddress, uri);
+        await addModule(2, receipt.contractAddress, uri, name);
         // .then(() => {
         //     console.log('redirect');
         //     // pushToHistory('/admin');

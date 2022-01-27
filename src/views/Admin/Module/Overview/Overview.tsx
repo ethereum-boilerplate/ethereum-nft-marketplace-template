@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     useMoralisQuery,
     useMoralis,
 } from 'react-moralis';
-import { getEllipsisTxt } from '../../../helpers/formatters';
-import { getModuleColor } from '../../../helpers/modules';
+import { getEllipsisTxt } from '../../../../helpers/formatters';
+import { getModuleColor } from '../../../../helpers/modules';
 import {
     Avatar,
     Dropdown,
@@ -16,33 +16,13 @@ import {
     Modal,
     Illustration,
 } from 'web3uikit';
-import Marketplace from '../components/NFT/Marketplace';
-import Token from '../components/Token';
-import { CollectionList } from '../components/NFT/CollectionList';
-import { getExplorer } from '../../../helpers/networks';
+import Marketplace from '../../components/NFT/Marketplace';
+import Token from '../../components/Token';
+import { CollectionList } from '../../components/NFT/CollectionList';
+import { getExplorer } from '../../../../helpers/networks';
+import {IMetadata, ISelectedModule} from "./interfaces";
 
-interface IMetadata {
-    name: string;
-    description?: string;
-}
-
-interface ISelectedModule {
-    type: string;
-    module: string;
-    key: string;
-    metadata: any;
-}
-
-const columnNameStyle = {
-    color: "#68738D",
-    fontWeight: "500",
-    fontSize: "14px",
-    display: 'grid',
-    placeItems: "flex-start",
-    width: "100%",
-    marginTop: "5px",
-    marginBottom: "-5px"
-}
+import {columnNameStyle} from "./styles";
 
 const columns = [
     '',
@@ -69,50 +49,25 @@ export default function Overview({ web3 }) {
     const { chainId } = useMoralis();
     const [selectedModule, setSelectedModule] = useState<ISelectedModule>();
     const [showModal, setShowModal] = useState<boolean>(false);
-    const [isLoading, setLoading] = useState<boolean>(true);
-    const [tableData, setTableData] = useState([]);
 
-    useEffect(() => {
-        if (data && data.length > 0) {
-            setTableData([]);
-            data.forEach((mod, index) => {
-                console.log(mod)
-                let metadata = {
-                    name: '',
-                    description: '',
-                };
-                const uri = mod.get('uri');
-                const url = `https://ipfs.io/ipfs/${
-                    uri.split('ipfs://')[1]
-                }`;
-                    fetch(url).then((e) => {
-                        e.json().then((value) => {
-                            metadata.name = value.name
-                            const typeText = mod.get('type')
 
-                            setTableData((prevState) =>
-                                [...prevState] !== []
-                                    ? [
-                                        ...prevState,
-                                        rowData(metadata, typeText, mod),
-                                    ]
-                                    : [rowData(metadata, typeText, mod)]
-                            );
+    const manipulate = (data) => {
+        if(!data) return;
+        if(data.length === 0 && !isFetching) return [];
+        return data.map((mod ) => {
 
-                            if (index === data.length - 1) {
-                                console.log('trigger')
-                                setLoading(false);
-                            }
-                        })
-                    }).catch((reason) => {
-                        console.log(reason)
-                    });
-            });
-        } else if(!isFetching) {
-            setLoading(false)
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [data]);
+            let metadata = {
+                name: '',
+            }
+
+            metadata.name = mod.get('name')
+            const typeText = mod.get('type')
+
+            return rowData(metadata, typeText, mod)
+
+        })
+
+    }
 
     const rowData = (metadata: IMetadata, typeText: string, mod) => [
         <Avatar isRounded={true} key={1} theme="letters" text={metadata.name} />,
@@ -180,13 +135,13 @@ export default function Overview({ web3 }) {
         <>
             <Table
                 columnsConfig="80px 3fr 2fr 2fr 80px"
-                data={tableData}
+                data={manipulate(data)}
                 header={columns}
                 maxPages={3}
                 onPageNumberChanged={function noRefCheck() {}}
                 pageSize={5}
                 customNoDataComponent={
-                (!isFetching || isLoading) ? <div
+                (!isFetching) ? <div
                     style={{
                     display: 'grid',
                     placeItems: 'center',
