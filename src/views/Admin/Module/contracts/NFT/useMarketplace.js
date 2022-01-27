@@ -8,7 +8,6 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
     const [ currentUsersListings, setUsersListings ] = useState([])
     const [error, setError] = useState(null)
     const [ isApproved, setApproved ] = useState(false)
-    const [ itemsCount, incrementItemsCount ] = useState(0)
     const [ allListings, setAllListings] = useState([])
     const [ isUpdating, setUpdating ] = useState(false)
     const [ isUpdated, setUpdated ] = useState(false)
@@ -103,8 +102,7 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
             
         }
 
-        run()
-
+        await run()
     
         return {
             confirmed,

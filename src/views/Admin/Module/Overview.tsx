@@ -14,13 +14,13 @@ import {
     LinkTo,
     Table,
     Tag,
-    Modal, Input, Illustration,
+    Modal,
+    Illustration,
 } from 'web3uikit';
 import Marketplace from '../components/NFT/Marketplace';
 import Token from '../components/Token';
 import { CollectionList } from '../components/NFT/CollectionList';
 import { getExplorer } from '../../../helpers/networks';
-import Moralis from 'moralis';
 
 interface IMetadata {
     name: string;
@@ -61,7 +61,7 @@ const columns = [
     ]
 ]
 
-export default function Overview({ protocolAddress, web3 }) {
+export default function Overview({ web3 }) {
     // Get installed modules
     const { data } = useMoralisQuery(
         'Modules',
@@ -73,7 +73,6 @@ export default function Overview({ protocolAddress, web3 }) {
     const [selectedModule, setSelectedModule] = useState<ISelectedModule>();
     const [showModal, setShowModal] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(true);
-    const [masterKey, setMasterKey ] = useState<string>("")
     const [tableData, setTableData] = useState([]);
 
     useEffect(() => {
@@ -180,44 +179,6 @@ export default function Overview({ protocolAddress, web3 }) {
         }
     };
 
-    const runCf = async (masterKey: string) => {
-        if (!protocolAddress || !chainId) return;
-        Moralis.masterKey = masterKey;
-        const options = { tableName: 'ModuleSync' };
-        await Moralis.Cloud.run('unwatchContractEvent', options, {
-            useMasterKey: true,
-        });
-        await Moralis.Cloud.run(
-            'watchContractEvent',
-            {
-                ["chainId" as any]: chainId,
-                address: protocolAddress,
-                topic: 'ModuleUpdated(bytes32, address)',
-                abi: {
-                    anonymous: false,
-                    inputs: [
-                        {
-                            indexed: true,
-                            internalType: 'bytes32',
-                            name: 'moduleId',
-                            type: 'bytes32',
-                        },
-                        {
-                            indexed: true,
-                            internalType: 'address',
-                            name: 'module',
-                            type: 'address',
-                        },
-                    ],
-                    name: 'ModuleSync',
-                    type: 'event',
-                },
-                tableName: 'Modules',
-                sync_historical: true,
-            },
-            { useMasterKey: true }
-        );
-    };
 
     return (
         <>
@@ -238,15 +199,11 @@ export default function Overview({ protocolAddress, web3 }) {
                 }}
                     >
                     <Illustration logo={"servers"} width={"150"} height={"150"} />
-                    <span>It looks like there are no Modules</span>
-                    <span>
-                    If you think this is an error click to force re-sync
-                    </span>
-                    <Input validation={{required: true}} label={"Moralis Masterkey"} onChange={(e) => setMasterKey((e as any).target.value)} type={"password"} />
+                    <span>No Modules Installed</span>
                     <Button
                     isFullWidth
 
-                    onClick={() => runCf(masterKey)}
+                    onClick={() => {}}
                     theme={'primary'}
                     text={'Force Sync'}
                     />

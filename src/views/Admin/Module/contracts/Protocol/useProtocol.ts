@@ -3,7 +3,7 @@ import {useNewMoralisObject, useWeb3ExecuteFunction} from 'react-moralis';
 import protocolInterface from './interface';
 import useRegistry from '../Registry/useRegistry';
 import { useHistory } from 'react-router-dom';
-import {getModuleType, types} from "../../../../../helpers/modules";
+import { types } from "../../../../../helpers/modules";
 
 const useProtocol = () => {
     const [marketplaceAddress, setMarketplaceAddress] = useState({});
