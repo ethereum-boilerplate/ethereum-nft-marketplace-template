@@ -8,7 +8,12 @@ import {getEllipsisTxt} from "../../../helpers/formatters";
 
  const { Tab } = TabList
 
-const Token: React.FC = ({ address, web3 }) => {
+interface IToken {
+     address?: string;
+     web3: any
+}
+
+const Token: React.FC<IToken> = ({ address, web3 }) => {
     const [ amountToMint, setAmountToMint ] = useState(false)
     const [ addressToSend, setAddressToSend ] = useState(null)
     const { Moralis, account, } = useMoralis()
