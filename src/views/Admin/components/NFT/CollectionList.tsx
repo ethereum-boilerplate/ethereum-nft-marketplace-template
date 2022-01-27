@@ -39,6 +39,7 @@ export const CollectionList: React.FC<ICollectionList> = ({ address, web3 }) => 
             const temp = [];
             data.result.forEach((result, index) => {
                 const metadata = JSON.parse(result.metadata);
+                console.log(result)
                 temp.push([
                     <span>{result.token_id}</span>,
                     // @ts-ignore
@@ -77,7 +78,6 @@ export const CollectionList: React.FC<ICollectionList> = ({ address, web3 }) => 
                             theme={'outline'}
                             isFullWidth
                             onClick={() => {
-                                console.log(result);
                                 setNftToList({ token_address: result.token_address, token_id: result.token_id, metadata: metadata,name: result.name, type: result.contract_type });
                                 setShowLister(true);
                             }}
@@ -136,8 +136,13 @@ export const CollectionList: React.FC<ICollectionList> = ({ address, web3 }) => 
             )}
             {showMinter && <NFTMinterForm address={address} web3={web3} />}
             {showLister && (
-                /* @ts-ignore */
-                <NFTLister web3={web3} modalActive={showLister} setModalActive={setShowLister} marketplaceAddress={marketplaceAddress} nft={nftToList} />
+                <NFTLister
+                    web3={web3}
+                    modalActive={showLister}
+                    setModalActive={setShowLister}
+                    marketplaceAddress={marketplaceAddress}
+                    nft={nftToList}
+                />
             )}
         </div>
     );

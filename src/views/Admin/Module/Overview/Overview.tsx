@@ -50,7 +50,6 @@ export default function Overview({ web3 }) {
     const [selectedModule, setSelectedModule] = useState<ISelectedModule>();
     const [showModal, setShowModal] = useState<boolean>(false);
 
-
     const manipulate = (data) => {
         if(!data) return;
         if(data.length === 0 && !isFetching) return [];
@@ -68,7 +67,6 @@ export default function Overview({ web3 }) {
         })
 
     }
-
     const rowData = (metadata: IMetadata, typeText: string, mod) => [
         <Avatar isRounded={true} key={114} theme="letters" text={metadata.name} />,
         <span key={432} style={{fontSize: "16px", color: "#041836"}}>{metadata.name}</span>,
@@ -115,7 +113,6 @@ export default function Overview({ web3 }) {
             />
         </div>,
     ];
-
     const printModuleInModal = (type, selectedModule) => {
         if (type === 'NFT Marketplace' && web3) {
             return <Marketplace key={type} web3={web3} address={selectedModule.module} />;
@@ -129,7 +126,6 @@ export default function Overview({ web3 }) {
             return <Token key={type} address={selectedModule.module} web3={web3}  />;
         }
     };
-
 
     return (
         <>

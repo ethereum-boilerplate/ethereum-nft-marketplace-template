@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Button, Table } from 'web3uikit';
-import React, {useCallback, useContext, useEffect, useState} from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNFTBalances } from 'react-moralis';
 import { Image } from 'antd';
 import NFTLister from '../views/Admin/Forms/NFTLister';
@@ -16,9 +16,9 @@ interface NFTBalance {
 }
 
 const NFTBalanceTable: React.FC<NFTBalance> = ({ address, chain, marketplaceAddress, web3 }) => {
-    const [nftToList, setNftToList] = useState({});
-    const [showLister, setShowLister] = useState<boolean>(false);
-    const [ tableData, setTableData ] = useState([])
+    const [ nftToList, setNftToList ] = useState({});
+    const [ showLister, setShowLister ] = useState<boolean>(false);
+    const [ tableData, setTableData ] = useState<Array<Array<any>>>([])
 
     const { data, isFetching } = useNFTBalances({
         address: address,

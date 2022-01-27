@@ -1,7 +1,6 @@
 // @ts-nocheck
 import { Form, Notification } from 'web3uikit';
 import React from 'react';
-import useRegistry from '../Module/contracts/Registry/useRegistry';
 import { useMoralis, useMoralisFile } from 'react-moralis';
 import { useCollection } from '../Module/contracts/NFT/useCollection';
 import Web3 from 'web3';

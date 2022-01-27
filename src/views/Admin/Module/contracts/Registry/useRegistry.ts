@@ -4,7 +4,7 @@ import { RegistryAddress} from '../../../index'
 import registryInterface from "./interface";
 
 const useRegistry = () => {
-    const { data, isFetching: isFetchingProject } = useMoralisQuery("Storefront", query => query.limit(2), [], {
+    const { data, isFetching: isFetchingProject } = useMoralisQuery("Storefront", query => query.limit(1), [], {
         autoFetch: true,
         live: true
     })
