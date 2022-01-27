@@ -1,4 +1,4 @@
-export const collectionModule = {
+export const collectionModule: IModule = {
     title: 'NFT Collection',
     desc: 'ERC721 Standard',
     tooltipText: 'Create a Collection and Mint NFTs',
@@ -6,7 +6,7 @@ export const collectionModule = {
     logo: "chest"
 }
 
-export const bundleModule = {
+export const bundleModule: IModule = {
     title: 'Bundle',
     desc: 'Bundle of many grouped NFTs',
     tooltipText: 'Coming soon',
@@ -14,7 +14,7 @@ export const bundleModule = {
     logo: "bundle",
 }
 
-export const dropModule = {
+export const dropModule: IModule = {
     title: 'Lazy NFT',
     desc: 'ERC721 Lazy Mint',
     tooltipText: 'Coming Soon',
@@ -22,21 +22,21 @@ export const dropModule = {
     logo: "lazyNft",
 }
 
-export const marketplaceModule = {
+export const marketplaceModule: IModule = {
     title: 'NFT Marketplace',
     desc: 'Whitelabel marketplace for digital assets',
     tooltipText: 'Create your own NFT MarketplaceForm',
     key: 'marketPlaceModule',
     logo: 'marketplace'
 }
-export const tokenModule = {
+export const tokenModule: IModule = {
     title: 'Token',
     desc: 'Standard crypto token or currency',
     tooltipText: 'Create a standard ERC20 Token/Crypto Currency',
     key: 'tokenModule',
     logo: 'token'
 }
-export const packModule = {
+export const packModule: IModule = {
     title: 'Pack',
     desc: 'Lootbox of NFTs',
     tooltipText: 'Coming soon',
@@ -44,4 +44,13 @@ export const packModule = {
     logo: 'pack'
 }
 
-export type moduleTypes = "erc721module" | "bundleModule" | "lazyMintModule" | "marketPlaceModule" | "tokenModule" | "pack"
+export interface IModule {
+    title: string;
+    desc: string;
+    tooltipText: string;
+    key: moduleTypes;
+    logo: logoTypes;
+}
+
+export type logoTypes = "chest" | "bundle" | "token" | "pack" | "marketplace" | "lazyNft";
+export type moduleTypes = "erc721module" | "bundleModule" | "lazyMintModule" | "marketPlaceModule" | "tokenModule" | "packModule";
