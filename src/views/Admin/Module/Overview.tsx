@@ -1,9 +1,7 @@
-// @ts-nocheck
 import React, { useState, useEffect } from 'react';
 import {
     useMoralisQuery,
     useMoralis,
-    useWeb3ExecuteFunction,
 } from 'react-moralis';
 import { getEllipsisTxt } from '../../../helpers/formatters';
 import { getModuleColor, getModuleType } from '../../../helpers/modules';
@@ -24,6 +22,45 @@ import { CollectionList } from '../components/NFT/CollectionList';
 import { getExplorer } from '../../../helpers/networks';
 import Moralis from 'moralis';
 
+interface IMetadata {
+    name: string;
+    description?: string;
+}
+
+interface ISelectedModule {
+    type: string;
+    module: string;
+    key: string;
+    metadata: any;
+}
+
+const columnNameStyle = {
+    color: "#68738D",
+    fontWeight: "500",
+    fontSize: "14px",
+    display: 'grid',
+    placeItems: "flex-start",
+    width: "100%",
+    marginTop: "5px",
+    marginBottom: "-5px"
+}
+
+const columns = [
+    [
+        '',
+        <div style={columnNameStyle}>
+            <span>Name</span>
+        </div>,
+        <div style={columnNameStyle}>
+            <span>Type</span>
+        </div>,
+        <div style={columnNameStyle}>
+            <span>Module</span>
+        </div>,
+        '',
+    ]
+]
+
 export default function Overview({ protocolAddress, web3 }) {
     // Get installed modules
     const { data } = useMoralisQuery(
@@ -33,11 +70,10 @@ export default function Overview({ protocolAddress, web3 }) {
         { live: true }
     );
     const { chainId } = useMoralis();
-    const [selectedModule, setSelectedModule] = useState(null);
+    const [selectedModule, setSelectedModule] = useState<ISelectedModule>();
     const [showModal, setShowModal] = useState<boolean>(false);
     const [isLoading, setLoading] = useState<boolean>(true);
     const [masterKey, setMasterKey ] = useState<string>("")
-    const { fetch: fetchWeb3 } = useWeb3ExecuteFunction();
     const [tableData, setTableData] = useState([]);
 
     useEffect(() => {
@@ -45,61 +81,38 @@ export default function Overview({ protocolAddress, web3 }) {
             setLoading(true);
             setTableData([]);
             data.forEach((mod, index) => {
-                fetchWeb3({
-                    params: {
-                        abi: [
-                            {
-                                inputs: [],
-                                name: '_contractURI',
-                                outputs: [
-                                    {
-                                        internalType: 'string',
-                                        name: '',
-                                        type: 'string',
-                                    },
-                                ],
-                                stateMutability: 'view',
-                                type: 'function',
-                            },
-                        ],
-                        functionName: '_contractURI',
-                        contractAddress: mod.get('module'),
-                    },
-                    onSuccess: async (results) => {
-                        let metadata = {
-                            name: '',
-                            description: '',
-                        };
-                        const url = `https://ipfs.io/ipfs/${
-                            (results as any).split('ipfs://')[1]
-                        }`;
-                        try {
-                            const x = await fetch(url);
-                            const y = await x.json();
-                            metadata.name = y.name;
-                        } catch (e) {
-                            console.log(e);
-                        }
+                let metadata = {
+                    name: '',
+                    description: '',
+                };
+                const url = `https://ipfs.io/ipfs/${
+                    (mod.get('uri') as any).split('ipfs://')[1]
+                }`;
+                    fetch(url).then((e) => {
+                        e.json().then((value) => {
+                            metadata.name = value.name
+                            let typeText = getModuleType(
+                                mod.get('moduleId'),
+                                data.length
+                            );
 
-                        let typeText = getModuleType(
-                            mod.get('moduleId'),
-                            data.length
-                        );
+                            setTableData((prevState) =>
+                                [...prevState] !== []
+                                    ? [
+                                        ...prevState,
+                                        rowData(metadata, typeText, mod),
+                                    ]
+                                    : [rowData(metadata, typeText, mod)]
+                            );
 
-                        setTableData((prevState) =>
-                            [...prevState] !== []
-                                ? [
-                                      ...prevState,
-                                      rowData(metadata, typeText, mod),
-                                  ]
-                                : [rowData(metadata, typeText, mod)]
-                        );
-                    },
-                }).then();
-                if (index === data.length - 1) {
-                    console.log('trigger')
-                    setLoading(false);
-                }
+                            if (index === data.length - 1) {
+                                console.log('trigger')
+                                setLoading(false);
+                            }
+                        })
+                    }).catch((reason) => {
+                        console.log(reason)
+                    });
             });
         } else {
             setLoading(false)
@@ -107,7 +120,7 @@ export default function Overview({ protocolAddress, web3 }) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [data]);
 
-    const rowData = (metadata, typeText, mod) => [
+    const rowData = (metadata: IMetadata, typeText: string, mod) => [
         <Avatar isRounded={true} key={1} theme="letters" text={metadata.name} />,
         <span style={{fontSize: "16px", color: "#041836"}}>{metadata.name}</span>,
         <Tag key={2} color={getModuleColor(typeText)} text={typeText} />,
@@ -120,14 +133,20 @@ export default function Overview({ protocolAddress, web3 }) {
         <div style={{ display: 'grid', placeItems: 'center' }}>
             <Dropdown
                 key={34}
-                onClick={() => {}}
                 parent={
-                    <Icon key="3" fill="#2E7DAF" size={20} svg="more vert" />
+                    <Icon
+                        key="3"
+                        fill="#2E7DAF"
+                        size={20}
+                        // @ts-ignore
+                        svg={"more vert"}
+                    />
                 }
                 position="top"
                 children={[
                     <DropdownElement
                         backgroundColor="transparent"
+                        // @ts-ignore
                         icon="testnet"
                         iconSize={12}
                         onClick={() => {
@@ -158,7 +177,7 @@ export default function Overview({ protocolAddress, web3 }) {
             );
         }
         if (type === 'Token') {
-            return <Token web3={web3} address={selectedModule.module} />;
+            return <Token address={selectedModule.module} web3={web3}  />;
         }
     };
 
@@ -206,19 +225,7 @@ export default function Overview({ protocolAddress, web3 }) {
             <Table
                 columnsConfig="80px 3fr 2fr 2fr 80px"
                 data={tableData}
-                header={[
-                    '',
-                    <div style={columnNameStyle}>
-                        <span>Name</span>
-                    </div>,
-                    <div style={columnNameStyle}>
-                        <span>Type</span>
-                    </div>,
-                    <div style={columnNameStyle}>
-                        <span>Module</span>
-                    </div>,
-                    '',
-                ]}
+                header={columns}
                 maxPages={3}
                 onPageNumberChanged={function noRefCheck() {}}
                 pageSize={5}
@@ -249,30 +256,15 @@ export default function Overview({ protocolAddress, web3 }) {
             />
             <Modal
                 cancelText="Close"
+                children={[selectedModule ? printModuleInModal(selectedModule.type, selectedModule) : <></>]}
                 id="disabled"
                 isOkDisabled
                 isVisible={showModal}
                 okText="Ok"
                 onCancel={() => setShowModal(false)}
                 onOk={function noRefCheck() {}}
-                title={`${getEllipsisTxt(selectedModule?.module)} ${
-                    selectedModule?.type
-                }`}
-            >
-                {selectedModule &&
-                    printModuleInModal(selectedModule?.type, selectedModule)}
-            </Modal>
+                title={`${getEllipsisTxt(selectedModule.module)} ${selectedModule.type}`}
+            />
         </>
     );
-}
-
-const columnNameStyle = {
-    color: "#68738D",
-    fontWeight: "500",
-    fontSize: "14px",
-    display: 'grid',
-    placeItems: "flex-start",
-    width: "100%",
-    marginTop: "5px",
-    marginBottom: "-5px"
 }
