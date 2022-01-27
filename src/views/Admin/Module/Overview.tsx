@@ -46,19 +46,17 @@ const columnNameStyle = {
 }
 
 const columns = [
-    [
-        '',
-        <div style={columnNameStyle}>
-            <span>Name</span>
-        </div>,
-        <div style={columnNameStyle}>
-            <span>Type</span>
-        </div>,
-        <div style={columnNameStyle}>
-            <span>Module</span>
-        </div>,
-        '',
-    ]
+    '',
+    <div style={columnNameStyle}>
+        <span>Name</span>
+    </div>,
+    <div style={columnNameStyle}>
+        <span>Type</span>
+    </div>,
+    <div style={columnNameStyle}>
+        <span>Module</span>
+    </div>,
+    '',
 ]
 
 export default function Overview({ web3 }) {
@@ -200,13 +198,6 @@ export default function Overview({ web3 }) {
                     >
                     <Illustration logo={"servers"} width={"150"} height={"150"} />
                     <span>No Modules Installed</span>
-                    <Button
-                    isFullWidth
-
-                    onClick={() => {}}
-                    theme={'primary'}
-                    text={'Force Sync'}
-                    />
                     </div> : <div>Loading Modules ...</div>
                 }
             />
