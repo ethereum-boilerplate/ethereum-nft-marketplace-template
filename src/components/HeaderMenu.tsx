@@ -33,9 +33,9 @@ const styles = {
     },
 };
 
-const HeaderMenu: FC = () => {
+const HeaderMenu: FC = ({isAdmin}) => {
     const { account } = useMoralis();
-    const { hasMarketplace, AdminAddress, isLoading } = useProtocol();
+    const { hasMarketplace } = useProtocol();
 
     return (
         <Header style={styles.header}>
@@ -51,7 +51,7 @@ const HeaderMenu: FC = () => {
                     width: '100%',
                 }}
             >
-                {((account && AdminAddress && account.toUpperCase() === AdminAddress.toUpperCase()) || !AdminAddress) && !isLoading && (
+                {isAdmin(account) && (
                     <Menu.Item key="admin">
                         <NavLink to="/admin">📑 Admin</NavLink>
                     </Menu.Item>
@@ -66,9 +66,11 @@ const HeaderMenu: FC = () => {
                         <NavLink to="/user">⚙ Account</NavLink>
                     </Menu.Item>
                 )}
-                <Menu.Item key="nft">
-                    <NavLink to="/NFTBalance">🖼 Your NFTs</NavLink>
-                </Menu.Item>
+                {hasMarketplace && (
+                    <Menu.Item key="nft">
+                        <NavLink to="/NFTBalance">🖼 Your NFTs</NavLink>
+                    </Menu.Item>
+                )}
             </Menu>
             <div style={styles.headerRight}>
                 <Chains />

@@ -27,10 +27,14 @@ const styles = {
 };
 const App = () => {
     const { account, provider, isAuthenticated } = useMoralis();
-    const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isFetching } = useProtocol();
+    const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress } = useProtocol();
     const { chainId } = useChain();
 
     const [web3, setWeb3] = useState();
+
+    const isAdmin = (account: string) => {
+        return account && isAuthenticated && AdminAddress && AdminAddress.toUpperCase() === account.toUpperCase()
+    }
 
     useEffect(() => {
         if (provider) {
@@ -43,13 +47,14 @@ const App = () => {
         <Layout style={{ height: '100vh', overflow: 'auto' }}>
             {
                 <Router>
-                    <HeaderMenu />
+                    <HeaderMenu isAdmin={isAdmin} />
                     <div style={styles.content}>
                         <Switch>
-                            {isAuthenticated && AdminAddress && account.toUpperCase() === AdminAddress.toUpperCase() &&
+                            {isAdmin(account) &&
                                 <AdminRoute path="/admin">
                                     <Admin/>
-                                </AdminRoute>}
+                                </AdminRoute>
+                            }
                             {hasMarketplace && (
                                 <Route path="/NFTBalance">
                                     <NFTBalance
@@ -67,10 +72,6 @@ const App = () => {
                                 </Route>
                             )}
                             <Route path="/NFTMarketPlace">
-                                {hasMarketplace && <Marketplace web3={web3} address={marketplaceAddress} />}
-                                {!hasMarketplace && canSetProject && isAuthenticated && (
-                                    <Redirect from="/" to={canSetProject && !isFetching && isAuthenticated ? "/admin" : "/NFTMarketplace"} />
-                                )}
                                 {(!hasMarketplace && !canSetProject && web3 && isAuthenticated) && (
                                     <div>
                                         <p style={{ fontWeight: 600 }}>Marketplace coming soon ...</p>
@@ -83,8 +84,11 @@ const App = () => {
                                         <p style={{ fontWeight: 200 }}>Connect your wallet</p>
                                     </div>
                                 )}
+                                {hasMarketplace && <Marketplace web3={web3} address={marketplaceAddress} />}
                             </Route>
-
+                            {
+                                isAdmin(account) && <Redirect from="/" to={"/admin"} />
+                            }
                             <Redirect from="/" to={"/NFTMarketplace"} />
                         </Switch>
                     </div>
