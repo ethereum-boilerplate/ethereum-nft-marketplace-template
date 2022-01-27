@@ -26,13 +26,13 @@ import {columnNameStyle} from "./styles";
 
 const columns = [
     '',
-    <div style={columnNameStyle}>
+    <div key={"col1"} style={columnNameStyle}>
         <span>Name</span>
     </div>,
-    <div style={columnNameStyle}>
+    <div key={"col2"} style={columnNameStyle}>
         <span>Type</span>
     </div>,
-    <div style={columnNameStyle}>
+    <div key={"col3"} style={columnNameStyle}>
         <span>Module</span>
     </div>,
     '',
@@ -70,8 +70,8 @@ export default function Overview({ web3 }) {
     }
 
     const rowData = (metadata: IMetadata, typeText: string, mod) => [
-        <Avatar isRounded={true} key={1} theme="letters" text={metadata.name} />,
-        <span style={{fontSize: "16px", color: "#041836"}}>{metadata.name}</span>,
+        <Avatar isRounded={true} key={114} theme="letters" text={metadata.name} />,
+        <span key={432} style={{fontSize: "16px", color: "#041836"}}>{metadata.name}</span>,
         <Tag key={2} color={getModuleColor(typeText)} text={typeText} />,
         <LinkTo
             key={3}
@@ -79,12 +79,12 @@ export default function Overview({ web3 }) {
             address={`${getExplorer(chainId)}address/${mod.get('module')}`}
             type={"external"}
         />,
-        <div style={{ display: 'grid', placeItems: 'center' }}>
+        <div key={5} style={{ display: 'grid', placeItems: 'center' }}>
             <Dropdown
                 key={34}
                 parent={
                     <Icon
-                        key="3"
+                        key="3gd1"
                         fill="#2E7DAF"
                         size={20}
                         // @ts-ignore
@@ -117,16 +117,16 @@ export default function Overview({ web3 }) {
     ];
 
     const printModuleInModal = (type, selectedModule) => {
-        if (type === 'NFT Marketplace') {
-            return <Marketplace web3={web3} address={selectedModule.module} />;
+        if (type === 'NFT Marketplace' && web3) {
+            return <Marketplace key={type} web3={web3} address={selectedModule.module} />;
         }
-        if (type === 'NFT Collection') {
+        if (type === 'NFT Collection' && web3) {
             return (
-                <CollectionList web3={web3} address={selectedModule.module} />
+                <CollectionList key={type} web3={web3} address={selectedModule.module} />
             );
         }
-        if (type === 'Token') {
-            return <Token address={selectedModule.module} web3={web3}  />;
+        if (type === 'Token' && web3) {
+            return <Token key={type} address={selectedModule.module} web3={web3}  />;
         }
     };
 
@@ -142,6 +142,7 @@ export default function Overview({ web3 }) {
                 pageSize={5}
                 customNoDataComponent={
                 (!isFetching) ? <div
+                    key={"21415rs"}
                     style={{
                     display: 'grid',
                     placeItems: 'center',
@@ -149,14 +150,14 @@ export default function Overview({ web3 }) {
                     gap: "25px"
                 }}
                     >
-                    <Illustration logo={"servers"} width={"150"} height={"150"} />
-                    <span>No Modules Installed</span>
-                    </div> : <div>Loading Modules ...</div>
+                    <Illustration key={"21w415rs"} logo={"servers"} width={"150"} height={"150"} />
+                    <span key={"2141sad5rs"}>No Modules Installed</span>
+                    </div> : <div key={"214153ya2rs"}>Loading Modules ...</div>
                 }
             />
             <Modal
                 cancelText="Close"
-                children={[selectedModule ? printModuleInModal(selectedModule.type, selectedModule) : <></>]}
+                children={[selectedModule ? printModuleInModal(selectedModule.type, selectedModule) : <div key={2145}>...</div>]}
                 id="disabled"
                 isOkDisabled
                 isVisible={showModal}
@@ -164,6 +165,7 @@ export default function Overview({ web3 }) {
                 onCancel={() => setShowModal(false)}
                 onOk={function noRefCheck() {}}
                 title={`${getEllipsisTxt(selectedModule?.module)} ${selectedModule?.type}`}
+                onCloseButtonPressed={() => setShowModal(false)}
             />
         </>
     );
