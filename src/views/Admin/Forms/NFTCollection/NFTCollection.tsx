@@ -15,7 +15,7 @@ interface INFTCollectionForm {
 }
 const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
     const { deployErr } = useRegistry();
-    const { addModule, protocolAddress, forwarder, isAddingModule } = useProtocol();
+    const { addModule, protocolAddress, forwarder } = useProtocol();
     const { token } = useMoralisWeb3Api();
     const { account } = useMoralis();
     const { saveFile } = useMoralisFile();

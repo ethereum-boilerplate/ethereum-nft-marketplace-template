@@ -13,7 +13,6 @@ import Web3 from 'web3';
 import React, { useEffect, useState } from 'react';
 import AdminRoute from 'components/AdminRoute';
 import HeaderMenu from 'components/HeaderMenu';
-import { ConnectButton } from "web3uikit";
 const { Footer } = Layout;
 
 const styles = {

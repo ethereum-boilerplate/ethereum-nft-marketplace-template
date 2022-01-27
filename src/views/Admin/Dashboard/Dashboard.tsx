@@ -1,5 +1,5 @@
 // @ts-nocheck
-import {useERC20Balances, useMoralisQuery} from 'react-moralis';
+import {useERC20Balances} from 'react-moralis';
 import Overview from '../Module/Overview/Overview';
 import { Flex } from 'uikit/Flex/Flex';
 import { useEffect } from 'react';

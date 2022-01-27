@@ -7,69 +7,32 @@ import { getEllipsisTxt } from '../../../../helpers/formatters';
 import { getExplorer } from '../../../../helpers/networks';
 import {Image} from "antd";
 
-interface NftForSaleType {
-    listingId: string;
-    contract: string;
-    metadata: {
-        description?: string;
-        name: string;
-        symbol: string;
-    };
-    seller: string;
-    price: string | number;
-    currency: string;
-    tokenId: string;
-}
 interface IMarketplace {
     address?: string;
     web3?: any;
     ownListings?: boolean;
     admin?: any;
 }
-const Marketplace: React.FC<IMarketplace> = ({ address, web3, ownListings = false, admin }) => {
+const Marketplace: React.FC<IMarketplace> = ({address, web3, ownListings = false, admin }) => {
     const { account, Moralis } = useMoralis();
-    const { allListings, currentUsersListings, buy, unlist, getAllListings } = useMarketplace(web3, address, account);
+    const { allListings, buy, unlist } = useMarketplace(web3, address, account);
     const { token } = useMoralisWeb3Api()
     const { chainId } = useChain();
-    const [nftsForSale, setNftsForSale] = useState<Array<NftForSaleType>>([]);
     const [tableData, setTableData] = useState([]);
     const [isEmpty, setEmpty] = useState<boolean>(false);
 
 
-/*    useEffect(() => {
-        if (currentUsersListings) {
-            setNftsForSale([]);
-            currentUsersListings.forEach((listing) => {
-                if (listing.quantity === '0') return;
-                const listingId = listing.listingId;
-                const contract = listing.assetContract;
-                const metadata = listing.metadata;
-                const seller = listing.seller;
-                const price = listing.pricePerToken;
-                const currency = listing.currency;
-                const tokenId = listing.token_id;
-
-                const nftToSell: NftForSaleType = {
-                    listingId,
-                    contract,
-                    tokenId,
-                    metadata,
-                    seller,
-                    price,
-                    currency,
-                };
-
-                setNftsForSale((prev) => (prev.length > 0 ? [...prev, nftToSell] : [nftToSell]));
-            });
-        }
-    }, [currentUsersListings]);*/
-
     useEffect(() => {
         if (allListings) {
             if(allListings.length === 0) return;
+            console.log(ownListings)
             const canBeBoughtList = allListings.filter( value => {
                 return value.quantity > 0
             })
+            if(canBeBoughtList.length === 0) {
+                setEmpty(true)
+                return;
+            }
             canBeBoughtList.forEach((nft) => {
                 token.getTokenIdMetadata({
                     ["chain" as any]: chainId,
