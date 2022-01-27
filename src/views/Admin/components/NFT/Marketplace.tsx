@@ -89,6 +89,9 @@ const Marketplace: React.FC<IMarketplace> = ({address, web3, ownListings = false
 
             /*printTable().then();*/
         }
+        return () => {
+            setTableData([])
+        }
         // eslint-disable-next-line
     }, [allListings]);
 

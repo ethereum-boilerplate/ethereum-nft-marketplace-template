@@ -1,6 +1,6 @@
 // @ts-nocheck
 import { Button, Table } from 'web3uikit';
-import React, { useEffect, useState } from 'react';
+import React, {useCallback, useContext, useEffect, useState} from 'react';
 import { useNFTBalances } from 'react-moralis';
 import { Image } from 'antd';
 import NFTLister from '../views/Admin/Forms/NFTLister';
@@ -16,63 +16,65 @@ interface NFTBalance {
 }
 
 const NFTBalanceTable: React.FC<NFTBalance> = ({ address, chain, marketplaceAddress, web3 }) => {
-    const [tableData, setTableData] = useState([]);
     const [nftToList, setNftToList] = useState({});
     const [showLister, setShowLister] = useState<boolean>(false);
+    const [ tableData, setTableData ] = useState([])
 
-    const { data } = useNFTBalances({
+    const { data, isFetching } = useNFTBalances({
         address: address,
         ['chain' as any]: chain,
     });
 
     useEffect(() => {
-        if (data) {
-            if (data.result.length > 0) {
-                printTable(data.result).then();
-            }
-        }
-    }, [data]);
+        if(data && data.result.length > 0) {
+            const printTable = () => {
+                data.result.forEach((nft) => {
+                    let row = [
+                        '',
+                        <div style={{ height: '100%', width: '100%', display: 'grid', placeItems: 'center' }}>
+                            <Image
+                                style={{ borderRadius: '15px', minHeight: '80px', minWidth: '80px' }}
+                                src={
+                                    nft.metadata && nft.metadata.image.includes('://' | 'https' | 'ipfs')
+                                        ? nft.metadata.image
+                                        : 'https://i.ibb.co/jvjKFFv/Image.png'
+                                }
+                            />
+                        </div>,
+                        <div key={1} style={{ display: 'grid' }}>
+                            <span style={{ color: '#2E7DAF', fontWeight: 600, fontSize: '12px' }}>{nft.contract_type}</span>
+                            <span style={{ fontWeight: '600' }}>{nft.metadata ? nft.metadata.name : nft.name}</span>
+                            <span style={{ fontSize: '12px' }}>{nft.metadata ? nft.metadata.description : 'No Description found'}</span>
+                        </div>,
+                        <div key={2} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                            <Button
+                                onClick={() => {
+                                    setNftToList({
+                                        token_address: nft.token_address,
+                                        token_id: nft.token_id,
+                                        metadata: nft.metadata,
+                                        type: nft.contract_type,
+                                    });
+                                    setShowLister(true);
+                                }}
+                                theme={'outline'}
+                                text={'Sell'}
+                            />
+                            <Button onClick={() => {}} iconLayout={'icon-only'} icon={'help circle'} theme={'outline'} />
+                        </div>,
+                    ];
+                    setTableData(prevState => [...prevState, row])
+                });
+            };
 
-    const printTable = async (result: Array<any>) => {
-        let p = [];
-        await result.forEach((nft) => {
-            p.push([
-                '',
-                <div style={{ height: '100%', width: '100%', display: 'grid', placeItems: 'center' }}>
-                    <Image
-                        style={{ borderRadius: '15px', minHeight: '80px', minWidth: '80px' }}
-                        src={
-                            nft.metadata && nft.metadata.image.includes('://' | 'https' | 'ipfs')
-                                ? nft.metadata.image
-                                : 'https://i.ibb.co/jvjKFFv/Image.png'
-                        }
-                    />
-                </div>,
-                <div key={1} style={{ display: 'grid' }}>
-                    <span style={{ color: '#2E7DAF', fontWeight: 600, fontSize: '12px' }}>{nft.contract_type}</span>
-                    <span style={{ fontWeight: '600' }}>{nft.metadata ? nft.metadata.name : nft.name}</span>
-                    <span style={{ fontSize: '12px' }}>{nft.metadata ? nft.metadata.description : 'No Description found'}</span>
-                </div>,
-                <div key={2} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <Button
-                        onClick={() => {
-                            setNftToList({
-                                token_address: nft.token_address,
-                                token_id: nft.token_id,
-                                metadata: nft.metadata,
-                                type: nft.contract_type,
-                            });
-                            setShowLister(true);
-                        }}
-                        theme={'outline'}
-                        text={'Sell'}
-                    />
-                    <Button onClick={() => {}} iconLayout={'icon-only'} icon={'help circle'} theme={'outline'} />
-                </div>,
-            ]);
-        });
-        setTableData(p);
-    };
+            printTable()
+        }
+        return () => {
+            setTableData([])
+        }
+    }, [data])
+
+
 
     return (
         <Flex maxWidth="900px" width="100%">
@@ -99,7 +101,7 @@ const NFTBalanceTable: React.FC<NFTBalance> = ({ address, chain, marketplaceAddr
                 ]}
                 maxPages={3}
                 pageSize={10}
-                customNoDataText={'You do not have any NFTs'}
+                customNoDataText={data && !isFetching ? 'You do not have any NFTs' : 'Getting NFTs ...'}
             />
             {showLister && <NFTLister web3={web3} modalActive={showLister} setModalActive={setShowLister} marketplaceAddress={marketplaceAddress} nft={nftToList} />}
         </Flex>
