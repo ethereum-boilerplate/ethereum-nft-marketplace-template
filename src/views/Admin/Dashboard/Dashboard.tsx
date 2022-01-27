@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useERC20Balances } from 'react-moralis';
+import {useERC20Balances, useMoralisQuery} from 'react-moralis';
 import Overview from '../Module/Overview/Overview';
 import { Flex } from 'uikit/Flex/Flex';
 import { useEffect } from 'react';
@@ -13,7 +13,7 @@ import { useHistory } from 'react-router-dom';
 const { Tab } = TabList;
 
 const Dashboard = ({ web3 }) => {
-    const { hasProject, protocolAddress, canSetProject, projectChain } = useRegistry();
+    const { hasProject, protocolAddress, canSetProject, isFetchingProject, projectChain } = useRegistry();
     const { fetchERC20Balances } = useERC20Balances(
         {
             address: protocolAddress,
@@ -39,7 +39,7 @@ const Dashboard = ({ web3 }) => {
     }, [hasProject]);
 
 
-    if (canSetProject) {
+    if (canSetProject && !isFetchingProject) {
         return <ProjectForm />;
     }
  
