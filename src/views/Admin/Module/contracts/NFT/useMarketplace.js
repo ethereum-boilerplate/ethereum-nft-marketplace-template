@@ -4,7 +4,6 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
     const [confirmed, setConfirmed] = useState(false)
     const [isListing, toggleIsListing] = useState(false)
     const [isUnlisting, setIsUnlisting] = useState(false)
-    const [isBuying, setIsBuying] = useState(false)
     const [ currentUsersListings, setUsersListings ] = useState([])
     const [error, setError] = useState(null)
     const [ isApproved, setApproved ] = useState(false)
@@ -121,9 +120,8 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
         })
     }
 
-    const buy = async (listingId, quantity, currency, pricePerToken, signer) => {
+    const buy = async (listingId, quantity, currency, pricePerToken, signer, setIsBuying) => {
         setIsBuying(true)
-        console.log(pricePerToken)
         try {
             if(currency !== "0x0000000000000000000000000000000000000000") {
             const erc20Token = await new web3.eth.Contract(erc20abi, currency)
@@ -175,7 +173,6 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
         hasEnoughTokensToBuy,
         isApproved,
         buy,
-        isBuying,
         getContractURI
     }
 }

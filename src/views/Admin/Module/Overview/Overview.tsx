@@ -91,7 +91,7 @@ export default function Overview({ web3 }) {
                         svg={"more vert"}
                     />
                 }
-                position="top"
+                position="left"
                 children={[
                     <DropdownElement
                         backgroundColor="transparent"

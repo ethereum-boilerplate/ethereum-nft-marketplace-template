@@ -20,7 +20,7 @@ const Marketplace: React.FC<IMarketplace> = ({address, web3, ownListings = false
     const { chainId } = useChain();
     const [tableData, setTableData] = useState([]);
     const [isEmpty, setEmpty] = useState<boolean>(false);
-
+    const [ isBuying, setIsBuying ] = useState<boolean>(false)
 
     useEffect(() => {
         if (allListings) {
@@ -68,7 +68,10 @@ const Marketplace: React.FC<IMarketplace> = ({address, web3, ownListings = false
                                         <span style={{color: "#041836", textAlign: "center", fontSize: "16px"}}>{`${Moralis.Units.FromWei(nft.pricePerToken, Number(tokenResult[0].decimals))} ${tokenResult[0].symbol}`}</span>
                                     </div>,
                                     <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: "100%", height: "100%" }}>
-                                        <Button isFullWidth text={'Buy'} theme={'outline'} onClick={() => buy(nft.listingId, '1', nft.currency, nft.pricePerToken, account)} />
+                                        <Button isLoading={isBuying ? true : false} isFullWidth text={'Buy'} theme={'outline'} onClick={() => {
+                                            setIsBuying(true)
+                                            buy(nft.listingId, '1', nft.currency, nft.pricePerToken, account, setIsBuying)
+                                        }} />
                                         { ((account.toLowerCase() === nft.seller.toLowerCase()) || (admin && (account.toLowerCase() === admin.toLowerCase()))) && <Button icon={"bin"} iconLayout={"icon-only"} theme={'outline'} onClick={() => unlist(nft.listingId, '1', account)}/>}
                                     </div>,
                                 ]
