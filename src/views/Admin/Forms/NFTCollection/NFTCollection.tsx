@@ -58,7 +58,6 @@ const NFTCollectionForm: React.FC<INFTCollectionForm> = ({ web3 }) => {
             .on('receipt', (receipt) => syncNFTContract(receipt, uri, metadata.name))
             .on('error', (e) => {
                 console.error(e);
-                setLoading(false);
             });
     };
 
