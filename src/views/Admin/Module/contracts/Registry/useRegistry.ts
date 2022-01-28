@@ -40,7 +40,22 @@ const useRegistry = () => {
             setCanSetProject(false)
             setProtocolAdmin(data[0].get('admin'))
             setProtocolAddress(data[0].get('protocol'))
+            const getForwarder = () => {
+                fetchForwarder({
+                    params: {
+                        abi: [
+                            getForwarderAbi
+                        ],
+                        contractAddress: RegistryAddress,
+                        functionName: "forwarder",
+                    },
+                    onSuccess: results => setForwarder(results),
+                    onError: error => console.log(error)
+                }).then(() => {}).catch(() => setLoading(false))
+            }
+            getForwarder()
         }
+        // eslint-disable-next-line
     }, [ data ])
 
     /**
@@ -98,24 +113,9 @@ const useRegistry = () => {
         }).then(() => {}).catch(() => setLoading(false))
     }
 
-    const getForwarder = () => {
-        fetchForwarder({
-            params: {
-                abi: [
-                    getForwarderAbi
-                ],
-                contractAddress: RegistryAddress,
-                functionName: "forwarder",
-            },
-            onSuccess: results => setForwarder(results),
-            onError: error => console.log(error)
-        }).then(() => {}).catch(() => setLoading(false))
-    }
-
     return {
         deployProtocol,
         getProtocolByUser,
-        getForwarder,
         protocolAdmin,
         projectChain,
         forwarder,
