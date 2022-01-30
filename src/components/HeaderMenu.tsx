@@ -2,7 +2,6 @@
 import React, { FC } from 'react';
 import { Menu, Layout } from 'antd';
 import Chains from 'web3Components/Chains';
-import NativeBalance from 'web3Components/NativeBalance';
 import { ConnectButton } from 'web3uikit';
 import { NavLink } from 'react-router-dom';
 import { useMoralis } from 'react-moralis';
@@ -74,7 +73,6 @@ const HeaderMenu: FC = ({isAdmin}) => {
             </Menu>
             <div style={styles.headerRight}>
                 <Chains />
-                <NativeBalance />
                 <ConnectButton />
             </div>
         </Header>

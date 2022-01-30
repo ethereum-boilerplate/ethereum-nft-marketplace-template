@@ -1,33 +1,37 @@
 // @ts-nocheck
 import { Form, Notification } from 'web3uikit';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useMoralis, useMoralisFile } from 'react-moralis';
 import { useCollection } from '../Module/contracts/NFT/useCollection';
 import Web3 from 'web3';
 
 interface INFTMinterForm {
     address?: string;
-    web3: typeof Web3;
 }
 
-const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
-
-    const { mint, isMinting, mintingError, mintingSuccess } = useCollection(web3, address);
-    const { account } = useMoralis();
+const NFTMinterForm: React.FC<INFTMinterForm> = ({ address }) => {
+    const { account, provider } = useMoralis();
     const { saveFile, isUploading } = useMoralisFile();
+    const [web3, setWeb3] = useState<any>();
+    const { mint, isMinting, mintingError, mintingSuccess } = useCollection(web3, address);
+
+    useEffect(() => {
+        if (provider) {
+            setWeb3(new Web3(provider as any));
+        }
+    }, [provider]);
 
     const getButtonText = (): string => {
-        if(isUploading) {
-            return "Uploading Metadata"
+        if (isUploading) {
+            return 'Uploading Metadata';
         }
-        if(isMinting) {
-            return "Minting"
+        if (isMinting) {
+            return 'Minting';
         }
-        return "Mint NFT"
-    }
+        return 'Mint NFT';
+    };
 
     const mintNFT = (e: any) => {
-
         let metadata = {
             name: e.name,
             image: e.image,
@@ -50,7 +54,13 @@ const NFTMinterForm: React.FC<INFTMinterForm> = ({ web3, address }) => {
 
     return (
         <>
-                <Notification position={"topR"} isPositionRelative={true} isVisible={mintingError || mintingSuccess} message={mintingError ? mintingError.message : mintingSuccess ? 'Minted!' : ''} title={'Error' || 'Success'} />
+            <Notification
+                position={'topR'}
+                isPositionRelative={true}
+                isVisible={mintingError || mintingSuccess}
+                message={mintingError ? mintingError.message : mintingSuccess ? 'Minted!' : ''}
+                title={'Error' || 'Success'}
+            />
             <Form
                 id={'form-mint-nft'}
                 buttonConfig={{

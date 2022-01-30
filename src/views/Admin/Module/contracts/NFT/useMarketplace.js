@@ -1,159 +1,189 @@
-import {useState, useEffect, useMemo} from "react"
-import { useMoralis, useMoralisWeb3Api } from "react-moralis"
-export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
-    const [confirmed, setConfirmed] = useState(false)
-    const [isListing, toggleIsListing] = useState(false)
-    const [isUnlisting, setIsUnlisting] = useState(false)
-    const [ currentUsersListings, setUsersListings ] = useState([])
-    const [error, setError] = useState(null)
-    const [ isApproved, setApproved ] = useState(false)
-    const [ allListings, setAllListings] = useState([])
-    const [ isUpdating, setUpdating ] = useState(false)
-    const [ isUpdated, setUpdated ] = useState(false)
-    const [ loadingListings, setLoadingListings] = useState(true)
-    const { token } = useMoralisWeb3Api()
-    const { chainId } = useMoralis()
+import { useState, useEffect, useMemo } from 'react';
+import { useMoralis, useMoralisWeb3Api } from 'react-moralis';
+import Web3 from 'web3';
+export const useMarketplace = (marketplaceAddress, currentUser) => {
+    const [confirmed, setConfirmed] = useState(false);
+    const [isListing, toggleIsListing] = useState(false);
+    const [isUnlisting, setIsUnlisting] = useState(false);
+    const [currentUsersListings, setUsersListings] = useState([]);
+    const [error, setError] = useState(null);
+    const [isApproved, setApproved] = useState(false);
+    const [allListings, setAllListings] = useState([]);
+    const [isUpdating, setUpdating] = useState(false);
+    const [isUpdated, setUpdated] = useState(false);
+    const [loadingListings, setLoadingListings] = useState(true);
+    const { token } = useMoralisWeb3Api();
+    const { chainId } = useMoralis();
+    const { provider } = useMoralis();
+
+    const [web3, setWeb3] = useState();
 
     useEffect(() => {
-        if(web3 && marketplaceAddress) {
-            getAllListings.then(setAllListings)
+        if (provider) {
+            let web = new Web3(provider);
+            setWeb3(web);
+        }
+    }, [provider]);
+
+    useEffect(() => {
+        if (web3 && marketplaceAddress) {
+            getAllListings.then(setAllListings);
             /*if(currentUser) {
                 getListingsByUser(currentUser)
             }*/
         }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [web3, marketplaceAddress, currentUser])
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [web3, marketplaceAddress, currentUser]);
     // DONE
     const getAllListings = useMemo(async () => {
-            const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-            return await contract.methods.getAllListings().call()
-    }, [ web3, marketplaceAddress ])
+        if (!web3 || !marketplaceAddress) return;
+        console.log('marketplaceAddress', marketplaceAddress);
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress);
+        return await contract.methods.getAllListings().call();
+    }, [web3, marketplaceAddress]);
     /*
-    * done
+     * done
      */
     const getListingsByUser = async (user) => {
-        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-        const listings = await contract.methods.getListingsBySeller(user).call()
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress);
+        const listings = await contract.methods.getListingsBySeller(user).call();
         await listings.forEach(async (item) => {
             const currency = await token.getTokenMetadata({
                 addresses: [item.currency],
                 chain: chainId,
-            })
-            setUsersListings( prev => [...prev, {...item, key: item.listingId, tokenInfo: currency}])
-        })
-        setLoadingListings(false)
-    }
+            });
+            setUsersListings((prev) => [...prev, { ...item, key: item.listingId, tokenInfo: currency }]);
+        });
+        setLoadingListings(false);
+    };
 
     const getListingsByContract = async (address) => {
-        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-        return await contract.methods.getListingsByContract(address).call()
-    }
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress);
+        return await contract.methods.getListingsByContract(address).call();
+    };
 
     const getContractURI = async () => {
-        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-        const uri = await contract.methods._contractURI().call()
-        return uri
-    }
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress);
+        const uri = await contract.methods._contractURI().call();
+        return uri;
+    };
 
     const approve = async (assetContract, signer) => {
-        toggleIsListing(true)
-        const contract = await new web3.eth.Contract(standardNFTAbi, assetContract)
-        await contract.methods.setApprovalForAll(marketplaceAddress, true).send({from: signer})
-        .on('receipt', () => {
-            setApproved(true)
-        })
-    }
+        toggleIsListing(true);
+        const contract = await new web3.eth.Contract(standardNFTAbi, assetContract);
+        await contract.methods
+            .setApprovalForAll(marketplaceAddress, true)
+            .send({ from: signer })
+            .on('receipt', () => {
+                setApproved(true);
+            });
+    };
 
     const hasApproved = async (assetContract, signer) => {
-        const contract = await new web3.eth.Contract(standardNFTAbi, assetContract)
-        const result = await contract.methods.isApprovedForAll(signer, marketplaceAddress).call()
-        setApproved(result)
-        return result
-    }
+        const contract = await new web3.eth.Contract(standardNFTAbi, assetContract);
+        const result = await contract.methods.isApprovedForAll(signer, marketplaceAddress).call();
+        setApproved(result);
+        return result;
+    };
 
     const hasEnoughTokensToBuy = async (currency, amount, wallet) => {
-        if(currency === "0x0000000000000000000000000000000000000000") return true
-        const contract = await new web3.eth.Contract(erc20abi, currency)
-        console.log(wallet)
-        return (await contract.methods.balanceOf(wallet).call() >= amount)
-    }
+        if (currency === '0x0000000000000000000000000000000000000000') return true;
+        const contract = await new web3.eth.Contract(erc20abi, currency);
+        console.log(wallet);
+        return (await contract.methods.balanceOf(wallet).call()) >= amount;
+    };
 
-    const listNFT = async (assetContract, tokenId, currency, pricePerToken = "0", quantity = 1, tokensPerBuyer = 0, secondsUntilStart = 0, secondsUntilEnd = 0, signer) => {
-        toggleIsListing(true)
-        if(tokensPerBuyer === 0) tokensPerBuyer = quantity
-        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-        console.log(assetContract,marketplaceAddress, tokenId, currency, signer)
+    const listNFT = async (
+        assetContract,
+        tokenId,
+        currency,
+        pricePerToken = '0',
+        quantity = 1,
+        tokensPerBuyer = 0,
+        secondsUntilStart = 0,
+        secondsUntilEnd = 0,
+        signer
+    ) => {
+        toggleIsListing(true);
+        if (tokensPerBuyer === 0) tokensPerBuyer = quantity;
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress);
+        console.log(assetContract, marketplaceAddress, tokenId, currency, signer);
         const run = async () => {
-            if(!(await hasApproved(assetContract,signer))) {
-                await approve(assetContract,signer)
-            } 
-                await contract.methods
-                .list(assetContract,tokenId,currency,pricePerToken,quantity,tokensPerBuyer,secondsUntilStart, secondsUntilEnd)
-                .send({from: signer})
+            if (!(await hasApproved(assetContract, signer))) {
+                await approve(assetContract, signer);
+            }
+            await contract.methods
+                .list(assetContract, tokenId, currency, pricePerToken, quantity, tokensPerBuyer, secondsUntilStart, secondsUntilEnd)
+                .send({ from: signer })
                 .on('receipt', (receipt) => {
-                    toggleIsListing(false)
-                    setConfirmed(true)
+                    toggleIsListing(false);
+                    setConfirmed(true);
                 })
                 .on('error', (error) => {
-                    toggleIsListing(false)
-                    setError(error)
-                })
-            
-        }
+                    toggleIsListing(false);
+                    setError(error);
+                });
+        };
 
-        await run()
-    
+        await run();
+
         return {
             confirmed,
             error,
-            run
-        }
-    }
+            run,
+        };
+    };
 
     const unlist = async (listingId, amount, currentUser) => {
-        setIsUnlisting(true)
-        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-        await contract.methods.unlist(listingId, amount).send({from : currentUser})
-        .on('receipt', (receipt) => {
-            setIsUnlisting(false)
-            return receipt
-        })
-    }
+        setIsUnlisting(true);
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress);
+        await contract.methods
+            .unlist(listingId, amount)
+            .send({ from: currentUser })
+            .on('receipt', (receipt) => {
+                setIsUnlisting(false);
+                return receipt;
+            });
+    };
 
     const buy = async (listingId, quantity, currency, pricePerToken, signer, setIsBuying) => {
-        setIsBuying(true)
+        setIsBuying(true);
         try {
-            if(currency !== "0x0000000000000000000000000000000000000000") {
-            const erc20Token = await new web3.eth.Contract(erc20abi, currency)
-            const hasApprovedErc20Token = await erc20Token.methods.allowance(signer, marketplaceAddress).call()
-            if(!hasApprovedErc20Token) {
-                alert('Token To buy does not exist')
-                setIsBuying(false)
-                return
+            if (currency !== '0x0000000000000000000000000000000000000000') {
+                const erc20Token = await new web3.eth.Contract(erc20abi, currency);
+                const hasApprovedErc20Token = await erc20Token.methods.allowance(signer, marketplaceAddress).call();
+                if (!hasApprovedErc20Token) {
+                    alert('Token To buy does not exist');
+                    setIsBuying(false);
+                    return;
+                }
+                if (hasApprovedErc20Token < pricePerToken) {
+                    await erc20Token.methods.approve(marketplaceAddress, pricePerToken).send({ from: signer });
+                }
             }
-            if(hasApprovedErc20Token < pricePerToken) {
-                await erc20Token.methods.approve(marketplaceAddress, pricePerToken).send({from: signer})
-            }
-            }
-            const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-            await contract.methods.buy(listingId, quantity).send({from: signer})
-            .on('receipt', () => {
-                setIsBuying(false)
-            })
-            } catch (error) {
-                setIsBuying(false)
-            }
-    }
+            const contract = await new web3.eth.Contract(abi, marketplaceAddress);
+            await contract.methods
+                .buy(listingId, quantity)
+                .send({ from: signer })
+                .on('receipt', () => {
+                    setIsBuying(false);
+                });
+        } catch (error) {
+            setIsBuying(false);
+        }
+    };
 
-    const updateListingParams = async (listingId,ppt,currency,tpb = 0,sus = 0,sue = 0,signer) => {
-        setUpdating(true)
-        const contract = await new web3.eth.Contract(abi, marketplaceAddress)
-        await contract.methods.updateListingParams(listingId,ppt,currency,tpb,sus,sue).send({from: signer})
-        .on('receipt', () => {
-            setUpdating(false)
-            setUpdated(true)
-        })
-    }
+    const updateListingParams = async (listingId, ppt, currency, tpb = 0, sus = 0, sue = 0, signer) => {
+        setUpdating(true);
+        const contract = await new web3.eth.Contract(abi, marketplaceAddress);
+        await contract.methods
+            .updateListingParams(listingId, ppt, currency, tpb, sus, sue)
+            .send({ from: signer })
+            .on('receipt', () => {
+                setUpdating(false);
+                setUpdated(true);
+            });
+    };
 
     return {
         listNFT,
@@ -173,1624 +203,1624 @@ export const useMarketplace = (web3, marketplaceAddress, currentUser) => {
         hasEnoughTokensToBuy,
         isApproved,
         buy,
-        getContractURI
-    }
-}
+        getContractURI,
+    };
+};
 
 export const standardNFTAbi = [
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
             },
             {
-                "internalType": "address",
-                "name": "operator",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: 'operator',
+                type: 'address',
+            },
         ],
-        "name": "isApprovedForAll",
-        "outputs": [
+        name: 'isApprovedForAll',
+        outputs: [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "operator",
-                "type": "address"
+                internalType: 'address',
+                name: 'operator',
+                type: 'address',
             },
             {
-                "internalType": "bool",
-                "name": "approved",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: 'approved',
+                type: 'bool',
+            },
         ],
-        "name": "setApprovalForAll",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-]
+        name: 'setApprovalForAll',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+];
 
 export const erc20abi = [
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "spender",
-                "type": "address"
+                internalType: 'address',
+                name: 'spender',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "amount",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: 'amount',
+                type: 'uint256',
+            },
         ],
-        "name": "approve",
-        "outputs": [
+        name: 'approve',
+        outputs: [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
         ],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "owner",
-                "type": "address"
+                internalType: 'address',
+                name: 'owner',
+                type: 'address',
             },
             {
-                "internalType": "address",
-                "name": "spender",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: 'spender',
+                type: 'address',
+            },
         ],
-        "name": "allowance",
-        "outputs": [
+        name: 'allowance',
+        outputs: [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
         ],
-        "name": "balanceOf",
-        "outputs": [
+        name: 'balanceOf',
+        outputs: [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
-    }
-]
+        stateMutability: 'view',
+        type: 'function',
+    },
+];
 
 export const abi = [
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address payable",
-                "name": "_controlCenter",
-                "type": "address"
+                internalType: 'address payable',
+                name: '_controlCenter',
+                type: 'address',
             },
             {
-                "internalType": "address",
-                "name": "_trustedForwarder",
-                "type": "address"
+                internalType: 'address',
+                name: '_trustedForwarder',
+                type: 'address',
             },
             {
-                "internalType": "string",
-                "name": "_uri",
-                "type": "string"
+                internalType: 'string',
+                name: '_uri',
+                type: 'string',
             },
             {
-                "internalType": "uint128",
-                "name": "_marketFeeBps",
-                "type": "uint128"
-            }
+                internalType: 'uint128',
+                name: '_marketFeeBps',
+                type: 'uint128',
+            },
         ],
-        "stateMutability": "nonpayable",
-        "type": "constructor"
+        stateMutability: 'nonpayable',
+        type: 'constructor',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "seller",
-                "type": "address"
+                indexed: true,
+                internalType: 'address',
+                name: 'seller',
+                type: 'address',
             },
             {
-                "indexed": true,
-                "internalType": "uint256",
-                "name": "listingId",
-                "type": "uint256"
+                indexed: true,
+                internalType: 'uint256',
+                name: 'listingId',
+                type: 'uint256',
             },
             {
-                "components": [
+                components: [
                     {
-                        "internalType": "uint256",
-                        "name": "listingId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'listingId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'seller',
+                        type: 'address',
                     },
                     {
-                        "internalType": "address",
-                        "name": "assetContract",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'assetContract',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokenId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'quantity',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "currency",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'currency',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "pricePerToken",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'pricePerToken',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleStart",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleStart',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleEnd",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleEnd',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokensPerBuyer",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokensPerBuyer',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "enum Market.TokenType",
-                        "name": "tokenType",
-                        "type": "uint8"
-                    }
+                        internalType: 'enum Market.TokenType',
+                        name: 'tokenType',
+                        type: 'uint8',
+                    },
                 ],
-                "indexed": false,
-                "internalType": "struct Market.Listing",
-                "name": "listing",
-                "type": "tuple"
-            }
+                indexed: false,
+                internalType: 'struct Market.Listing',
+                name: 'listing',
+                type: 'tuple',
+            },
         ],
-        "name": "ListingUpdate",
-        "type": "event"
+        name: 'ListingUpdate',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": false,
-                "internalType": "uint128",
-                "name": "newFee",
-                "type": "uint128"
-            }
+                indexed: false,
+                internalType: 'uint128',
+                name: 'newFee',
+                type: 'uint128',
+            },
         ],
-        "name": "MarketFeeUpdate",
-        "type": "event"
+        name: 'MarketFeeUpdate',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "assetContract",
-                "type": "address"
+                indexed: true,
+                internalType: 'address',
+                name: 'assetContract',
+                type: 'address',
             },
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "seller",
-                "type": "address"
+                indexed: true,
+                internalType: 'address',
+                name: 'seller',
+                type: 'address',
             },
             {
-                "indexed": true,
-                "internalType": "uint256",
-                "name": "listingId",
-                "type": "uint256"
+                indexed: true,
+                internalType: 'uint256',
+                name: 'listingId',
+                type: 'uint256',
             },
             {
-                "components": [
+                components: [
                     {
-                        "internalType": "uint256",
-                        "name": "listingId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'listingId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'seller',
+                        type: 'address',
                     },
                     {
-                        "internalType": "address",
-                        "name": "assetContract",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'assetContract',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokenId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'quantity',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "currency",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'currency',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "pricePerToken",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'pricePerToken',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleStart",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleStart',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleEnd",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleEnd',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokensPerBuyer",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokensPerBuyer',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "enum Market.TokenType",
-                        "name": "tokenType",
-                        "type": "uint8"
-                    }
+                        internalType: 'enum Market.TokenType',
+                        name: 'tokenType',
+                        type: 'uint8',
+                    },
                 ],
-                "indexed": false,
-                "internalType": "struct Market.Listing",
-                "name": "listing",
-                "type": "tuple"
-            }
+                indexed: false,
+                internalType: 'struct Market.Listing',
+                name: 'listing',
+                type: 'tuple',
+            },
         ],
-        "name": "NewListing",
-        "type": "event"
+        name: 'NewListing',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "assetContract",
-                "type": "address"
+                indexed: true,
+                internalType: 'address',
+                name: 'assetContract',
+                type: 'address',
             },
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "seller",
-                "type": "address"
+                indexed: true,
+                internalType: 'address',
+                name: 'seller',
+                type: 'address',
             },
             {
-                "indexed": true,
-                "internalType": "uint256",
-                "name": "listingId",
-                "type": "uint256"
+                indexed: true,
+                internalType: 'uint256',
+                name: 'listingId',
+                type: 'uint256',
             },
             {
-                "indexed": false,
-                "internalType": "address",
-                "name": "buyer",
-                "type": "address"
+                indexed: false,
+                internalType: 'address',
+                name: 'buyer',
+                type: 'address',
             },
             {
-                "indexed": false,
-                "internalType": "uint256",
-                "name": "quantity",
-                "type": "uint256"
+                indexed: false,
+                internalType: 'uint256',
+                name: 'quantity',
+                type: 'uint256',
             },
             {
-                "components": [
+                components: [
                     {
-                        "internalType": "uint256",
-                        "name": "listingId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'listingId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'seller',
+                        type: 'address',
                     },
                     {
-                        "internalType": "address",
-                        "name": "assetContract",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'assetContract',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokenId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'quantity',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "currency",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'currency',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "pricePerToken",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'pricePerToken',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleStart",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleStart',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleEnd",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleEnd',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokensPerBuyer",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokensPerBuyer',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "enum Market.TokenType",
-                        "name": "tokenType",
-                        "type": "uint8"
-                    }
+                        internalType: 'enum Market.TokenType',
+                        name: 'tokenType',
+                        type: 'uint8',
+                    },
                 ],
-                "indexed": false,
-                "internalType": "struct Market.Listing",
-                "name": "listing",
-                "type": "tuple"
-            }
+                indexed: false,
+                internalType: 'struct Market.Listing',
+                name: 'listing',
+                type: 'tuple',
+            },
         ],
-        "name": "NewSale",
-        "type": "event"
+        name: 'NewSale',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": false,
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
+                indexed: false,
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
         ],
-        "name": "Paused",
-        "type": "event"
+        name: 'Paused',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": false,
-                "internalType": "bool",
-                "name": "restricted",
-                "type": "bool"
-            }
+                indexed: false,
+                internalType: 'bool',
+                name: 'restricted',
+                type: 'bool',
+            },
         ],
-        "name": "RestrictedListerRoleUpdated",
-        "type": "event"
+        name: 'RestrictedListerRoleUpdated',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": true,
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
+                indexed: true,
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
             },
             {
-                "indexed": true,
-                "internalType": "bytes32",
-                "name": "previousAdminRole",
-                "type": "bytes32"
+                indexed: true,
+                internalType: 'bytes32',
+                name: 'previousAdminRole',
+                type: 'bytes32',
             },
             {
-                "indexed": true,
-                "internalType": "bytes32",
-                "name": "newAdminRole",
-                "type": "bytes32"
-            }
+                indexed: true,
+                internalType: 'bytes32',
+                name: 'newAdminRole',
+                type: 'bytes32',
+            },
         ],
-        "name": "RoleAdminChanged",
-        "type": "event"
+        name: 'RoleAdminChanged',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": true,
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
+                indexed: true,
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
             },
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
+                indexed: true,
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
             },
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "sender",
-                "type": "address"
-            }
+                indexed: true,
+                internalType: 'address',
+                name: 'sender',
+                type: 'address',
+            },
         ],
-        "name": "RoleGranted",
-        "type": "event"
+        name: 'RoleGranted',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": true,
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
+                indexed: true,
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
             },
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
+                indexed: true,
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
             },
             {
-                "indexed": true,
-                "internalType": "address",
-                "name": "sender",
-                "type": "address"
-            }
+                indexed: true,
+                internalType: 'address',
+                name: 'sender',
+                type: 'address',
+            },
         ],
-        "name": "RoleRevoked",
-        "type": "event"
+        name: 'RoleRevoked',
+        type: 'event',
     },
     {
-        "anonymous": false,
-        "inputs": [
+        anonymous: false,
+        inputs: [
             {
-                "indexed": false,
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
+                indexed: false,
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
         ],
-        "name": "Unpaused",
-        "type": "event"
+        name: 'Unpaused',
+        type: 'event',
     },
     {
-        "inputs": [],
-        "name": "DEFAULT_ADMIN_ROLE",
-        "outputs": [
+        inputs: [],
+        name: 'DEFAULT_ADMIN_ROLE',
+        outputs: [
             {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
+                internalType: 'bytes32',
+                name: '',
+                type: 'bytes32',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "LISTER_ROLE",
-        "outputs": [
+        inputs: [],
+        name: 'LISTER_ROLE',
+        outputs: [
             {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
+                internalType: 'bytes32',
+                name: '',
+                type: 'bytes32',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "PAUSER_ROLE",
-        "outputs": [
+        inputs: [],
+        name: 'PAUSER_ROLE',
+        outputs: [
             {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
+                internalType: 'bytes32',
+                name: '',
+                type: 'bytes32',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "_contractURI",
-        "outputs": [
+        inputs: [],
+        name: '_contractURI',
+        outputs: [
             {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
+                internalType: 'string',
+                name: '',
+                type: 'string',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "_listingId",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_listingId',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_quantity",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '_quantity',
+                type: 'uint256',
+            },
         ],
-        "name": "addToListing",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'addToListing',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
             },
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
         ],
-        "name": "boughtFromListing",
-        "outputs": [
+        name: 'boughtFromListing',
+        outputs: [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "_listingId",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_listingId',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_quantity",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '_quantity',
+                type: 'uint256',
+            },
         ],
-        "name": "buy",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'buy',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "contractURI",
-        "outputs": [
+        inputs: [],
+        name: 'contractURI',
+        outputs: [
             {
-                "internalType": "string",
-                "name": "",
-                "type": "string"
-            }
+                internalType: 'string',
+                name: '',
+                type: 'string',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "getAllListings",
-        "outputs": [
+        inputs: [],
+        name: 'getAllListings',
+        outputs: [
             {
-                "components": [
+                components: [
                     {
-                        "internalType": "uint256",
-                        "name": "listingId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'listingId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'seller',
+                        type: 'address',
                     },
                     {
-                        "internalType": "address",
-                        "name": "assetContract",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'assetContract',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokenId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'quantity',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "currency",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'currency',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "pricePerToken",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'pricePerToken',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleStart",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleStart',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleEnd",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleEnd',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokensPerBuyer",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokensPerBuyer',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "enum Market.TokenType",
-                        "name": "tokenType",
-                        "type": "uint8"
-                    }
+                        internalType: 'enum Market.TokenType',
+                        name: 'tokenType',
+                        type: 'uint8',
+                    },
                 ],
-                "internalType": "struct Market.Listing[]",
-                "name": "allListings",
-                "type": "tuple[]"
-            }
+                internalType: 'struct Market.Listing[]',
+                name: 'allListings',
+                type: 'tuple[]',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "_listingId",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '_listingId',
+                type: 'uint256',
+            },
         ],
-        "name": "getListing",
-        "outputs": [
+        name: 'getListing',
+        outputs: [
             {
-                "components": [
+                components: [
                     {
-                        "internalType": "uint256",
-                        "name": "listingId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'listingId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'seller',
+                        type: 'address',
                     },
                     {
-                        "internalType": "address",
-                        "name": "assetContract",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'assetContract',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokenId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'quantity',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "currency",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'currency',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "pricePerToken",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'pricePerToken',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleStart",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleStart',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleEnd",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleEnd',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokensPerBuyer",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokensPerBuyer',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "enum Market.TokenType",
-                        "name": "tokenType",
-                        "type": "uint8"
-                    }
+                        internalType: 'enum Market.TokenType',
+                        name: 'tokenType',
+                        type: 'uint8',
+                    },
                 ],
-                "internalType": "struct Market.Listing",
-                "name": "listing",
-                "type": "tuple"
-            }
+                internalType: 'struct Market.Listing',
+                name: 'listing',
+                type: 'tuple',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "_assetContract",
-                "type": "address"
+                internalType: 'address',
+                name: '_assetContract',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "_tokenId",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '_tokenId',
+                type: 'uint256',
+            },
         ],
-        "name": "getListingsByAsset",
-        "outputs": [
+        name: 'getListingsByAsset',
+        outputs: [
             {
-                "components": [
+                components: [
                     {
-                        "internalType": "uint256",
-                        "name": "listingId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'listingId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'seller',
+                        type: 'address',
                     },
                     {
-                        "internalType": "address",
-                        "name": "assetContract",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'assetContract',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokenId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'quantity',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "currency",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'currency',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "pricePerToken",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'pricePerToken',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleStart",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleStart',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleEnd",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleEnd',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokensPerBuyer",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokensPerBuyer',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "enum Market.TokenType",
-                        "name": "tokenType",
-                        "type": "uint8"
-                    }
+                        internalType: 'enum Market.TokenType',
+                        name: 'tokenType',
+                        type: 'uint8',
+                    },
                 ],
-                "internalType": "struct Market.Listing[]",
-                "name": "tokenListings",
-                "type": "tuple[]"
-            }
+                internalType: 'struct Market.Listing[]',
+                name: 'tokenListings',
+                type: 'tuple[]',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "_assetContract",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: '_assetContract',
+                type: 'address',
+            },
         ],
-        "name": "getListingsByAssetContract",
-        "outputs": [
+        name: 'getListingsByAssetContract',
+        outputs: [
             {
-                "components": [
+                components: [
                     {
-                        "internalType": "uint256",
-                        "name": "listingId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'listingId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'seller',
+                        type: 'address',
                     },
                     {
-                        "internalType": "address",
-                        "name": "assetContract",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'assetContract',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokenId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'quantity',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "currency",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'currency',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "pricePerToken",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'pricePerToken',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleStart",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleStart',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleEnd",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleEnd',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokensPerBuyer",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokensPerBuyer',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "enum Market.TokenType",
-                        "name": "tokenType",
-                        "type": "uint8"
-                    }
+                        internalType: 'enum Market.TokenType',
+                        name: 'tokenType',
+                        type: 'uint8',
+                    },
                 ],
-                "internalType": "struct Market.Listing[]",
-                "name": "tokenListings",
-                "type": "tuple[]"
-            }
+                internalType: 'struct Market.Listing[]',
+                name: 'tokenListings',
+                type: 'tuple[]',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "_seller",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: '_seller',
+                type: 'address',
+            },
         ],
-        "name": "getListingsBySeller",
-        "outputs": [
+        name: 'getListingsBySeller',
+        outputs: [
             {
-                "components": [
+                components: [
                     {
-                        "internalType": "uint256",
-                        "name": "listingId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'listingId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "seller",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'seller',
+                        type: 'address',
                     },
                     {
-                        "internalType": "address",
-                        "name": "assetContract",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'assetContract',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokenId",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokenId',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "quantity",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'quantity',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "address",
-                        "name": "currency",
-                        "type": "address"
+                        internalType: 'address',
+                        name: 'currency',
+                        type: 'address',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "pricePerToken",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'pricePerToken',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleStart",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleStart',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "saleEnd",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'saleEnd',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "uint256",
-                        "name": "tokensPerBuyer",
-                        "type": "uint256"
+                        internalType: 'uint256',
+                        name: 'tokensPerBuyer',
+                        type: 'uint256',
                     },
                     {
-                        "internalType": "enum Market.TokenType",
-                        "name": "tokenType",
-                        "type": "uint8"
-                    }
+                        internalType: 'enum Market.TokenType',
+                        name: 'tokenType',
+                        type: 'uint8',
+                    },
                 ],
-                "internalType": "struct Market.Listing[]",
-                "name": "sellerListings",
-                "type": "tuple[]"
-            }
+                internalType: 'struct Market.Listing[]',
+                name: 'sellerListings',
+                type: 'tuple[]',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
-            }
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
+            },
         ],
-        "name": "getRoleAdmin",
-        "outputs": [
+        name: 'getRoleAdmin',
+        outputs: [
             {
-                "internalType": "bytes32",
-                "name": "",
-                "type": "bytes32"
-            }
+                internalType: 'bytes32',
+                name: '',
+                type: 'bytes32',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
             },
             {
-                "internalType": "uint256",
-                "name": "index",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: 'index',
+                type: 'uint256',
+            },
         ],
-        "name": "getRoleMember",
-        "outputs": [
+        name: 'getRoleMember',
+        outputs: [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: '',
+                type: 'address',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
-            }
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
+            },
         ],
-        "name": "getRoleMemberCount",
-        "outputs": [
+        name: 'getRoleMemberCount',
+        outputs: [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
             },
             {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
         ],
-        "name": "grantRole",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'grantRole',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
             },
             {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
         ],
-        "name": "hasRole",
-        "outputs": [
+        name: 'hasRole',
+        outputs: [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "forwarder",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: 'forwarder',
+                type: 'address',
+            },
         ],
-        "name": "isTrustedForwarder",
-        "outputs": [
+        name: 'isTrustedForwarder',
+        outputs: [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "_assetContract",
-                "type": "address"
+                internalType: 'address',
+                name: '_assetContract',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "_tokenId",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_tokenId',
+                type: 'uint256',
             },
             {
-                "internalType": "address",
-                "name": "_currency",
-                "type": "address"
+                internalType: 'address',
+                name: '_currency',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "_pricePerToken",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_pricePerToken',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_quantity",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_quantity',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_tokensPerBuyer",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_tokensPerBuyer',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_secondsUntilStart",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_secondsUntilStart',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_secondsUntilEnd",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '_secondsUntilEnd',
+                type: 'uint256',
+            },
         ],
-        "name": "list",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'list',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
         ],
-        "name": "listings",
-        "outputs": [
+        name: 'listings',
+        outputs: [
             {
-                "internalType": "uint256",
-                "name": "listingId",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: 'listingId',
+                type: 'uint256',
             },
             {
-                "internalType": "address",
-                "name": "seller",
-                "type": "address"
+                internalType: 'address',
+                name: 'seller',
+                type: 'address',
             },
             {
-                "internalType": "address",
-                "name": "assetContract",
-                "type": "address"
+                internalType: 'address',
+                name: 'assetContract',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "tokenId",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: 'tokenId',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "quantity",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: 'quantity',
+                type: 'uint256',
             },
             {
-                "internalType": "address",
-                "name": "currency",
-                "type": "address"
+                internalType: 'address',
+                name: 'currency',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "pricePerToken",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: 'pricePerToken',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "saleStart",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: 'saleStart',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "saleEnd",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: 'saleEnd',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "tokensPerBuyer",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: 'tokensPerBuyer',
+                type: 'uint256',
             },
             {
-                "internalType": "enum Market.TokenType",
-                "name": "tokenType",
-                "type": "uint8"
-            }
+                internalType: 'enum Market.TokenType',
+                name: 'tokenType',
+                type: 'uint8',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "marketFeeBps",
-        "outputs": [
+        inputs: [],
+        name: 'marketFeeBps',
+        outputs: [
             {
-                "internalType": "uint128",
-                "name": "",
-                "type": "uint128"
-            }
+                internalType: 'uint128',
+                name: '',
+                type: 'uint128',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes[]",
-                "name": "data",
-                "type": "bytes[]"
-            }
+                internalType: 'bytes[]',
+                name: 'data',
+                type: 'bytes[]',
+            },
         ],
-        "name": "multicall",
-        "outputs": [
+        name: 'multicall',
+        outputs: [
             {
-                "internalType": "bytes[]",
-                "name": "results",
-                "type": "bytes[]"
-            }
+                internalType: 'bytes[]',
+                name: 'results',
+                type: 'bytes[]',
+            },
         ],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                internalType: 'address',
+                name: '',
+                type: 'address',
             },
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                internalType: 'address',
+                name: '',
+                type: 'address',
             },
             {
-                "internalType": "uint256[]",
-                "name": "",
-                "type": "uint256[]"
+                internalType: 'uint256[]',
+                name: '',
+                type: 'uint256[]',
             },
             {
-                "internalType": "uint256[]",
-                "name": "",
-                "type": "uint256[]"
+                internalType: 'uint256[]',
+                name: '',
+                type: 'uint256[]',
             },
             {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
+                internalType: 'bytes',
+                name: '',
+                type: 'bytes',
+            },
         ],
-        "name": "onERC1155BatchReceived",
-        "outputs": [
+        name: 'onERC1155BatchReceived',
+        outputs: [
             {
-                "internalType": "bytes4",
-                "name": "",
-                "type": "bytes4"
-            }
+                internalType: 'bytes4',
+                name: '',
+                type: 'bytes4',
+            },
         ],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                internalType: 'address',
+                name: '',
+                type: 'address',
             },
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                internalType: 'address',
+                name: '',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
             },
             {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
+                internalType: 'bytes',
+                name: '',
+                type: 'bytes',
+            },
         ],
-        "name": "onERC1155Received",
-        "outputs": [
+        name: 'onERC1155Received',
+        outputs: [
             {
-                "internalType": "bytes4",
-                "name": "",
-                "type": "bytes4"
-            }
+                internalType: 'bytes4',
+                name: '',
+                type: 'bytes4',
+            },
         ],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                internalType: 'address',
+                name: '',
+                type: 'address',
             },
             {
-                "internalType": "address",
-                "name": "",
-                "type": "address"
+                internalType: 'address',
+                name: '',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
             },
             {
-                "internalType": "bytes",
-                "name": "",
-                "type": "bytes"
-            }
+                internalType: 'bytes',
+                name: '',
+                type: 'bytes',
+            },
         ],
-        "name": "onERC721Received",
-        "outputs": [
+        name: 'onERC721Received',
+        outputs: [
             {
-                "internalType": "bytes4",
-                "name": "",
-                "type": "bytes4"
-            }
+                internalType: 'bytes4',
+                name: '',
+                type: 'bytes4',
+            },
         ],
-        "stateMutability": "pure",
-        "type": "function"
+        stateMutability: 'pure',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "paused",
-        "outputs": [
+        inputs: [],
+        name: 'paused',
+        outputs: [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
             },
             {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
         ],
-        "name": "renounceRole",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'renounceRole',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "restrictedListerRoleOnly",
-        "outputs": [
+        inputs: [],
+        name: 'restrictedListerRoleOnly',
+        outputs: [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes32",
-                "name": "role",
-                "type": "bytes32"
+                internalType: 'bytes32',
+                name: 'role',
+                type: 'bytes32',
             },
             {
-                "internalType": "address",
-                "name": "account",
-                "type": "address"
-            }
+                internalType: 'address',
+                name: 'account',
+                type: 'address',
+            },
         ],
-        "name": "revokeRole",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'revokeRole',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "string",
-                "name": "_URI",
-                "type": "string"
-            }
+                internalType: 'string',
+                name: '_URI',
+                type: 'string',
+            },
         ],
-        "name": "setContractURI",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'setContractURI',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint128",
-                "name": "feeBps",
-                "type": "uint128"
-            }
+                internalType: 'uint128',
+                name: 'feeBps',
+                type: 'uint128',
+            },
         ],
-        "name": "setMarketFeeBps",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'setMarketFeeBps',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bool",
-                "name": "restricted",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: 'restricted',
+                type: 'bool',
+            },
         ],
-        "name": "setRestrictedListerRoleOnly",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'setRestrictedListerRoleOnly',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "bytes4",
-                "name": "interfaceId",
-                "type": "bytes4"
-            }
+                internalType: 'bytes4',
+                name: 'interfaceId',
+                type: 'bytes4',
+            },
         ],
-        "name": "supportsInterface",
-        "outputs": [
+        name: 'supportsInterface',
+        outputs: [
             {
-                "internalType": "bool",
-                "name": "",
-                "type": "bool"
-            }
+                internalType: 'bool',
+                name: '',
+                type: 'bool',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [],
-        "name": "totalListings",
-        "outputs": [
+        inputs: [],
+        name: 'totalListings',
+        outputs: [
             {
-                "internalType": "uint256",
-                "name": "",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '',
+                type: 'uint256',
+            },
         ],
-        "stateMutability": "view",
-        "type": "function"
+        stateMutability: 'view',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "_listingId",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_listingId',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_quantity",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '_quantity',
+                type: 'uint256',
+            },
         ],
-        "name": "unlist",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
+        name: 'unlist',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
     },
     {
-        "inputs": [
+        inputs: [
             {
-                "internalType": "uint256",
-                "name": "_listingId",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_listingId',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_pricePerToken",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_pricePerToken',
+                type: 'uint256',
             },
             {
-                "internalType": "address",
-                "name": "_currency",
-                "type": "address"
+                internalType: 'address',
+                name: '_currency',
+                type: 'address',
             },
             {
-                "internalType": "uint256",
-                "name": "_tokensPerBuyer",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_tokensPerBuyer',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_secondsUntilStart",
-                "type": "uint256"
+                internalType: 'uint256',
+                name: '_secondsUntilStart',
+                type: 'uint256',
             },
             {
-                "internalType": "uint256",
-                "name": "_secondsUntilEnd",
-                "type": "uint256"
-            }
+                internalType: 'uint256',
+                name: '_secondsUntilEnd',
+                type: 'uint256',
+            },
         ],
-        "name": "updateListingParams",
-        "outputs": [],
-        "stateMutability": "nonpayable",
-        "type": "function"
-    }
-]
+        name: 'updateListingParams',
+        outputs: [],
+        stateMutability: 'nonpayable',
+        type: 'function',
+    },
+];

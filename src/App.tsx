@@ -10,7 +10,7 @@ import Marketplace from 'views/Admin/components/NFT/Marketplace';
 import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 import Admin from 'views/Admin/Admin';
 import Web3 from 'web3';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import AdminRoute from 'components/AdminRoute';
 import HeaderMenu from 'components/HeaderMenu';
 const { Footer } = Layout;
@@ -32,9 +32,11 @@ const App = () => {
 
     const [web3, setWeb3] = useState();
 
+    console.log('xxxxxxxxxxxxx', marketplaceAddress);
+
     const isAdmin = (account: string) => {
-        return account && isAuthenticated && AdminAddress && AdminAddress.toUpperCase() === account.toUpperCase()
-    }
+        return account && isAuthenticated && AdminAddress && AdminAddress.toUpperCase() === account.toUpperCase();
+    };
 
     useEffect(() => {
         if (provider) {
@@ -50,11 +52,9 @@ const App = () => {
                     <HeaderMenu isAdmin={isAdmin} />
                     <div style={styles.content}>
                         <Switch>
-                            {isAdmin(account) &&
-                                <AdminRoute path="/admin">
-                                    <Admin/>
-                                </AdminRoute>
-                            }
+                            <AdminRoute path="/admin">
+                                <Admin />
+                            </AdminRoute>
                             {hasMarketplace && (
                                 <Route path="/NFTBalance">
                                     <NFTBalance
@@ -68,28 +68,26 @@ const App = () => {
                             )}
                             {hasMarketplace && (
                                 <Route path="/user">
-                                    <UserDashboard address={account} web3={web3} admin={AdminAddress} marketplace={marketplaceAddress} />
+                                    <UserDashboard address={account} admin={AdminAddress} marketplace={marketplaceAddress} />
                                 </Route>
                             )}
                             <Route path="/NFTMarketPlace">
-                                {(!hasMarketplace && !canSetProject && web3 && isAuthenticated) && (
+                                {!hasMarketplace && !canSetProject && web3 && isAuthenticated && (
                                     <div>
                                         <p style={{ fontWeight: 600 }}>Marketplace coming soon ...</p>
                                         <p style={{ fontWeight: 200 }}> If you are the owner switch your account in metamask</p>
                                     </div>
                                 )}
-                                {(!isAuthenticated && !web3 && !provider) && (
+                                {!isAuthenticated && !web3 && !provider && (
                                     <div>
                                         <p style={{ fontWeight: 600 }}>This App needs web3 connectivity</p>
                                         <p style={{ fontWeight: 200 }}>Connect your wallet</p>
                                     </div>
                                 )}
-                                {hasMarketplace && <Marketplace web3={web3} address={marketplaceAddress} />}
+                                {hasMarketplace && <Marketplace address={marketplaceAddress} />}
                             </Route>
-                            {
-                                isAdmin(account) && <Redirect from="/" to={"/admin"} />
-                            }
-                            <Redirect from="/" to={"/NFTMarketplace"} />
+                            {isAdmin(account) && <Redirect from="/" to={'/admin'} />}
+                            <Redirect from="/" to={'/NFTMarketplace'} />
                         </Switch>
                     </div>
                 </Router>
