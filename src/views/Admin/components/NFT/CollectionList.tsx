@@ -76,14 +76,6 @@ export const CollectionList: React.FC = (props: RouteComponentProps<{ address: s
                             theme={'outline'}
                             isFullWidth
                             onClick={() => {
-                                console.log('Transfer');
-                            }}
-                            text={'Transfer'}
-                        />
-                        <Button
-                            theme={'outline'}
-                            isFullWidth
-                            onClick={() => {
                                 setNftToList({
                                     token_address: result.token_address,
                                     token_id: result.token_id,
@@ -124,6 +116,7 @@ export const CollectionList: React.FC = (props: RouteComponentProps<{ address: s
                     ]}
                     currentLocation="current"
                     style={{ marginBottom: '24px' }}
+                    separator={"/"}
                 />
 
                 <div style={{ position: 'absolute', right: 0, top: 0 }}>

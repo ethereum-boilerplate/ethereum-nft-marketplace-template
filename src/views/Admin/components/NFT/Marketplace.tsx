@@ -13,9 +13,9 @@ interface IMarketplace {
     ownListings?: boolean;
     admin?: any;
 }
-const Marketplace: React.FC<IMarketplace> = ({ address, ownListings = false, admin }) => {
+const Marketplace: React.FC<IMarketplace> = ({ address= window.location.pathname.split('marketplace/')[1], ownListings = false, admin }) => {
     const { account, Moralis } = useMoralis();
-    const { allListings, buy, unlist, loadingListings } = useMarketplace(address);
+    const { allListings, buy, unlist, loadingListings, setLoadingListings, getListingsByUser } = useMarketplace(address);
     const { token } = useMoralisWeb3Api();
     const { chainId } = useChain();
     const [tableData, setTableData] = useState([]);
@@ -28,102 +28,21 @@ const Marketplace: React.FC<IMarketplace> = ({ address, ownListings = false, adm
                 return value.quantity > 0;
             });
             if (canBeBoughtList.length === 0) return;
-            canBeBoughtList.forEach((nft) => {
-                token
-                    .getTokenIdMetadata({
-                        ['chain' as any]: chainId,
-                        address: nft.assetContract,
-                        token_id: nft.tokenId,
-                    })
-                    .then((metadataResult) => {
-                        console.log('trigger');
-                        const metadata = JSON.parse(metadataResult.metadata);
-                        console.log('trigger 2');
-                        token
-                            .getTokenMetadata({
-                                addresses: [nft.currency],
-                                ['chain' as any]: chainId,
-                            })
-                            .then((tokenResult) => {
-                                // @ts-ignore
-                                const row = [
-                                    <div style={{ display: 'grid', alignItems: 'center', width: '100%', height: '100%' }}>
-                                        <span style={{ color: '#041836', fontSize: '16px' }}>{nft.tokenId}</span>
-                                    </div>,
-                                    <div
-                                        style={{
-                                            display: 'grid',
-                                            alignItems: 'center',
-                                            width: '100%',
-                                            height: '100%',
-                                            borderRadius: '15px',
-                                            marginTop: '-5px',
-                                        }}
-                                    >
-                                        <Image src={metadata.image ? metadata.image : ''} width={80} height={80} alt={''} />
-                                    </div>,
-                                    <div style={{ display: 'grid', alignItems: 'center', width: '100%', height: '100%' }}>
-                                        <span style={{ color: '#041836', fontSize: '16px' }}>
-                                            {metadata.name ? metadata.name : metadataResult.name ? metadataResult.name : ''}
-                                        </span>
-                                    </div>,
-                                    <div style={{ display: 'grid', alignItems: 'center', width: '100%', height: '100%' }}>
-                                        <LinkTo
-                                            text={getEllipsisTxt(nft.seller, 4)}
-                                            address={`${getExplorer(chainId)}address/${nft.seller}`}
-                                            type="external"
-                                        />
-                                    </div>,
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '5px', width: '100%', height: '100%' }}>
-                                        <Image
-                                            width={25}
-                                            height={25}
-                                            src={tokenResult[0].logo || 'https://ropsten.etherscan.io/images/main/empty-token.png'}
-                                            alt={''}
-                                        />
-                                        <span style={{ color: '#041836', textAlign: 'center', fontSize: '16px' }}>{`${Moralis.Units.FromWei(
-                                            nft.pricePerToken,
-                                            Number(tokenResult[0].decimals)
-                                        )} ${tokenResult[0].symbol}`}</span>
-                                    </div>,
-                                    <div
-                                        style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'space-between',
-                                            width: '100%',
-                                            height: '100%',
-                                        }}
-                                    >
-                                        <Button
-                                            isLoading={isBuying}
-                                            isFullWidth
-                                            text={'Buy'}
-                                            theme={'outline'}
-                                            onClick={() => {
-                                                setIsBuying(true);
-                                                buy(nft.listingId, '1', nft.currency, nft.pricePerToken, account, setIsBuying);
-                                            }}
-                                        />
-                                        {(account.toLowerCase() === nft.seller.toLowerCase() ||
-                                            (admin && account.toLowerCase() === admin.toLowerCase())) && (
-                                            <Button
-                                                icon={'bin'}
-                                                iconLayout={'icon-only'}
-                                                theme={'outline'}
-                                                onClick={() => unlist(nft.listingId, '1', account)}
-                                            />
-                                        )}
-                                    </div>,
-                                ];
-                                setTableData((prevState) => (prevState.length === 0 ? [row] : [...prevState, row]));
-                            });
-                    })
-                    .catch((e) => {
-                        console.log(e);
-                        return;
+            setLoadingListings(true)
+            if(!ownListings) {
+                canBeBoughtList.forEach((nft, index) => {
+                    onForEach(canBeBoughtList, nft, index)
+                });
+            } else {
+                getListingsByUser(account).then((list) => {
+                    const hasQuantity = list.filter((value) => {
+                        return value.quantity > 0;
                     });
-            });
+                    hasQuantity.forEach((nft, index) => {
+                        onForEach(hasQuantity, nft, index)
+                    })
+                })
+            }
 
             /*printTable().then();*/
         }
@@ -133,49 +52,177 @@ const Marketplace: React.FC<IMarketplace> = ({ address, ownListings = false, adm
         // eslint-disable-next-line
     }, [allListings]);
 
+    const onForEach = (canBeBoughtList, nft, index) => {
+        token
+            .getTokenIdMetadata({
+                ['chain' as any]: chainId,
+                address: nft.assetContract,
+                token_id: nft.tokenId,
+            })
+            .then((metadataResult) => {
+                console.log('trigger');
+                const metadata = JSON.parse(metadataResult.metadata);
+                console.log('trigger 2');
+                token
+                    .getTokenMetadata({
+                        addresses: [nft.currency],
+                        ['chain' as any]: chainId,
+                    })
+                    .then((tokenResult) => {
+                        // @ts-ignore
+                        const row = [
+                            <div style={{
+                                display: 'grid',
+                                alignItems: 'center',
+                                width: '100%',
+                                height: '100%'
+                            }}>
+                                <span style={{color: '#041836', fontSize: '16px'}}>{nft.tokenId}</span>
+                            </div>,
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    height: '100%',
+                                    borderRadius: '15px',
+                                    marginTop: '-5px',
+                                }}
+                            >
+                                <Image src={metadata.image ? metadata.image : ''} width={80} height={80}
+                                       alt={''}/>
+                            </div>,
+                            <div style={{
+                                display: 'grid',
+                                alignItems: 'center',
+                                width: '100%',
+                                height: '100%'
+                            }}>
+                                        <span style={{color: '#041836', fontSize: '16px'}}>
+                                            {metadata.name ? metadata.name : metadataResult.name ? metadataResult.name : ''}
+                                        </span>
+                            </div>,
+                            <div style={{
+                                display: 'grid',
+                                alignItems: 'center',
+                                width: '100%',
+                                height: '100%'
+                            }}>
+                                <LinkTo
+                                    text={getEllipsisTxt(nft.seller, 4)}
+                                    address={`${getExplorer(chainId)}address/${nft.seller}`}
+                                    type="external"
+                                />
+                            </div>,
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '5px',
+                                width: '100%',
+                                height: '100%'
+                            }}>
+                                <Image
+                                    width={25}
+                                    height={25}
+                                    src={tokenResult[0].logo || 'https://ropsten.etherscan.io/images/main/empty-token.png'}
+                                    alt={''}
+                                />
+                                <span style={{
+                                    color: '#041836',
+                                    textAlign: 'center',
+                                    fontSize: '16px'
+                                }}>{`${Moralis.Units.FromWei(
+                                    nft.pricePerToken,
+                                    Number(tokenResult[0].decimals)
+                                )} ${tokenResult[0].symbol}`}</span>
+                            </div>,
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
+                                <Button
+                                    isLoading={isBuying}
+                                    isFullWidth
+                                    text={'Buy'}
+                                    theme={'outline'}
+                                    onClick={() => {
+                                        setIsBuying(true);
+                                        buy(nft.listingId, '1', nft.currency, nft.pricePerToken, account, setIsBuying);
+                                    }}
+                                />
+                                {(account.toLowerCase() === nft.seller.toLowerCase() ||
+                                    (admin && account.toLowerCase() === admin.toLowerCase())) && (
+                                    <Button
+                                        icon={'bin'}
+                                        iconLayout={'icon-only'}
+                                        theme={'outline'}
+                                        onClick={() => unlist(nft.listingId, '1', account)}
+                                    />
+                                )}
+                            </div>,
+                        ];
+                        setTableData((prevState) => (prevState.length === 0 ? [row] : [...prevState, row]));
+                        if (index === canBeBoughtList.length - 1) {
+                            setLoadingListings(false)
+                        }
+                    });
+            })
+            .catch((e) => {
+                console.log(e);
+                return;
+            });
+    }
+
     return (
-        <Flex maxWidth="900px" width="100%">
-            <Table
-                columnsConfig="50px 80px 2fr 0.75fr 1fr 1fr"
-                data={tableData}
-                header={[
-                    <div style={{ ...columnNameStyle, marginLeft: '20px' }}>
-                        <span>#</span>
-                    </div>,
-                    <div style={columnNameStyle}>
-                        <span>Image</span>
-                    </div>,
-                    <div style={columnNameStyle}>
-                        <span>Name</span>
-                    </div>,
-                    <div style={columnNameStyle}>
-                        <span>Seller</span>
-                    </div>,
-                    <div style={columnNameStyle}>
-                        <span>Price</span>
-                    </div>,
-                    <div style={columnNameStyle}>
-                        <span>Actions</span>
-                    </div>,
-                ]}
-                maxPages={3}
-                onPageNumberChanged={function noRefCheck() {}}
-                pageSize={5}
-                customNoDataComponent={
-                    (loadingListings) ? (
-                        <div>
-                            <Illustration logo={"servers"} />
-                            <p>Loading ...</p>
-                        </div>
-                    ) : (
-                        <div>
-                            <Illustration logo={"lazyNft"} />
-                            <p>No NFTs listed</p>
-                        </div>
-                    )
-                }
-            />
-        </Flex>
+            <Flex maxWidth="900px" width="100%">
+                <p style={{fontSize: "24px", fontWeight: "600", alignItems: "start"}}>{ ownListings ? "Your Listings" : "Explore Market"}</p>
+                <p style={{marginBottom: "30px"}}>{`${loadingListings ? "loading ..." : `${tableData.length} item${tableData.length > 1 ? 's' : ''} listed`}`}</p>
+                <Table
+                    columnsConfig="50px 80px 2fr 0.75fr 1fr 1fr"
+                    data={tableData}
+                    header={[
+                        <div style={{ ...columnNameStyle, marginLeft: '20px' }}>
+                            <span>#</span>
+                        </div>,
+                        <div style={columnNameStyle}>
+                            <span>Image</span>
+                        </div>,
+                        <div style={columnNameStyle}>
+                            <span>Name</span>
+                        </div>,
+                        <div style={columnNameStyle}>
+                            <span>Seller</span>
+                        </div>,
+                        <div style={columnNameStyle}>
+                            <span>Price</span>
+                        </div>,
+                        <div style={columnNameStyle}>
+                            <span>Actions</span>
+                        </div>,
+                    ]}
+                    maxPages={3}
+                    onPageNumberChanged={function noRefCheck() {}}
+                    pageSize={5}
+                    customNoDataComponent={
+                        (loadingListings) ? (
+                            <div>
+                                <Illustration logo={"servers"} />
+                                <p>Loading ...</p>
+                            </div>
+                        ) : (
+                            <div>
+                                <Illustration logo={"lazyNft"} />
+                                <p>No NFTs listed</p>
+                            </div>
+                        )
+                    }
+                />
+            </Flex>
     );
 };
 

@@ -10,10 +10,9 @@ import {getEllipsisTxt} from "../../../helpers/formatters";
 
 interface IToken {
      address?: string;
-     web3: any
 }
 
-const Token: React.FC<IToken> = ({ address, web3 }) => {
+const Token: React.FC<IToken> = ({ address = window.location.pathname.split('erc20token/')[1] }) => {
     const [ amountToMint, setAmountToMint ] = useState(false)
     const [ addressToSend, setAddressToSend ] = useState(null)
     const { Moralis, account, } = useMoralis()
@@ -26,7 +25,7 @@ const Token: React.FC<IToken> = ({ address, web3 }) => {
         chain: chainId
     }, { autoFetch: true});
 
-    const { decimals, loading, symbol, totalSupply, mint, addToMetamask} = useToken(web3, address, account)
+    const { decimals, loading, symbol, totalSupply, mint, addToMetamask } = useToken(address)
 
     return (
 
@@ -51,7 +50,7 @@ const Token: React.FC<IToken> = ({ address, web3 }) => {
                         </div>
                         <div style={{display: 'flex', justifyContent: "space-between", gap: "2%"}}>
                             <Information topic={"Total Supply"} information={totalSupply ? Moralis.Units.FromWei(totalSupply) : "0"}/>
-                            <Information topic={"Owned By You"} information={data && data[0] ? Moralis.Units.FromWei(data[0].balance): "..."}/>
+                            <Information topic={"Owned By You"} information={data && data[0] ? Moralis.Units.FromWei(data[0].balance): "0"}/>
                             <Information topic={"Decimals"} information={decimals}/>
                         </div>
                     </Tab>

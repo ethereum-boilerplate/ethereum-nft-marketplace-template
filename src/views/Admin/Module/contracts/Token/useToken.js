@@ -1,10 +1,9 @@
 import { useState, useEffect } from "react"
 import { tokenAbi } from "../../../Forms/Factory/token"
-import Moralis from "moralis"
+import { useMoralis } from "react-moralis";
+import Web3 from "web3"
 
-
-export const useToken = (web3, address, signer) => {
-    const contract = new web3.eth.Contract(tokenAbi, address)
+export const useToken = (address) => {
     const [ name, setName ] = useState(null)
     const [ symbol, setSymbol ] = useState(null)
     const [ totalSupply, setTotalSupply ] = useState(null)
@@ -13,6 +12,17 @@ export const useToken = (web3, address, signer) => {
     const [ isMinting, setMinting ] = useState(false)
     const [ mintingSuccess, setMintingSuccess ] = useState();
     const [ error, setError ] = useState(null)
+    const [ web3, setWeb3 ] = useState();
+    const { provider, Moralis, account } = useMoralis()
+    const [ contract, setContract ] = useState(null);
+
+
+
+    useEffect(() => {
+        if(provider) {
+            setWeb3(new Web3(provider))
+        }
+    }, [provider])
 
     useEffect( () => {
         console.log(name, symbol, totalSupply, decimals)
@@ -23,19 +33,27 @@ export const useToken = (web3, address, signer) => {
 
     useEffect(() => {
         if(web3 && address) {
-            getTokenName()
-            getTokenSymbol()
-            getTokenDecimals()
-            getTotalSupply()
+            let contractTemp = new web3.eth.Contract(tokenAbi, address)
+            setContract(contractTemp)
         }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [web3, address])
 
+    useEffect(() => {
+        if(contract) {
+            getTokenName()
+            getTokenSymbol()
+            getTokenDecimals()
+            getTotalSupply()
+        }
+        // eslint-disable-next-line
+    }, [contract])
+
     const mint = async (to, amount) => {
         setMinting(true)
         let formattedAmount =  Moralis.Units.ETH(amount)
-        await contract.methods.mint(to,formattedAmount).send({from: signer})
+        await contract.methods.mint(to,formattedAmount).send({from: account})
         .on('receipt', () => {
             setMintingSuccess(true)
             setMinting(false)

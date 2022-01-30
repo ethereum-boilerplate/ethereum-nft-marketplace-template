@@ -44,6 +44,7 @@ const useRegistry = () => {
 
             getForwarder()
         }
+        // eslint-disable-next-line
     }, [isAuthenticated, isWeb3Enabled])
 
     useEffect(() => {
