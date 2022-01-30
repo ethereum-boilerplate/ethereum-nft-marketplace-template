@@ -112,6 +112,21 @@ const marketplaceInterface = () => {
         "type": "function"
     }
 
+    const contractUriAbi = {
+        "inputs": [],
+        "name": '_contractURI',
+        "outputs": [
+            {
+                "internalType": 'string',
+                "name": '',
+                "type": 'string',
+            },
+        ],
+        "stateMutability": 'view',
+        "type": 'function'
+    }
+
+
     const listNftAbi = 	{
             "inputs": [
                 {
@@ -182,6 +197,7 @@ const marketplaceInterface = () => {
 
     return {
         buyAbi,
+        contractUriAbi,
         getAllListingsAbi,
         getListingsByUserAbi,
         listNftAbi,

@@ -23,23 +23,8 @@ const useRegistry = () => {
     const { chainId } = useChain()
     const [ projectChain, setProjectChain ] = useState<typeof chainId>()
 
-
     useEffect(() => {
-        if(data) {
-            if(data.length === 0 ) {
-                setCanSetProject(true)
-                setHasProject(false)
-                return
-            }
-            console.log(`Project Admin = ${data[0].get('admin')}`)
-            console.log(`Project Metadata = ${data[0].get('uri')}`)
-            console.log(`Project Address = ${data[0].get('protocol')}`)
-            console.log(`Project Chain = ${data[0].get('chain')}`)
-            setProjectChain(data[0].get('chain'))
-            setHasProject(true)
-            setCanSetProject(false)
-            setProtocolAdmin(data[0].get('admin'))
-            setProtocolAddress(data[0].get('protocol'))
+        if(isAuthenticated && isWeb3Enabled) {
             const getForwarder = () => {
                 fetchForwarder({
                     params: {
@@ -49,11 +34,31 @@ const useRegistry = () => {
                         contractAddress: RegistryAddress,
                         functionName: "forwarder",
                     },
-                    onSuccess: results => setForwarder(results),
+                    onSuccess: results => {
+                        setForwarder(results)
+                        setLoading(false)
+                    },
                     onError: error => console.log(error)
                 }).then(() => {}).catch(() => setLoading(false))
             }
+
             getForwarder()
+        }
+    }, [isAuthenticated, isWeb3Enabled])
+
+    useEffect(() => {
+        if(data) {
+            if(data.length === 0 ) {
+                setCanSetProject(true)
+                setHasProject(false)
+                setLoading(false)
+                return
+            }
+            setProjectChain(data[0].get('chain'))
+            setHasProject(true)
+            setCanSetProject(false)
+            setProtocolAdmin(data[0].get('admin'))
+            setProtocolAddress(data[0].get('protocol'))
         }
         // eslint-disable-next-line
     }, [ data ])
@@ -64,6 +69,7 @@ const useRegistry = () => {
      * @param uri link to metadata of the project
      */
     const deployProtocol = (uri: string) => {
+        setLoading(true)
         deployFetch({
             params: {
                 abi: [

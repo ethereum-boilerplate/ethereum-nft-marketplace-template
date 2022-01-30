@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { useMarketplace } from '../../Module/contracts/NFT/useMarketplace';
-import { Button, LinkTo, Table } from 'web3uikit';
+import {Button, Illustration, LinkTo, Table} from 'web3uikit';
 import { useChain, useMoralis, useMoralisWeb3Api } from 'react-moralis';
 import { getEllipsisTxt } from '../../../../helpers/formatters';
 import { getExplorer } from '../../../../helpers/networks';
@@ -9,31 +9,25 @@ import { Image } from 'antd';
 import { Flex } from 'uikit/Flex/Flex';
 
 interface IMarketplace {
-    address?: string;
-    web3?: any;
+    address: string;
     ownListings?: boolean;
     admin?: any;
 }
 const Marketplace: React.FC<IMarketplace> = ({ address, ownListings = false, admin }) => {
     const { account, Moralis } = useMoralis();
-    const { allListings, buy, unlist } = useMarketplace(address, account);
+    const { allListings, buy, unlist, loadingListings } = useMarketplace(address);
     const { token } = useMoralisWeb3Api();
     const { chainId } = useChain();
     const [tableData, setTableData] = useState([]);
-    const [isEmpty, setEmpty] = useState<boolean>(false);
     const [isBuying, setIsBuying] = useState<boolean>(false);
 
     useEffect(() => {
         if (allListings) {
             if (allListings.length === 0) return;
-            console.log(ownListings);
             const canBeBoughtList = allListings.filter((value) => {
                 return value.quantity > 0;
             });
-            if (canBeBoughtList.length === 0) {
-                setEmpty(true);
-                return;
-            }
+            if (canBeBoughtList.length === 0) return;
             canBeBoughtList.forEach((nft) => {
                 token
                     .getTokenIdMetadata({
@@ -102,7 +96,7 @@ const Marketplace: React.FC<IMarketplace> = ({ address, ownListings = false, adm
                                         }}
                                     >
                                         <Button
-                                            isLoading={isBuying ? true : false}
+                                            isLoading={isBuying}
                                             isFullWidth
                                             text={'Buy'}
                                             theme={'outline'}
@@ -167,7 +161,19 @@ const Marketplace: React.FC<IMarketplace> = ({ address, ownListings = false, adm
                 maxPages={3}
                 onPageNumberChanged={function noRefCheck() {}}
                 pageSize={5}
-                customNoDataText={!isEmpty ? 'Loading ...' : 'No Items listed yet'}
+                customNoDataComponent={
+                    (loadingListings) ? (
+                        <div>
+                            <Illustration logo={"servers"} />
+                            <p>Loading ...</p>
+                        </div>
+                    ) : (
+                        <div>
+                            <Illustration logo={"lazyNft"} />
+                            <p>No NFTs listed</p>
+                        </div>
+                    )
+                }
             />
         </Flex>
     );

@@ -107,7 +107,6 @@ const useProtocol = () => {
                     }
                     setMarketplaceAddress(results);
                     setHasMarketplace(true);
-                    console.log(`found marketplace at ${results}`);
                     return;
                 } else {
                     /**

@@ -14,12 +14,16 @@ const Application = () => {
   const isServerInfo = !!(APP_ID && SERVER_URL);
   if (isServerInfo)
     return (
-      <MoralisProvider children={<App />} appId={APP_ID} serverUrl={SERVER_URL} />
+      <MoralisProvider
+          children={<App />}
+          appId={APP_ID} serverUrl={SERVER_URL}
+          initializeOnMount={true}
+      />
     );
   else {
     return (
       <div style={{ display: "flex", justifyContent: "center" }}>
-        Coming soon ...
+        Rename .env.example to .env and inject server url and app id
       </div>
     );
   }

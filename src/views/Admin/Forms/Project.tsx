@@ -9,7 +9,7 @@ const ProjectForm: React.FC = () => {
     const { saveFile } = useMoralisFile();
     const { deployProtocol, isLoading, deployErr } = useRegistry();
 
-    const deploy = (name: string, description: string, masterKey: string) => {
+    const deploy = (name: string, description: string) => {
         let metadata = {
             name: name,
             description: description,
@@ -24,12 +24,12 @@ const ProjectForm: React.FC = () => {
             }
         ).then((e) => {
             const hash = (e as any)['_hash'];
-            deployProtocol(`ipfs://${hash}`, masterKey);
+            deployProtocol(`ipfs://${hash}`);
         });
     };
     
     return (
-        <div style={{ width: '70vw' }}>
+        <div>
             <div style={{ position: 'absolute', top: 70, right: 1 }}>
                 <Notification isVisible={deployErr} message={deployErr ? deployErr.message : ''} title={'Error'} />
             </div>
@@ -59,19 +59,10 @@ const ProjectForm: React.FC = () => {
                         validation: {
                             required: true,
                         },
-                    },
-                    {
-                        name: 'Moralis MasterKey',
-                        type: 'password',
-                        value: '',
-                        inputWidth: '100%',
-                        validation: {
-                            required: true,
-                        },
-                    },
+                    }
                 ]}
                 onSubmit={(e) => {
-                    deploy(e.data[0].inputResult, e.data[1].inputResult, e.data[2].inputResult);
+                    deploy(e.data[0].inputResult, e.data[1].inputResult);
                 }}
                 title="Deploy Project"
                 id={'id'}

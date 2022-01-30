@@ -27,14 +27,12 @@ const styles = {
 };
 const App = () => {
     const { account, provider, isAuthenticated } = useMoralis();
-    const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress } = useProtocol();
+    const { marketplaceAddress, hasMarketplace, canSetProject, AdminAddress, isFetching } = useProtocol();
     const { chainId } = useChain();
 
     const [web3, setWeb3] = useState();
 
-    console.log('xxxxxxxxxxxxx', marketplaceAddress);
-
-    const isAdmin = (account: string) => {
+    const isAdmin = (account: string): boolean => {
         return account && isAuthenticated && AdminAddress && AdminAddress.toUpperCase() === account.toUpperCase();
     };
 
@@ -84,7 +82,8 @@ const App = () => {
                                         <p style={{ fontWeight: 200 }}>Connect your wallet</p>
                                     </div>
                                 )}
-                                {hasMarketplace && <Marketplace address={marketplaceAddress} />}
+                                {hasMarketplace && marketplaceAddress && web3 && <Marketplace address={marketplaceAddress} />}
+                                {canSetProject && !isFetching  && isAuthenticated && web3 && <Redirect to={'/admin'} />}
                             </Route>
                             {isAdmin(account) && <Redirect from="/" to={'/admin'} />}
                             <Redirect from="/" to={'/NFTMarketplace'} />
