@@ -1,16 +1,26 @@
 import { useEffect, useState } from 'react';
-import {useNewMoralisObject, useWeb3ExecuteFunction} from 'react-moralis';
+import { useNewMoralisObject, useWeb3ExecuteFunction } from 'react-moralis';
 import protocolInterface from './interface';
 import useRegistry from '../Registry/useRegistry';
 import { useHistory } from 'react-router-dom';
-import { types } from "../../../../../helpers/modules";
+import { types } from '../../../../../helpers/modules';
 
 const useProtocol = () => {
-    const [marketplaceAddress, setMarketplaceAddress] = useState({});
+    const [marketplaceAddress, setMarketplaceAddress] = useState('');
     const [hasMarketplace, setHasMarketplace] = useState<boolean>(false);
-    const { protocolAddress, forwarder, canSetProject, isLoading, protocolAdmin: AdminAddress, projectChain, isFetchingProject: isFetching, isWeb3Enabled, isAuthenticated } = useRegistry();
+    const {
+        protocolAddress,
+        forwarder,
+        canSetProject,
+        isLoading,
+        protocolAdmin: AdminAddress,
+        projectChain,
+        isFetchingProject: isFetching,
+        isWeb3Enabled,
+        isAuthenticated,
+    } = useRegistry();
     const { fetch: fetchAddModule } = useWeb3ExecuteFunction();
-    const { save } = useNewMoralisObject("InstalledModules")
+    const { save } = useNewMoralisObject('InstalledModules');
     const { data: dataModuleById, fetch: fetchModuleById } = useWeb3ExecuteFunction();
     const { data: dataWithdrawFunds, fetch: fetchWithdrawFunds } = useWeb3ExecuteFunction();
     const { data: dataHasAdminRole, fetch: fetchHasAdminRole } = useWeb3ExecuteFunction();
@@ -54,13 +64,16 @@ const useProtocol = () => {
             },
             onSuccess: (tx) => {
                 console.log('tx', tx);
-                if(!isTryingAgain) save({module: moduleAddress, type: types[moduleType], uri, name});
-                (tx as any).wait().then(() => {
-                    setIsAddingModule(false);
-                    history.push('/admin');
-                }).catch(() => {
-                    addModule(moduleType,moduleAddress, uri, name, true)
-                });
+                if (!isTryingAgain) save({ module: moduleAddress, type: types[moduleType], uri, name });
+                (tx as any)
+                    .wait()
+                    .then(() => {
+                        setIsAddingModule(false);
+                        history.push('/admin');
+                    })
+                    .catch(() => {
+                        addModule(moduleType, moduleAddress, uri, name, true);
+                    });
             },
             onError: () => setIsAddingModule(false),
         });
@@ -99,7 +112,7 @@ const useProtocol = () => {
                 },
             },
             onError: (error) => console.log(`error on getting module by id ${error}`),
-            onSuccess: (results) => {
+            onSuccess: (results: any) => {
                 if (moduleId === '0x54cdd369e4e8a8515e52ca72ec816c2101831ad1f18bf44102ed171459c9b4f8') {
                     if (results === '0x0000000000000000000000000000000000000000') {
                         console.log('no marketplace found');
@@ -140,12 +153,12 @@ const useProtocol = () => {
             onSuccess: (tx) => {
                 setIsWithdrawing(true);
                 (tx as any).wait().then(() => {
-                    setIsWithdrawing(false)
-                })
+                    setIsWithdrawing(false);
+                });
             },
             onError: (error) => {
-                setIsWithdrawing(false)
-                console.log(error)
+                setIsWithdrawing(false);
+                console.log(error);
             },
         })
             .then(() => {})

@@ -7,23 +7,22 @@ import { getEllipsisTxt } from '../../../../helpers/formatters';
 import { getExplorer } from '../../../../helpers/networks';
 import { Image } from 'antd';
 import { Flex } from 'uikit/Flex/Flex';
-import { RouteComponentProps } from 'react-router';
+import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 
-interface IMarketplace extends RouteComponentProps {
+interface IMarketplace {
     ownListings?: boolean;
     admin?: any;
 }
 
-const Marketplace: React.FC<IMarketplace> = ({ match, ownListings = false, admin }) => {
+const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => {
     const { account, Moralis } = useMoralis();
     const { token } = useMoralisWeb3Api();
     const { chainId } = useChain();
     const [tableData, setTableData] = useState([]);
     const [isBuying, setIsBuying] = useState<boolean>(false);
-    const address = match?.params;
 
-    const { allListings, buy, unlist, loadingListings, setLoadingListings, getListingsByUser } = useMarketplace(address);
-
+    const { allListings, buy, unlist, loadingListings, setLoadingListings, getListingsByUser } = useMarketplace();
+    console.log('allListings', allListings);
     useEffect(() => {
         if (allListings) {
             if (allListings.length === 0) return;
