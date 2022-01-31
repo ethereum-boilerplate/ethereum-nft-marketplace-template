@@ -7,7 +7,6 @@ import { getEllipsisTxt } from '../../../../helpers/formatters';
 import { getExplorer } from '../../../../helpers/networks';
 import { Image } from 'antd';
 import { Flex } from 'uikit/Flex/Flex';
-import useProtocol from 'views/Admin/Module/contracts/Protocol/useProtocol';
 
 interface IMarketplace {
     ownListings?: boolean;
@@ -22,7 +21,6 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
     const [isBuying, setIsBuying] = useState<boolean>(false);
 
     const { allListings, buy, unlist, loadingListings, setLoadingListings, getListingsByUser } = useMarketplace();
-    console.log('allListings', allListings);
     useEffect(() => {
         if (allListings) {
             if (allListings.length === 0) return;
