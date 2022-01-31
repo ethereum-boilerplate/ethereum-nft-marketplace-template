@@ -20,9 +20,8 @@ const Marketplace: React.FC<IMarketplace> = ({ match, ownListings = false, admin
     const { chainId } = useChain();
     const [tableData, setTableData] = useState([]);
     const [isBuying, setIsBuying] = useState<boolean>(false);
-    const {
-        params: { address },
-    } = match;
+    const address = match?.params;
+
     const { allListings, buy, unlist, loadingListings, setLoadingListings, getListingsByUser } = useMarketplace(address);
 
     useEffect(() => {

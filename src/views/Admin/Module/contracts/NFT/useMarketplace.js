@@ -32,21 +32,21 @@ export const useMarketplace = (marketplaceAddress) => {
     // DONE
     const getAllListings = async () => {
         console.log('marketplaceAddress', marketplaceAddress);
-        const contract = await new web3.eth.Contract([getAllListingsAbi], marketplaceAddress);
+        const contract = await new web3.eth.Contract([getAllListingsAbi], marketplaceAddress.address);
         return await contract.methods.getAllListings().call();
     };
     /*
      * done
      */
     const getListingsByUser = async (user) => {
-        const contract = await new web3.eth.Contract([getListingsByUserAbi], marketplaceAddress);
+        const contract = await new web3.eth.Contract([getListingsByUserAbi], marketplaceAddress.address);
         const listings = await contract.methods.getListingsBySeller(user).call();
         setLoadingListings(false);
         return listings
     };
 
     const getContractURI = async () => {
-        const contract = await new web3.eth.Contract([contractUriAbi], marketplaceAddress);
+        const contract = await new web3.eth.Contract([contractUriAbi], marketplaceAddress.address);
         return await contract.methods._contractURI().call();
 
     };
@@ -89,7 +89,7 @@ export const useMarketplace = (marketplaceAddress) => {
     ) => {
         toggleIsListing(true);
         if (tokensPerBuyer === 0) tokensPerBuyer = quantity;
-        const contract = await new web3.eth.Contract([listNftAbi], marketplaceAddress);
+        const contract = await new web3.eth.Contract([listNftAbi], marketplaceAddress.address);
         console.log(assetContract, marketplaceAddress, tokenId, currency, signer);
         const run = async () => {
             if (!(await hasApproved(assetContract, signer))) {
@@ -119,7 +119,7 @@ export const useMarketplace = (marketplaceAddress) => {
 
     const unlist = async (listingId, amount, currentUser) => {
         setIsUnlisting(true);
-        const contract = await new web3.eth.Contract([unlistAbi], marketplaceAddress);
+        const contract = await new web3.eth.Contract([unlistAbi], marketplaceAddress.address);
         await contract.methods
             .unlist(listingId, amount)
             .send({ from: currentUser })
@@ -144,7 +144,7 @@ export const useMarketplace = (marketplaceAddress) => {
                     await erc20Token.methods.approve(marketplaceAddress, pricePerToken).send({ from: signer })
                 }
             }
-            const contract = await new web3.eth.Contract([buyAbi], marketplaceAddress);
+            const contract = await new web3.eth.Contract([buyAbi], marketplaceAddress.address);
             await contract.methods
                 .buy(listingId, quantity)
                 .send({ from: signer })
