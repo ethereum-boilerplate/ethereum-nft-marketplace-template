@@ -1,25 +1,29 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { useMarketplace } from '../../Module/contracts/NFT/useMarketplace';
-import {Button, Illustration, LinkTo, Table} from 'web3uikit';
+import { Button, Illustration, LinkTo, Table } from 'web3uikit';
 import { useChain, useMoralis, useMoralisWeb3Api } from 'react-moralis';
 import { getEllipsisTxt } from '../../../../helpers/formatters';
 import { getExplorer } from '../../../../helpers/networks';
 import { Image } from 'antd';
 import { Flex } from 'uikit/Flex/Flex';
+import { RouteComponentProps } from 'react-router';
 
-interface IMarketplace {
-    address: string;
+interface IMarketplace extends RouteComponentProps {
     ownListings?: boolean;
     admin?: any;
 }
-const Marketplace: React.FC<IMarketplace> = ({ address= window.location.pathname.split('marketplace/')[1], ownListings = false, admin }) => {
+
+const Marketplace: React.FC<IMarketplace> = ({ match, ownListings = false, admin }) => {
     const { account, Moralis } = useMoralis();
-    const { allListings, buy, unlist, loadingListings, setLoadingListings, getListingsByUser } = useMarketplace(address);
     const { token } = useMoralisWeb3Api();
     const { chainId } = useChain();
     const [tableData, setTableData] = useState([]);
     const [isBuying, setIsBuying] = useState<boolean>(false);
+    const {
+        params: { address },
+    } = match;
+    const { allListings, buy, unlist, loadingListings, setLoadingListings, getListingsByUser } = useMarketplace(address);
 
     useEffect(() => {
         if (allListings) {
@@ -28,10 +32,10 @@ const Marketplace: React.FC<IMarketplace> = ({ address= window.location.pathname
                 return value.quantity > 0;
             });
             if (canBeBoughtList.length === 0) return;
-            setLoadingListings(true)
-            if(!ownListings) {
+            setLoadingListings(true);
+            if (!ownListings) {
                 canBeBoughtList.forEach((nft, index) => {
-                    onForEach(canBeBoughtList, nft, index)
+                    onForEach(canBeBoughtList, nft, index);
                 });
             } else {
                 getListingsByUser(account).then((list) => {
@@ -39,9 +43,9 @@ const Marketplace: React.FC<IMarketplace> = ({ address= window.location.pathname
                         return value.quantity > 0;
                     });
                     hasQuantity.forEach((nft, index) => {
-                        onForEach(hasQuantity, nft, index)
-                    })
-                })
+                        onForEach(hasQuantity, nft, index);
+                    });
+                });
             }
 
             /*printTable().then();*/
@@ -71,13 +75,15 @@ const Marketplace: React.FC<IMarketplace> = ({ address= window.location.pathname
                     .then((tokenResult) => {
                         // @ts-ignore
                         const row = [
-                            <div style={{
-                                display: 'grid',
-                                alignItems: 'center',
-                                width: '100%',
-                                height: '100%'
-                            }}>
-                                <span style={{color: '#041836', fontSize: '16px'}}>{nft.tokenId}</span>
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
+                                <span style={{ color: '#041836', fontSize: '16px' }}>{nft.tokenId}</span>
                             </div>,
                             <div
                                 style={{
@@ -89,52 +95,58 @@ const Marketplace: React.FC<IMarketplace> = ({ address= window.location.pathname
                                     marginTop: '-5px',
                                 }}
                             >
-                                <Image src={metadata.image ? metadata.image : ''} width={80} height={80}
-                                       alt={''}/>
+                                <Image src={metadata.image ? metadata.image : ''} width={80} height={80} alt={''} />
                             </div>,
-                            <div style={{
-                                display: 'grid',
-                                alignItems: 'center',
-                                width: '100%',
-                                height: '100%'
-                            }}>
-                                        <span style={{color: '#041836', fontSize: '16px'}}>
-                                            {metadata.name ? metadata.name : metadataResult.name ? metadataResult.name : ''}
-                                        </span>
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
+                                <span style={{ color: '#041836', fontSize: '16px' }}>
+                                    {metadata.name ? metadata.name : metadataResult.name ? metadataResult.name : ''}
+                                </span>
                             </div>,
-                            <div style={{
-                                display: 'grid',
-                                alignItems: 'center',
-                                width: '100%',
-                                height: '100%'
-                            }}>
+                            <div
+                                style={{
+                                    display: 'grid',
+                                    alignItems: 'center',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
                                 <LinkTo
                                     text={getEllipsisTxt(nft.seller, 4)}
                                     address={`${getExplorer(chainId)}address/${nft.seller}`}
                                     type="external"
                                 />
                             </div>,
-                            <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '5px',
-                                width: '100%',
-                                height: '100%'
-                            }}>
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '5px',
+                                    width: '100%',
+                                    height: '100%',
+                                }}
+                            >
                                 <Image
                                     width={25}
                                     height={25}
                                     src={tokenResult[0].logo || 'https://ropsten.etherscan.io/images/main/empty-token.png'}
                                     alt={''}
                                 />
-                                <span style={{
-                                    color: '#041836',
-                                    textAlign: 'center',
-                                    fontSize: '16px'
-                                }}>{`${Moralis.Units.FromWei(
-                                    nft.pricePerToken,
-                                    Number(tokenResult[0].decimals)
-                                )} ${tokenResult[0].symbol}`}</span>
+                                <span
+                                    style={{
+                                        color: '#041836',
+                                        textAlign: 'center',
+                                        fontSize: '16px',
+                                    }}
+                                >{`${Moralis.Units.FromWei(nft.pricePerToken, Number(tokenResult[0].decimals))} ${
+                                    tokenResult[0].symbol
+                                }`}</span>
                             </div>,
                             <div
                                 style={{
@@ -168,7 +180,7 @@ const Marketplace: React.FC<IMarketplace> = ({ address= window.location.pathname
                         ];
                         setTableData((prevState) => (prevState.length === 0 ? [row] : [...prevState, row]));
                         if (index === canBeBoughtList.length - 1) {
-                            setLoadingListings(false)
+                            setLoadingListings(false);
                         }
                     });
             })
@@ -176,53 +188,55 @@ const Marketplace: React.FC<IMarketplace> = ({ address= window.location.pathname
                 console.log(e);
                 return;
             });
-    }
+    };
 
     return (
-            <Flex maxWidth="900px" width="100%">
-                <p style={{fontSize: "24px", fontWeight: "600", alignItems: "start"}}>{ ownListings ? "Your Listings" : "Explore Market"}</p>
-                <p style={{marginBottom: "30px"}}>{`${loadingListings ? "loading ..." : `${tableData.length} item${tableData.length > 1 ? 's' : ''} listed`}`}</p>
-                <Table
-                    columnsConfig="50px 80px 2fr 0.75fr 1fr 1fr"
-                    data={tableData}
-                    header={[
-                        <div style={{ ...columnNameStyle, marginLeft: '20px' }}>
-                            <span>#</span>
-                        </div>,
-                        <div style={columnNameStyle}>
-                            <span>Image</span>
-                        </div>,
-                        <div style={columnNameStyle}>
-                            <span>Name</span>
-                        </div>,
-                        <div style={columnNameStyle}>
-                            <span>Seller</span>
-                        </div>,
-                        <div style={columnNameStyle}>
-                            <span>Price</span>
-                        </div>,
-                        <div style={columnNameStyle}>
-                            <span>Actions</span>
-                        </div>,
-                    ]}
-                    maxPages={3}
-                    onPageNumberChanged={function noRefCheck() {}}
-                    pageSize={5}
-                    customNoDataComponent={
-                        (loadingListings) ? (
-                            <div>
-                                <Illustration logo={"servers"} />
-                                <p>Loading ...</p>
-                            </div>
-                        ) : (
-                            <div>
-                                <Illustration logo={"lazyNft"} />
-                                <p>No NFTs listed</p>
-                            </div>
-                        )
-                    }
-                />
-            </Flex>
+        <Flex maxWidth="900px" width="100%">
+            <p style={{ fontSize: '24px', fontWeight: '600', alignItems: 'start' }}>{ownListings ? 'Your Listings' : 'Explore Market'}</p>
+            <p style={{ marginBottom: '30px' }}>{`${
+                loadingListings ? 'loading ...' : `${tableData.length} item${tableData.length > 1 ? 's' : ''} listed`
+            }`}</p>
+            <Table
+                columnsConfig="50px 80px 2fr 0.75fr 1fr 1fr"
+                data={tableData}
+                header={[
+                    <div style={{ ...columnNameStyle, marginLeft: '20px' }}>
+                        <span>#</span>
+                    </div>,
+                    <div style={columnNameStyle}>
+                        <span>Image</span>
+                    </div>,
+                    <div style={columnNameStyle}>
+                        <span>Name</span>
+                    </div>,
+                    <div style={columnNameStyle}>
+                        <span>Seller</span>
+                    </div>,
+                    <div style={columnNameStyle}>
+                        <span>Price</span>
+                    </div>,
+                    <div style={columnNameStyle}>
+                        <span>Actions</span>
+                    </div>,
+                ]}
+                maxPages={3}
+                onPageNumberChanged={function noRefCheck() {}}
+                pageSize={5}
+                customNoDataComponent={
+                    loadingListings ? (
+                        <div>
+                            <Illustration logo={'servers'} />
+                            <p>Loading ...</p>
+                        </div>
+                    ) : (
+                        <div>
+                            <Illustration logo={'lazyNft'} />
+                            <p>No NFTs listed</p>
+                        </div>
+                    )
+                }
+            />
+        </Flex>
     );
 };
 
