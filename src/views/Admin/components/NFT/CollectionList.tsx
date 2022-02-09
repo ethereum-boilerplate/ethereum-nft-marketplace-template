@@ -2,7 +2,7 @@
 import { useChain, useMoralisWeb3Api, useMoralisWeb3ApiCall } from 'react-moralis';
 import { Image } from 'antd';
 import React, { useEffect, useState } from 'react';
-import { Table, Button, Illustration, Breadcrumbs } from 'web3uikit';
+import {Table, Button, Illustration, Breadcrumbs, iconTypes} from 'web3uikit';
 import NFTMinterForm from '../../Forms/NFTMinter';
 import useProtocol from '../../Module/contracts/Protocol/useProtocol';
 import NFTLister from '../../Forms/NFTLister';
@@ -120,7 +120,7 @@ export const CollectionList: React.FC = (props: RouteComponentProps<{ address: s
                 />
 
                 <div style={{ position: 'absolute', right: 0, top: 0 }}>
-                    <Button theme={'primary'} text={'Mint NFT'} icon={'plus'} iconLayout={'leading'} onClick={() => setShowMinter(true)} />
+                    <Button theme={'primary'} text={'Mint NFT'} icon={iconTypes.plus} iconLayout={'leading'} onClick={() => setShowMinter(true)} />
                 </div>
             </HeaderStyled>
             {!showMinter && (
@@ -154,7 +154,7 @@ export const CollectionList: React.FC = (props: RouteComponentProps<{ address: s
                                 <Button
                                     theme={'primary'}
                                     text={'Mint First NFT'}
-                                    icon={'plus'}
+                                    icon={iconTypes.plus}
                                     iconLayout={'leading'}
                                     onClick={() => setShowMinter(true)}
                                 />

@@ -18,8 +18,9 @@ const NFTLister: React.FC = ({ nft, marketplaceAddress, modalActive, setModalAct
             isVisible={modalActive}
             okText={'List NFT'}
             title={`List ${nft.metadata ? nft.metadata.name : nft.name} #${nft.token_id} For Sale`}
-            onCancel={() => {
-                setModalActive(false);
+            hasCancel={false}
+            onCloseButtonPressed={() => {
+                setModalActive(false)
             }}
             onOk={() => listNFT(nft.token_address, nft.token_id, currency.toLowerCase(), price, 1, 1, 0, 0, account)}
             isOkDisabled={!price || isListing}

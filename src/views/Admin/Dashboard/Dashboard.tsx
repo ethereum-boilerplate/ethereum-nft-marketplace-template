@@ -4,7 +4,7 @@ import Overview from '../Module/Overview/Overview';
 import { Flex } from 'uikit/Flex/Flex';
 import { useEffect } from 'react';
 import useRegistry from '../Module/contracts/Registry/useRegistry';
-import { Button, TabList } from 'web3uikit';
+import {Button, iconTypes, TabList} from 'web3uikit';
 import ProjectForm from '../Forms/Project';
 import ERC20Balance from '../../../web3Components/ERC20Balance';
 import { Typography } from 'uikit/Typography';
@@ -50,7 +50,7 @@ const Dashboard = ({ web3 }) => {
                 <Typography variant="span">Create, manage, explore</Typography>
             </HeaderStyled>
             <div style={{ position: 'absolute', right: 0 }}>
-                <Button onClick={pushToAdder} text={'Add Module'} theme={'primary'} icon={'plus'} iconLayout={'leading'} />
+                <Button onClick={pushToAdder} text={'Add Module'} theme={'primary'} icon={iconTypes.plus} iconLayout={'leading'} />
             </div>
             <TabList defaultActiveKey={2} tabStyle={'bulbSeperate'}>
                 <Tab tabKey={2} tabName={'Overview'} isDisabled={canSetProject}>

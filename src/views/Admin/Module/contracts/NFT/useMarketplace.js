@@ -1,20 +1,26 @@
 import { useState, useEffect } from 'react';
-import { useMoralis } from 'react-moralis';
+import {useApiContract, useMoralis} from 'react-moralis';
 import marketplaceInterface from './Marketplace/interface';
 import Web3 from 'web3';
 import useProtocol from '../Protocol/useProtocol';
 export const useMarketplace = () => {
+    const { marketplaceAddress } = useProtocol();
     const [confirmed, setConfirmed] = useState(false);
     const [isListing, toggleIsListing] = useState(false);
     const [isUnlisting, setIsUnlisting] = useState(false);
     const [error, setError] = useState(null);
     const [isApproved, setApproved] = useState(false);
-    const [allListings, setAllListings] = useState([]);
     const [loadingListings, setLoadingListings] = useState(true);
     const { buyAbi, contractUriAbi, getAllListingsAbi, getListingsByUserAbi, listNftAbi, unlistAbi } = marketplaceInterface();
     const { provider } = useMoralis();
     const [web3, setWeb3] = useState();
-    const { marketplaceAddress } = useProtocol();
+    const { data: allListings ,runContractFunction } = useApiContract({
+        abi: [ getAllListingsAbi ],
+        address: marketplaceAddress,
+        chain: 'mumbai',
+        functionName: 'getAllListings',
+
+    }, { autoFetch: false });
 
     useEffect(() => {
         if (provider) {
@@ -22,21 +28,18 @@ export const useMarketplace = () => {
         }
     }, [provider]);
 
+
     useEffect(() => {
-        if (web3 && marketplaceAddress) {
-            getAllListings().then((listings) => {
-                setAllListings(listings);
-                setLoadingListings(false);
-            });
+        if (marketplaceAddress) {
+            runContractFunction({
+                 onSuccess: () => {
+                     setLoadingListings(false)
+                 },
+                onError: (error) => console.log(error)
+            })
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [web3, marketplaceAddress]);
-    // DONE
-    const getAllListings = async () => {
-        console.log('marketplaceAddress', marketplaceAddress);
-        const contract = await new web3.eth.Contract([getAllListingsAbi], marketplaceAddress);
-        return await contract.methods.getAllListings().call();
-    };
+    }, [marketplaceAddress]);
     /*
      * done
      */
@@ -159,7 +162,6 @@ export const useMarketplace = () => {
 
     return {
         listNFT,
-        getAllListings,
         getListingsByUser,
         isListing,
         loadingListings,

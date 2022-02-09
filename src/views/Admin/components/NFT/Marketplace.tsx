@@ -1,7 +1,7 @@
 // @ts-nocheck
 import React, { useEffect, useState } from 'react';
 import { useMarketplace } from '../../Module/contracts/NFT/useMarketplace';
-import { Button, Illustration, LinkTo, Table } from 'web3uikit';
+import {Button, iconTypes, Illustration, LinkTo, Table} from 'web3uikit';
 import { useChain, useMoralis, useMoralisWeb3Api } from 'react-moralis';
 import { getEllipsisTxt } from '../../../../helpers/formatters';
 import { getExplorer } from '../../../../helpers/networks';
@@ -25,9 +25,10 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
         if (allListings) {
             if (allListings.length === 0) return;
             const canBeBoughtList = allListings.filter((value) => {
-                return value.quantity > 0;
+                return value[4] > 0;
             });
             if (canBeBoughtList.length === 0) return;
+            console.log(canBeBoughtList)
             setLoadingListings(true);
             if (!ownListings) {
                 canBeBoughtList.forEach((nft, index) => {
@@ -56,8 +57,8 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
         token
             .getTokenIdMetadata({
                 ['chain' as any]: chainId,
-                address: nft.assetContract,
-                token_id: nft.tokenId,
+                address: nft[2],
+                token_id: nft[3],
             })
             .then((metadataResult) => {
                 console.log('trigger');
@@ -65,7 +66,7 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                 console.log('trigger 2');
                 token
                     .getTokenMetadata({
-                        addresses: [nft.currency],
+                        addresses: [nft[5]],
                         ['chain' as any]: chainId,
                     })
                     .then((tokenResult) => {
@@ -79,7 +80,7 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                                     height: '100%',
                                 }}
                             >
-                                <span style={{ color: '#041836', fontSize: '16px' }}>{nft.tokenId}</span>
+                                <span style={{ color: '#041836', fontSize: '16px' }}>{nft[3]}</span>
                             </div>,
                             <div
                                 style={{
@@ -114,8 +115,8 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                                 }}
                             >
                                 <LinkTo
-                                    text={getEllipsisTxt(nft.seller, 4)}
-                                    address={`${getExplorer(chainId)}address/${nft.seller}`}
+                                    text={getEllipsisTxt(nft[1], 4)}
+                                    address={`${getExplorer(chainId)}address/${nft[1]}`}
                                     type="external"
                                 />
                             </div>,
@@ -140,7 +141,7 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                                         textAlign: 'center',
                                         fontSize: '16px',
                                     }}
-                                >{`${Moralis.Units.FromWei(nft.pricePerToken, Number(tokenResult[0].decimals))} ${
+                                >{`${Moralis.Units.FromWei(nft[6], Number(tokenResult[0].decimals))} ${
                                     tokenResult[0].symbol
                                 }`}</span>
                             </div>,
@@ -160,16 +161,16 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                                     theme={'outline'}
                                     onClick={() => {
                                         setIsBuying(true);
-                                        buy(nft.listingId, '1', nft.currency, nft.pricePerToken, account, setIsBuying);
+                                        buy(nft[0], '1', nft[5], nft[6], account, setIsBuying);
                                     }}
                                 />
-                                {(account.toLowerCase() === nft.seller.toLowerCase() ||
+                                {(account.toLowerCase() === nft[1].toLowerCase() ||
                                     (admin && account.toLowerCase() === admin.toLowerCase())) && (
                                     <Button
-                                        icon={'bin'}
+                                        icon={iconTypes.bin}
                                         iconLayout={'icon-only'}
                                         theme={'outline'}
-                                        onClick={() => unlist(nft.listingId, '1', account)}
+                                        onClick={() => unlist(nft[0], '1', account)}
                                     />
                                 )}
                             </div>,

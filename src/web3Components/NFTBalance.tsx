@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Button, Table } from 'web3uikit';
+import {Button, iconTypes, Table} from 'web3uikit';
 import React, { useEffect, useState } from 'react';
 import { useNFTBalances } from 'react-moralis';
 import { Image } from 'antd';
@@ -60,7 +60,7 @@ const NFTBalanceTable: React.FC<NFTBalance> = ({ address, chain, marketplaceAddr
                                 theme={'outline'}
                                 text={'Sell'}
                             />
-                            <Button onClick={() => {}} iconLayout={'icon-only'} icon={'help circle'} theme={'outline'} />
+                            <Button onClick={() => {}} iconLayout={'icon-only'} icon={iconTypes.helpCircle} theme={'outline'} />
                         </div>,
                     ];
                     setTableData(prevState => [...prevState, row])

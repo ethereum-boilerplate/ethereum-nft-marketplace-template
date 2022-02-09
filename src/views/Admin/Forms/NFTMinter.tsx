@@ -55,11 +55,11 @@ const NFTMinterForm: React.FC<INFTMinterForm> = ({ address }) => {
     return (
         <>
             <Notification
-                position={'topR'}
-                isPositionRelative={true}
-                isVisible={mintingError || mintingSuccess}
                 message={mintingError ? mintingError.message : mintingSuccess ? 'Minted!' : ''}
                 title={mintingError ? 'Error' : 'Success'}
+                isPositionRelative={true}
+                position={"topR"}
+                isVisible={mintingError || mintingSuccess}
             />
             <Form
                 id={'form-mint-nft'}
