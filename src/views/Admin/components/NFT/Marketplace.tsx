@@ -44,8 +44,6 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                     });
                 });
             }
-
-            /*printTable().then();*/
         }
         return () => {
             setTableData([]);
@@ -155,7 +153,6 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                                 }}
                             >
                                 <Button
-                                    isLoading={isBuying}
                                     isFullWidth
                                     text={'Buy'}
                                     theme={'outline'}
@@ -163,6 +160,8 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                                         setIsBuying(true);
                                         buy(nft[0], '1', nft[5], nft[6], account, setIsBuying);
                                     }}
+                                    isLoading={isBuying}
+                                    disabled={isBuying}
                                 />
                                 {(account.toLowerCase() === nft[1].toLowerCase() ||
                                     (admin && account.toLowerCase() === admin.toLowerCase())) && (
@@ -217,7 +216,6 @@ const Marketplace: React.FC<IMarketplace> = ({ ownListings = false, admin }) => 
                     </div>,
                 ]}
                 maxPages={3}
-                onPageNumberChanged={function noRefCheck() {}}
                 pageSize={5}
                 customNoDataComponent={
                     loadingListings ? (

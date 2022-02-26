@@ -67,7 +67,7 @@ const Token: React.FC = (props: RouteComponentProps<{ address: string }>) => {
                         />
                     </div>
                 </div>
-                <div style={{ backgroundColor: 'white',  padding: '0.25em', display: 'grid', placeItems: 'center', padding: '1em', gap: '1em' }}>
+                <div style={{ backgroundColor: 'white', display: 'grid', placeItems: 'center', padding: '1em', gap: '1em' }}>
                     <p style={{fontWeight: 600}}>Mint Tokens</p>
                     <Input
                         onChange={(e) => {

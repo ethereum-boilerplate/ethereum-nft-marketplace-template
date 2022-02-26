@@ -49,7 +49,7 @@ const ModuleSelector = () => {
                 // @ts-ignore
                 isDisabled={isComingSoon(module.key)}
                 key={module.key}
-             />
+                />
             ]
         )
     }
@@ -67,7 +67,7 @@ const ModuleSelector = () => {
                             { !isComingSoon(module.key) ? printCard(module) : (
                                 <Tooltip
                                     position={"bottom"}
-                                    text={"Coming Soon 👀"}
+                                    content={"Coming Soon 👀"}
                                     children={printCard(module)}
                                 />
                             ) }
@@ -86,7 +86,7 @@ const ModuleSelector = () => {
                             { !isComingSoon(module.key) ? printCard(module) : (
                                 <Tooltip
                                     position={"top"}
-                                    text={"Coming Soon 👀"}
+                                    content={"Coming Soon 👀"}
                                     children={printCard(module)}
                                 />
                             ) }

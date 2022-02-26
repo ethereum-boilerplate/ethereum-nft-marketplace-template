@@ -32,9 +32,9 @@ export const useMarketplace = () => {
     useEffect(() => {
         if (marketplaceAddress) {
             runContractFunction({
-                 onSuccess: () => {
-                     setLoadingListings(false)
-                 },
+                onSuccess: () => {
+                    setLoadingListings(false)
+                },
                 onError: (error) => console.log(error)
             })
         }
