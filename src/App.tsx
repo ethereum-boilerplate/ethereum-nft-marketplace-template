@@ -1,4 +1,5 @@
 // @ts-nocheck
+// @todo: refactor routes/web3uikit/update moralis
 import { useChain, useMoralis } from 'react-moralis';
 import { BrowserRouter as Router, Switch, Route, Redirect } from 'react-router-dom';
 import NFTBalance from 'web3Components/NFTBalance';
